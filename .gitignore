@@ -1,0 +1,5 @@
+.DS_Store
+node_modules/
+.claude/sesiones/
+reparto/_papelera/*
+!reparto/_papelera/.gitkeep
