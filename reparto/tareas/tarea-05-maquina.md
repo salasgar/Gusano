@@ -87,6 +87,10 @@ ya está cogida; si está libre y estás en verde, sí.
 - Si el oráculo del hexagonal no cuadra y los cuadrados sí, revisa el orden de los
   vecinos hexagonales de la 02 (debe ser indiferente) y el inicio elegido (el centro es
   la casilla con 6 vecinas).
+- (Añadida por la sesión que la cerró.) En los tests, el centro del hexagonal se localiza
+  por coordenadas (grado 6 y `x`, `y` = mitad de la caja de `dibujo`), no por índice:
+  hay otras casillas de grado 6. `perfecto` en 25-30 casillas puede tardar varios
+  segundos (hasta 2 M de estados y luego 3 s de `fuerte`); no lo uses en bucles de tests.
 
 ## Prohibido
 - Tocar el motor o los tableros: si falta algo ahí, incidencia (y propuesta en la
