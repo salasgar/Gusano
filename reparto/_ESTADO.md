@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-20T22:08:39Z · por la sesión s-20261020T220839-0f075d81 (coordinadora, al montar)
+Regenerado: 2026-10-24T23:48:04Z · por la sesión s-20261024T234627-f387245a (tarea 01, al cerrar)
 
 ## Antes de hacer nada
 
@@ -106,10 +106,10 @@ una conversación.
 
 | # | Tarea | Fichero | Precondición | Duración esperada | Banda | Encadenable con | Ficheros que toca | Disparo | Estado | Reclamo vivo (sid · caduca) |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 01 | Esqueleto del proyecto (package.json, licencia, azar.js, prueba) | tareas/tarea-01-esqueleto.md | ninguna (ningún otro reclamo vivo) | 15 min | BAJO | — | `package.json`, `LICENSE`, `index.html`, `css/estilo.css`, `js/util/azar.js`, `tests/azar.test.js`, `README.md` | manual | PENDIENTE | |
-| 02 | Tableros planos: rejillas, caballo, hexagonal, superficies | tareas/tarea-02-tableros-planos.md | 01 LISTA | 40 min | MEDIO | 03 | `js/tableros/tipos.js`, `rejillas.js`, `hexagonal.js`, `index.js`, `tests/tableros.test.js` | manual | BLOQUEADA | |
+| 01 | Esqueleto del proyecto (package.json, licencia, azar.js, prueba) | tareas/tarea-01-esqueleto.md | ninguna (ningún otro reclamo vivo) | 15 min | BAJO | — | `package.json`, `LICENSE`, `index.html`, `css/estilo.css`, `js/util/azar.js`, `tests/azar.test.js`, `README.md` | manual | LISTA | |
+| 02 | Tableros planos: rejillas, caballo, hexagonal, superficies | tareas/tarea-02-tableros-planos.md | 01 LISTA | 40 min | MEDIO | 03 | `js/tableros/tipos.js`, `rejillas.js`, `hexagonal.js`, `index.js`, `tests/tableros.test.js` | manual | PENDIENTE | |
 | 03 | Tableros poliédricos (caras, Schlegel del dual) | tareas/tarea-03-poliedros.md | 02 LISTA y ningún reclamo vivo de la 02 | 45 min | MEDIO | 02 | `js/tableros/poliedros.js`, `js/tableros/index.js` (una línea), `tests/poliedros.test.js` | manual | BLOQUEADA | |
-| 04 | Motor: ronda, partida por pares, marcador | tareas/tarea-04-motor.md | 01 LISTA | 35 min | MEDIO | 05 | `js/motor/ronda.js`, `js/motor/partida.js`, `tests/motor.test.js` | manual | BLOQUEADA | |
+| 04 | Motor: ronda, partida por pares, marcador | tareas/tarea-04-motor.md | 01 LISTA | 35 min | MEDIO | 05 | `js/motor/ronda.js`, `js/motor/partida.js`, `tests/motor.test.js` | manual | PENDIENTE | |
 | 05 | Máquina: niveles, alfa-beta, resolutor exacto | tareas/tarea-05-maquina.md | 02 y 04 LISTAS | 50 min | MEDIO | 04 | `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia.test.js` | manual | BLOQUEADA | |
 | 06 | Vista del tablero en SVG y demo | tareas/tarea-06-vista-tablero.md | 02 y 04 LISTAS | 50 min | MEDIO | — | `js/ui/vista-tablero.js`, `css/vista-tablero.css`, `demo/vista.html`, `demo/vista.js` | manual | BLOQUEADA | |
 | 07 | Aplicación jugable: ajustes, partida, marcador, esbozos | tareas/tarea-07-app-jugable.md | 05 y 06 LISTAS | 75 min | MEDIO | — | `index.html`, `css/estilo.css`, `js/main.js`, `js/ui/app.js`, `ajustes.js`, `ayudas.js`, `js/pantallas/jugar.js`, `reto.js`, `analisis.js`, `editor.js`, `js/compartir/url.js`, `css/reto.css`, `analisis.css`, `editor.css`, `tests/ajustes.test.js` | manual | BLOQUEADA | |
@@ -137,7 +137,7 @@ Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
 
-(vacío todavía)
+LISTA · tarea 01 · 2026-10-24 23:47 · s-20261024T234627-f387245a · 936008e4384d286152dafd9c60418a6fa2317f6e · pass 4 · package.json, LICENSE, index.html, css/estilo.css, js/util/azar.js, tests/azar.test.js, README.md
 
 ## Incidencias de coordinación
 
