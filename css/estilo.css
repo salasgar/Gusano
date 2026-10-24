@@ -1,0 +1,11 @@
+/* Gusano · © 2026 Juan Luis Salas García */
+:root {
+  --fondo: #f9f9f7; --texto: #1a1a1a; --texto-suave: #666; --borde: #d8d8d4; --panel: #ffffff;
+  --acento: #2f6fdb; --gusano: #2f9e5a; --pajaro: #6a5acd; --legal: #f2c94c; --bloqueada: #3c3c3c;
+  --radio: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --fondo: #0d0d0d; --texto: #ececec; --texto-suave: #a0a0a0; --borde: #333; --panel: #181818; --acento: #6b9cff; --bloqueada: #555; }
+}
+html { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--fondo); color: var(--texto); }
+body { margin: 0 auto; padding: 16px; max-width: 960px; }

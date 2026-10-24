@@ -1,0 +1,13 @@
+{
+  "name": "gusano",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Gusano: juego de estrategia para dos jugadores sobre un grafo",
+  "author": "Juan Luis Salas García",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "servir": "python3 -m http.server 8000"
+  }
+}
