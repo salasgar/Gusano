@@ -61,6 +61,12 @@ Sigue «Cierre» de `_COMUN.md`. Encadena la 09 o la 10 si están libres y está
   tildes y emojis): pasa siempre por `TextEncoder`.
 - El `hash` puede traer `#jugar&p=…`: separa por `&` antes de buscar `p=`.
 
+- Si `js/compartir/url.js` figura reservado por la sesión que cerró la 07 (el hook lo
+  retiene 30 min), escribe y prueba en el scratchpad y copia con `Write` al caducar.
+- Los tableros con obstáculos o valores (13, 14) o del editor no se regeneran desde su
+  generador: `url.js` comprueba que `crear(pa)` dé el mismo tablero y, si no, lo manda
+  literal en `t`. Los pares con tableros distintos usan `ts` (propuesta, ver terminada).
+
 ## Prohibido
 - Tocar `jugar.js` o `main.js`: la 07 ya llama a `partidaDesdeURL` y `enlaceDe`; si
   no lo hace como dice §6, reabierta de la 07.
