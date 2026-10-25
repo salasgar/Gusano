@@ -61,7 +61,8 @@ test('validarTablero detecta asimetría, bucles, repetidos y datos mal formados'
 });
 
 test('el registro lista los generadores en orden y generador(id) los encuentra', () => {
-  assert.deepEqual(generadores.map((g) => g.id), ['cuadrado4', 'cuadrado8', 'caballo', 'hexagonal', 'superficie']);
+  // La tarea 03 añade `poliedro` al final.
+  assert.deepEqual(generadores.slice(0, 5).map((g) => g.id), ['cuadrado4', 'cuadrado8', 'caballo', 'hexagonal', 'superficie']);
   assert.equal(generador('hexagonal'), generadores[3]);
   assert.equal(generador('x'), undefined);
 });
@@ -82,9 +83,11 @@ for (const g of generadores) {
   test(`${g.id}: todo el rango de parámetros da tableros válidos`, () => {
     const entero = g.parametros.find((p) => p.tipo === 'entero');
     const opcion = g.parametros.find((p) => p.tipo === 'opcion');
-    for (let n = entero.min; n <= entero.max; n++) {
+    const enteros = entero ? Array.from({ length: entero.max - entero.min + 1 }, (_, k) => entero.min + k) : [undefined];
+    for (const n of enteros) {
       for (const o of opcion ? opcion.opciones : [{ valor: undefined }]) {
-        const params = { [entero.id]: n };
+        const params = {};
+        if (entero) params[entero.id] = n;
         if (opcion) params[opcion.id] = o.valor;
         const t = g.crear(params);
         assert.deepEqual(validarTablero(t), { ok: true }, `${t.id}`);
@@ -95,6 +98,10 @@ for (const g of generadores) {
 
   test(`${g.id}: rechaza parámetros fuera de rango`, () => {
     const entero = g.parametros.find((p) => p.tipo === 'entero');
+    if (!entero) {
+      assert.throws(() => g.crear({ [g.parametros[0].id]: 'no-existe' }), Error);
+      return;
+    }
     assert.throws(() => g.crear({ [entero.id]: entero.max + 1 }), Error);
     assert.throws(() => g.crear({ [entero.id]: entero.min - 1 }), Error);
     assert.throws(() => g.crear({ [entero.id]: 3.5 }), Error);
