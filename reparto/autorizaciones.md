@@ -16,10 +16,10 @@ en una conversación—. Si la línea está vacía, la sesión se para y lo dice
 - Crear un remoto (repositorio en GitHub), hacer `push` o publicar en GitHub Pages.
   Ninguna tarea de este reparto lo hace; si Juan Luis quiere que una sesión lo haga en
   su nombre, firma aquí y lo pide en la conversación.
-  Firma y fecha:
+  Firma y fecha: Juan Luis Salas, 25-10-2026
 
 - Borrar ficheros del repositorio (en vez de moverlos a `reparto/_papelera/`).
-  Firma y fecha:
+  Firma y fecha: Juan Luis Salas, 25-10-2026
 
 ## Condiciones que Juan Luis quiere dejar dichas
 
