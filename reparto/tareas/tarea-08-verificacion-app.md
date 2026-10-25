@@ -81,7 +81,14 @@ tareas (la 16 espera a todas). No encadenes.
   'left'` y `clickCount: 1`; las coordenadas son de la ventana, no del documento.
 - Esperar a que la máquina termine: sondea con `Runtime.evaluate` cada 200 ms una
   condición en el DOM, con tope.
-- Ninguna otra por ahora.
+- `node --test` descubre por su nombre cualquier `test-*.js` del árbol, también `herramientas/test-ui.js`
+  (y la 16 añadirá casos ahí): el fichero se salta a sí mismo si existe `NODE_TEST_CONTEXT`. No quites
+  esa guarda.
+- Al cerrar Chrome hay que esperar a que salga antes de borrar el perfil temporal, o `rmSync` falla con
+  `ENOTEMPTY` (ya lo hace `Cdp.cerrar()`, que es asíncrono: `await cdp.cerrar()`).
+- `Page.navigate` a la misma URL con distinto `#hash` no dispara `load`: `Pagina.ir` se cuelga. Para
+  recargar, cambia la consulta (`?x=1#jugar`).
+- Con otras sesiones activas el arnés tarda hasta cinco veces más (15 s libre, 84 s cargado).
 
 ## Prohibido
 - Arreglar código de la app: esta tarea verifica. Lo que falle va a `reabiertas/`.
