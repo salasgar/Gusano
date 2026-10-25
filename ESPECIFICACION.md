@@ -340,6 +340,15 @@ bloqueada gris oscuro, inalcanzable atenuada (`.inalcanzable`).
     sin haber pulsado «Continuar», **nadie juega**: tampoco la máquina, también en
     máquina contra máquina. El foco va al botón principal de la ventana.
   - El reto del día (§7.2) no cambia: tiene su propia pantalla.
+  - (T18, decidido el 2026-10-25.) Al cerrar una ventana, con su botón o con `Esc`, el
+    foco va a un sitio útil: al botón «Continuar con …» de la zona de botones si está
+    (tras «Ver tablero»), y si no al primer botón de esa zona; nunca se queda en `<body>`.
+  - (T18.) **Contraste**: todo texto de la app y de `reglas.html` llega a 4,5:1 (WCAG AA)
+    contra su fondo, en el tema claro y en el oscuro; incluidos el botón principal, las
+    etiquetas «gusano» / «pájaro», el saldo y los nombres coloreados de las ventanas. Se
+    ajustan los colores del tema oscuro (y, si hace falta, unas variables de texto aparte
+    de `--gusano` / `--pajaro`, que el tablero sigue usando para rellenar), no el claro.
+  - Las casillas siguen sin manejarse con el teclado (decidido el 2026-10-25: se deja así).
 - **Ajustes** (`js/ui/ajustes.js`): generador (desplegable con `generadores`), sus
   parámetros (campos generados a partir de `parametros`), número de pares (1-5, defecto
   1), inicio (azar / libre), jugador A y B: humano o máquina con nivel (`niveles`),
@@ -364,6 +373,12 @@ momento; si el tablero tiene ≤ 30 casillas y `valorExacto` completa, marca en 
 posición la mejor jugada y, cuando la jugada real valía menos, escribe «aquí el gusano
 (o el pájaro) perdió N puntos».
 
+Decidido por Juan Luis el 2026-10-25 (T18): la pantalla **empieza en la jugada 0** y se
+recorre desde el principio (así está y así se queda). Para el pájaro se dice también
+**«perdió»**, nunca «regaló», en la frase de cada jugada y en el resumen («Jugador B
+(pájaro) perdió N puntos»): con el marcador de suma cero (§6), cada punto de más del
+gusano se le resta a él.
+
 ### 7.2 Reto del día (T10)
 
 Número de reto = días transcurridos desde 2026-10-20 (reto 1 ese día). Con
@@ -387,6 +402,14 @@ botón borra la seleccionada; «Grafo aleatorio» (N casillas 5-40, probabilidad
 se repite hasta que sea conexo); «Rejilla» como punto de partida (desde cualquier
 generador); «Exportar» descarga el JSON del tablero y «Importar» lo lee
 (`validarTablero`); «Jugar con este tablero» → `irA('jugar', { tablero })`.
+
+Retoques decididos el 2026-10-25 (T18): si «Importar» falla, el aviso dice solo lo que le
+pasa al **archivo** (no es JSON, o la lista de `validarTablero`), sin mezclarlo con los
+avisos del tablero del lienzo («No conexo…», «Hacen falta al menos 4 casillas…»), que
+mientras tanto no se muestran porque el lienzo no ha cambiado. La ayuda del editor explica
+que la selección se encadena: tras conectar dos casillas queda seleccionada la segunda, y
+una casilla recién creada queda seleccionada; para empezar de cero, se pulsa otra vez
+la casilla seleccionada, que se deselecciona (pulsar un hueco crea una casilla).
 
 ### 7.4 Compartir por URL (T12)
 
@@ -422,6 +445,7 @@ casillas o nombres de 40 caracteres.
   pulsando los botones de las ventanas); una partida máquina-máquina que termina sola
   (pulsando «Empezar» y «Continuar con …»); y a
   375 px de ancho no hay desplazamiento horizontal. Termina con «TODO OK» y código 0.
+  Desde T19, un contraste por debajo de 4,5 en el modo oscuro es fallo, no aviso.
 
 ## 9. Decisiones tomadas al montar (para que Juan Luis las revise)
 

@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-25T21:22Z (cierre de la 16) · por la sesión s-20261025T211108-e4b343b8 (recalculadas todas las filas: 01-17 LISTAS)
+Regenerado: 2026-10-25 (alta de 18 y 19) · por la coordinadora s-20261025T073409-9564e458 (recalculadas todas las filas: 01-17 LISTAS, 18 LIBRE, 19 BLOQUEADA por la 18)
 
 ## Antes de hacer nada
 
@@ -123,6 +123,8 @@ una conversación.
 | 15 | Página de reglas y README | tareas/tarea-15-reglas-y-readme.md | 07 LISTA | 30 min | MEDIO | — | `reglas.html`, `css/reglas.css`, `README.md` | manual | LISTA (50e4914) | |
 | 16 | Verificación final de la tanda | tareas/tarea-16-verificacion-final.md | 08-15 y 17 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/16-verificacion-final/` | manual | LISTA (978c7d0) | |
 | 17 | Marcador de suma cero, ventanas de papeles y fin de ronda, retoques de la 08 | tareas/tarea-17-ventanas-y-retoques.md | 01-15 LISTAS y ningún reclamo vivo de la 16 | 40 min | MEDIO | — | `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `tests/textos-partida.test.js`, `css/estilo.css`, `js/ui/app.js`, `js/ui/ajustes.js`, `index.html`, `reglas.html`, `README.md`, `herramientas/test-ui.js` | manual | LISTA (fc27fd5) | |
+| 18 | Retoques de la verificación final: contraste, foco, editor y análisis | tareas/tarea-18-retoques-verificacion.md | 16 y 17 LISTAS | 15 min | MEDIO | 19 (después de esta) | `css/estilo.css`, `css/analisis.css` (bloque oscuro), `js/pantallas/jugar.js` (foco), `js/pantallas/editor.js`, `js/pantallas/analisis.js` (textos), `tests/editor.test.js` (opcional) | manual | PENDIENTE (libre) | |
+| 19 | Investigar el fallo intermitente del arnés y endurecerlo con lo de la 18 | tareas/tarea-19-arnes-intermitente.md | 18 LISTA | 20 min | MEDIO | 18 (detrás de ella) | `herramientas/test-ui.js`; `jugar.js` o `editor.js` solo si la causa está ahí; `reparto/salidas/19-arnes-intermitente/` | manual | BLOQUEADA (espera a la 18) | |
 
 Bandas hoy (de `proyecto.md`, comprobado el 2026-10-19 por Juan Luis): ALTO = Opus 5.5,
 esfuerzo Alto · MEDIO = Sonnet 5.5, esfuerzo Medio · BAJO = Haiku 5.5, esfuerzo Medio.
@@ -131,7 +133,7 @@ Reserva «ALTO (Fable 5.1, esfuerzo Alto)» para montar, recortar o coordinar.
 Paralelismo (cruzando «Ficheros que toca»): tras la 01, dos sesiones (02+03 y 04+05);
 cuando 02 y 04 estén LISTAS, también la 06; la 07 va sola; tras la 07, hasta siete a la
 vez (08, 09, 10, 11, 12, 13 y 15; la 14 detrás de la 13); la 16 al final, sola.
-Hoy: la tanda está cerrada (01-17 LISTAS); no queda ninguna tarea libre ni reabierta.
+Hoy: una sola sesión, con la cadena 18 → 19 (la 19 depende de la 18 y comparte con ella `jugar.js` y `editor.js` si la causa está ahí).
 
 ## Registro de finalizaciones
 
