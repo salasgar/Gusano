@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-25T10:25Z (cierre de la 17) · por la sesión s-20261025T101834-a5ce285e (recalculadas todas las filas: 01-15 y 17 LISTAS, 16 PENDIENTE)
+Regenerado: 2026-10-25T21:22Z (cierre de la 16) · por la sesión s-20261025T211108-e4b343b8 (recalculadas todas las filas: 01-17 LISTAS)
 
 ## Antes de hacer nada
 
@@ -121,7 +121,7 @@ una conversación.
 | 13 | Obstáculos | tareas/tarea-13-obstaculos.md | 07 LISTA y ningún reclamo vivo de la 14 | 25 min | MEDIO | 14 | `js/tableros/obstaculos.js`, `js/ui/ajustes.js`, `tests/obstaculos.test.js` | manual | LISTA (db43c79) | |
 | 14 | Casillas con valor | tareas/tarea-14-casillas-con-valor.md | 13 LISTA | 40 min | MEDIO | 13 | `js/tableros/valores.js`, `js/ui/ajustes.js`, `tests/valores.test.js` | manual | LISTA (00eb633) | |
 | 15 | Página de reglas y README | tareas/tarea-15-reglas-y-readme.md | 07 LISTA | 30 min | MEDIO | — | `reglas.html`, `css/reglas.css`, `README.md` | manual | LISTA (50e4914) | |
-| 16 | Verificación final de la tanda | tareas/tarea-16-verificacion-final.md | 08-15 y 17 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/16-verificacion-final/` | manual | PENDIENTE (libre) | |
+| 16 | Verificación final de la tanda | tareas/tarea-16-verificacion-final.md | 08-15 y 17 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/16-verificacion-final/` | manual | LISTA (978c7d0) | |
 | 17 | Marcador de suma cero, ventanas de papeles y fin de ronda, retoques de la 08 | tareas/tarea-17-ventanas-y-retoques.md | 01-15 LISTAS y ningún reclamo vivo de la 16 | 40 min | MEDIO | — | `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `tests/textos-partida.test.js`, `css/estilo.css`, `js/ui/app.js`, `js/ui/ajustes.js`, `index.html`, `reglas.html`, `README.md`, `herramientas/test-ui.js` | manual | LISTA (fc27fd5) | |
 
 Bandas hoy (de `proyecto.md`, comprobado el 2026-10-19 por Juan Luis): ALTO = Opus 5.5,
@@ -131,7 +131,7 @@ Reserva «ALTO (Fable 5.1, esfuerzo Alto)» para montar, recortar o coordinar.
 Paralelismo (cruzando «Ficheros que toca»): tras la 01, dos sesiones (02+03 y 04+05);
 cuando 02 y 04 estén LISTAS, también la 06; la 07 va sola; tras la 07, hasta siete a la
 vez (08, 09, 10, 11, 12, 13 y 15; la 14 detrás de la 13); la 16 al final, sola.
-Hoy: una sola sesión (la 16, que verifica lo que cambió la 17).
+Hoy: la tanda está cerrada (01-17 LISTAS); no queda ninguna tarea libre ni reabierta.
 
 ## Registro de finalizaciones
 
@@ -139,6 +139,7 @@ Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
 
+LISTA · tarea 16 · 2026-10-25 21:22 · s-20261025T211108-e4b343b8 · 978c7d0 · npm test pass 179, fail 0; test-ui.js TODO OK (17 casos, 7 nuevos); veredicto: cumple §6, §7 y §8, sin reabiertas · herramientas/test-ui.js, reparto/salidas/16-verificacion-final/
 LISTA · tarea 17 · 2026-10-25 10:25 · s-20261025T101834-a5ce285e · fc27fd5 · npm test pass 179, fail 0 (13 nuevas en tests/textos-partida.test.js); test-ui.js TODO OK (10 casos) · js/ui/textos-partida.js, tests/textos-partida.test.js, js/pantallas/jugar.js, css/estilo.css, js/ui/app.js, js/ui/ajustes.js, index.html, reglas.html, README.md, herramientas/test-ui.js
 LISTA · tarea 10 · 2026-10-25 01:07 · s-20261025T003516-21648387 · bc75dc0 · npm test pass 166, fail 0 (6 nuevas en tests/reto.test.js) · js/pantallas/reto.js, css/reto.css, tests/reto.test.js
 LISTA · tarea 12 · 2026-10-25 01:04 · s-20261025T003550-ef2288e2 · 89a3125 · tests/url.test.js pass 12, fail 0 (12 nuevas) · js/compartir/url.js, tests/url.test.js

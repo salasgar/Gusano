@@ -67,6 +67,19 @@ reabiertas. Es la última de la tanda: no hay frases que dar salvo las de las re
 ## Trampas conocidas
 - Las de la 08 (coordenadas de pulsación, espera a la máquina). Lee sus trampas en
   `tarea-08-verificacion-app.md` antes de empezar.
+- (Añadidas por la sesión que la cerró, 2026-10-25.) Cada caso nuevo del arnés tiene que
+  pulsar las ventanas («Empezar», «Continuar con …»): `configurar` ya pulsa «Empezar», y
+  `dejarJugarMaquinas` y `pulsarVentana` hacen el resto. `configurar` acepta ahora
+  `obstaculos` y `valores`.
+- En un grafo aleatorio del editor la ronda puede acabar antes de que el humano mueva: el
+  caso l) pulsa «Continuar con …» mientras espera una jugada legal.
+- Al abrir un enlace de «Compartir» en otra pestaña, cambia el origen por el del servidor
+  del arnés (`enlace.replace(/^https?:\/\/[^/]+/, ctx.base)`): el enlace lleva el de la
+  página que lo generó.
+- El editor encadena la selección (la casilla creada o la última pulsada queda
+  seleccionada): para conectar 0-1 de cero hay que mirar qué hay seleccionado.
+- Contraste: el caso q) falla solo por debajo de 2 y anota en el detalle lo que no llega a
+  4,5; hoy avisa de cuatro textos en oscuro (veredicto, hallazgo 1).
 
 ## Prohibido
 - Arreglar código de la app. Editar desde el shell. `git add -A`. Dependencias. Remoto
