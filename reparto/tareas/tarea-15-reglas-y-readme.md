@@ -69,6 +69,13 @@ Sigue «Cierre» de `_COMUN.md`. No encadenes.
 - Si copias un SVG de `demo/vista.html`, quita `data-indice` y los oyentes no viajan:
   es solo una figura; dale `role="img"` y un `aria-label`.
 
+- (Añadida al cerrar.) Chrome sin cabeza no baja de unos 500 px de ventana con
+  `--window-size`: para medir a 375 px usa `Emulation.setDeviceMetricsOverride` por
+  DevTools (la captura sale recortada y engaña). La figura de las reglas se escribió a
+  mano en SVG con las clases de `vista-tablero.css`, sin copiarla del DOM de la demo.
+- `README.md` no menciona `herramientas/test-ui.js` porque la 08 no estaba LISTA al cerrar
+  la 15; si ya lo está, quien lo vea puede añadir la línea.
+
 ## Prohibido
 - Tocar `index.html` (el enlace del pie ya existe). Inventar reglas que no estén en
   §1: si algo no está claro, pregúntalo como propuesta.
