@@ -86,7 +86,11 @@ publica Juan Luis cuando lo pida.
 - En el caso l) Jugador A es humano y B la máquina, que mueve primero tras la casilla
   inicial: en un grafo aleatorio la ronda puede acabar antes de que A mueva, y entonces
   sale la ventana de fin de ronda (el caso ya intenta pulsarla).
-- `--solo` filtra por el texto del nombre del caso: `--solo "l)"`.
+- `--solo` filtra por el texto del nombre del caso: `--solo "l)"`. (Ojo: filtra por
+  subcadena y «r)» o «e)» casan también con otros nombres; usa una subcadena más larga.)
+- (Hallado por la 19.) En el caso l) el fallo intermitente era la ronda 1 acabando antes de
+  que el humano mueva; el caso debe pulsar «Continuar con …». Un caso que dependa de una
+  partida aleatoria no puede exigir un suceso que el azar no garantiza: reintentar (caso t).
 - Las de la 08 para el arnés: léelas en `tarea-08-verificacion-app.md`.
 
 ## Prohibido
