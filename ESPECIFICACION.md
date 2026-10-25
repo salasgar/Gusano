@@ -307,6 +307,38 @@ bloqueada gris oscuro, inalcanzable atenuada (`.inalcanzable`).
   `setTimeout` corto tras pintar, con un aviso «pensando…». Con modo ayuda: la vista
   recibe `decoraciones(ronda)` de `js/ui/ayudas.js` y el marcador muestra la cota
   superior («techo») del gusano.
+- **Marcador de suma cero, ventanas de papeles y de fin de ronda** (T17; pedido por Juan
+  Luis el 2026-10-25; sustituye a lo que diga arriba sobre «puntos acumulados» y al aviso
+  «Fin de la ronda: …»):
+  - **Saldo.** Cada jugador muestra su saldo: los puntos de las rondas en que fue gusano
+    menos los de las rondas en que fue pájaro. Con `{ puntos } = marcador(partida)`,
+    saldo de A = `puntos[0] − puntos[1]` y saldo de B = `puntos[1] − puntos[0]`; uno es
+    el opuesto del otro. Se escribe con signo (`+9`, `−9`, `0`) y va en directo: mientras
+    el gusano crece, su saldo sube y el del rival baja. Debajo, en pequeño, los puntos
+    brutos de cada uno («9 como gusano»). `marcador()` del motor no cambia. Resultado al
+    final: «Gana Jugador B con +4 (8 como gusano frente a 4).» / «Empate (8 y 8 como
+    gusano).»
+  - **Ventana de papeles** (`<dialog>` modal) al empezar la partida, y al abrir un enlace
+    (§7.4) que deja una ronda sin empezar. Texto, con los nombres de los ajustes: «Par 1
+    · Ronda 1. **Jugador A es el gusano**: tiene que conseguir que el gusano sea lo más
+    largo posible. **Jugador B es el pájaro**: tiene que conseguir que el gusano sea lo
+    más corto posible.» Con casillas con valor, «que las casillas del gusano sumen lo
+    más posible / lo menos posible». Y una línea de quién empieza: con inicio libre,
+    «Empieza Jugador A eligiendo la casilla inicial»; con inicio al azar, «La casilla
+    inicial ya está puesta: mueve primero Jugador B (pájaro)». Botón «Empezar».
+  - **Ventana de fin de ronda** (`<dialog>` modal) tras la última jugada de cada ronda:
+    «Fin de la ronda R del par P. El gusano de Jugador A mide N casillas» (con valor: «sus
+    casillas suman N») «: Jugador A +N, Jugador B −N.», el saldo de los dos, y si queda
+    otra ronda, sus papeles («En la ronda 2, Jugador B es el gusano y Jugador A el
+    pájaro.»). Botones «Continuar con la ronda 2» (o «Continuar con el par 2») y «Ver
+    tablero». «Ver tablero» (y `Esc`) cierra la ventana dejando a la vista el tablero de
+    la ronda terminada, con el botón «Continuar con …» en la zona de botones. Tras la
+    última ronda de la partida, la ventana añade el resultado y lleva «Ver tablero», «Un
+    par más», «Analizar» y «Nueva partida».
+  - Mientras una ventana está abierta, o el tablero de una ronda terminada está a la vista
+    sin haber pulsado «Continuar», **nadie juega**: tampoco la máquina, también en
+    máquina contra máquina. El foco va al botón principal de la ventana.
+  - El reto del día (§7.2) no cambia: tiene su propia pantalla.
 - **Ajustes** (`js/ui/ajustes.js`): generador (desplegable con `generadores`), sus
   parámetros (campos generados a partir de `parametros`), número de pares (1-5, defecto
   1), inicio (azar / libre), jugador A y B: humano o máquina con nivel (`niveles`),
@@ -385,7 +417,9 @@ casillas o nombres de 40 caracteres.
   DevTools sin dependencias (Node ≥ 22 trae `fetch` y `WebSocket`), sirve el repositorio
   por HTTP, carga `index.html`, y comprueba al menos: consola limpia; una partida
   humano-humano de un par en `cuadrado4` lado 4 jugada a clics hasta el final, con el
-  marcador coherente con el motor; una partida máquina-máquina que termina sola; y a
+  marcador coherente con el motor (desde T17, el saldo de §6 derivado de `marcador()`,
+  pulsando los botones de las ventanas); una partida máquina-máquina que termina sola
+  (pulsando «Empezar» y «Continuar con …»); y a
   375 px de ancho no hay desplazamiento horizontal. Termina con «TODO OK» y código 0.
 
 ## 9. Decisiones tomadas al montar (para que Juan Luis las revise)

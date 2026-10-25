@@ -1,7 +1,7 @@
 # Tarea 16 · Verificación final de la tanda
 
-Actualizado: 2026-10-20
-Precondición: 08, 09, 10, 11, 12, 13, 14 y 15 LISTAS (y sin reabiertas pendientes) · Disparo: MANUAL
+Actualizado: 2026-10-25 (coordinadora s-20261025T073409-9564e458: añadida la 17 a la precondición y a lo que se verifica)
+Precondición: 08, 09, 10, 11, 12, 13, 14, 15 y 17 LISTAS (y sin reabiertas pendientes) · Disparo: MANUAL
 Duración esperada: 45 min (tiempo de sesión, no de persona) · Caducidad del reclamo: 90 min · Banda de modelo: MEDIO · Encadenable con: —
 Ficheros que toca: `herramientas/test-ui.js` (añade casos; la 08 está LISTA) y la carpeta de salida `reparto/salidas/16-verificacion-final/`
 
@@ -12,7 +12,7 @@ La banda dice con qué modelo conviene abrir la sesión (tabla en `reparto/proye
 1. Lee `_COMUN.md`, `ESPECIFICACION.md` entero y `reparto/_ESTADO.md`; lista
    `reparto/hechos/` (mira `reabiertas/` con cuidado: una reabierta sin terminada
    posterior bloquea esta tarea). `date -u`.
-2. Precondición: las ocho terminadas existen.
+2. Precondición: las nueve terminadas existen (08-15 y 17).
 3. Reclama (`NN` = `16`, `MINUTOS` = `90`), `sleep 30 && ls hechos/reclamos/`, cede o
    regenera, y sigue hasta cerrar o soltar.
 
@@ -34,7 +34,9 @@ se verificó ni perder sus hallazgos.
    muestra la posición final y «Siguiente ›» recorre); `reglas.html` carga con las
    siete secciones; modo oscuro (`Emulation.setEmulatedMedia` con
    `prefers-color-scheme: dark`) sin texto ilegible (comprueba que el fondo del `body`
-   cambia). Sigue en < 90 s y en «TODO OK».
+   cambia). Sigue en < 90 s y en «TODO OK». La 17 ya añadió casos para el saldo, las
+   ventanas de papeles y de fin de ronda y el botón «atrás»: no los repitas; los
+   casos nuevos tienen que pulsar «Empezar» y «Continuar con …» como los suyos.
 2. A mano en Chrome (el navegador de la sesión si lo tienes; si no, capturas con Chrome
    sin cabeza a 375 y 1200 px): cada pantalla, cada generador con sus parámetros
    extremos (lado 3 y 12, radio 1 y 5, el balón), partida de 3 pares con «Un par más»,
