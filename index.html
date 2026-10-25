@@ -6,8 +6,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gusano</title>
 <link rel="stylesheet" href="css/estilo.css">
+<link rel="stylesheet" href="css/vista-tablero.css">
+<link rel="stylesheet" href="css/reto.css">
+<link rel="stylesheet" href="css/analisis.css">
+<link rel="stylesheet" href="css/editor.css">
 </head>
 <body>
-<main><h1>Gusano</h1><p>En construcción.</p></main>
+<header class="cabecera">
+  <h1>Gusano</h1>
+  <nav aria-label="Pantallas">
+    <a href="#jugar" data-pantalla="jugar">Jugar</a>
+    <a href="#reto" data-pantalla="reto">Reto</a>
+    <a href="#analisis" data-pantalla="analisis">Análisis</a>
+    <a href="#editor" data-pantalla="editor">Editor</a>
+  </nav>
+</header>
+<main id="pantalla"></main>
+<footer class="pie">© 2026 Juan Luis Salas García · <a href="reglas.html">Reglas</a></footer>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
