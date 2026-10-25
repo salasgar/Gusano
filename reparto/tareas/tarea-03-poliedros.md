@@ -90,6 +90,12 @@ tal como esté). Si vienes de la 02 encadenada, para aquí y da las frases.
 - La proyección de Schlegel se deforma mucho si el punto de proyección está demasiado
   lejos de V (se convierte en una proyección paralela con nodos superpuestos).
 
+- (Añadida al cerrar la 03, 2026-10-25.) La perspectiva de Schlegel sobre el dual del
+  balón sale ilegible (nodos del fondo a un 2-4 % del dibujo), con las normales, el dual
+  polar o los centroides; aplastar el dual a lo largo de V no cambia nada (es una
+  afinidad). La 03 usa Tutte + separación por repulsión 1/d⁵ que solo acepta movimientos
+  sin cruces; ver la terminada.
+
 ## Prohibido
 - Tocar otra cosa de `index.js` que la línea de `poliedro`. Tocar `rejillas.js`,
   `hexagonal.js` o `tipos.js`: si te falta algo ahí, incidencia.
