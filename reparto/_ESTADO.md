@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-25T00:03:52Z · por la sesión s-20261020T220839-0f075d81 (coordinadora; las sesiones 02, 03, 04 y 05 encontraron el tablón reservado al cerrar)
+Regenerado: 2026-10-25T00:20:28Z · por la sesión s-20261020T220839-0f075d81 (coordinadora; las sesiones 02, 04 y 05 encontraron el tablón reservado al cerrar)
 
 ## Antes de hacer nada
 
@@ -111,8 +111,8 @@ una conversación.
 | 03 | Tableros poliédricos (caras, Schlegel del dual) | tareas/tarea-03-poliedros.md | 02 LISTA y ningún reclamo vivo de la 02 | 45 min | MEDIO | 02 | `js/tableros/poliedros.js`, `js/tableros/index.js` (una línea), `tests/poliedros.test.js` | manual | LISTA (f668eb4) | |
 | 04 | Motor: ronda, partida por pares, marcador | tareas/tarea-04-motor.md | 01 LISTA | 35 min | MEDIO | 05 | `js/motor/ronda.js`, `js/motor/partida.js`, `tests/motor.test.js` | manual | LISTA (d9dfd6d) | |
 | 05 | Máquina: niveles, alfa-beta, resolutor exacto | tareas/tarea-05-maquina.md | 02 y 04 LISTAS | 50 min | MEDIO | 04 | `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia.test.js` | manual | LISTA (836464a) | |
-| 06 | Vista del tablero en SVG y demo | tareas/tarea-06-vista-tablero.md | 02 y 04 LISTAS | 50 min | MEDIO | — | `js/ui/vista-tablero.js`, `css/vista-tablero.css`, `demo/vista.html`, `demo/vista.js` | manual | PENDIENTE | |
-| 07 | Aplicación jugable: ajustes, partida, marcador, esbozos | tareas/tarea-07-app-jugable.md | 05 y 06 LISTAS | 75 min | MEDIO | — | `index.html`, `css/estilo.css`, `js/main.js`, `js/ui/app.js`, `ajustes.js`, `ayudas.js`, `js/pantallas/jugar.js`, `reto.js`, `analisis.js`, `editor.js`, `js/compartir/url.js`, `css/reto.css`, `analisis.css`, `editor.css`, `tests/ajustes.test.js` | manual | BLOQUEADA | |
+| 06 | Vista del tablero en SVG y demo | tareas/tarea-06-vista-tablero.md | 02 y 04 LISTAS | 50 min | MEDIO | — | `js/ui/vista-tablero.js`, `css/vista-tablero.css`, `demo/vista.html`, `demo/vista.js` | manual | LISTA (3bae315) | |
+| 07 | Aplicación jugable: ajustes, partida, marcador, esbozos | tareas/tarea-07-app-jugable.md | 05 y 06 LISTAS | 75 min | MEDIO | — | `index.html`, `css/estilo.css`, `js/main.js`, `js/ui/app.js`, `ajustes.js`, `ayudas.js`, `js/pantallas/jugar.js`, `reto.js`, `analisis.js`, `editor.js`, `js/compartir/url.js`, `css/reto.css`, `analisis.css`, `editor.css`, `tests/ajustes.test.js` | manual | PENDIENTE | |
 | 08 | Arnés de interfaz en Chrome sin cabeza y verificación de la app | tareas/tarea-08-verificacion-app.md | 07 LISTA | 40 min | MEDIO | — | `herramientas/cdp.js`, `herramientas/test-ui.js`; `reparto/salidas/08-verificacion-app/` | manual | BLOQUEADA | |
 | 09 | Modo ayuda y pantalla de análisis | tareas/tarea-09-ayuda-y-analisis.md | 07 LISTA | 40 min | MEDIO | 10, 12 | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `tests/ayudas.test.js` | manual | BLOQUEADA | |
 | 10 | Reto del día | tareas/tarea-10-reto-del-dia.md | 07 LISTA | 35 min | MEDIO | 09, 12 | `js/pantallas/reto.js`, `css/reto.css`, `tests/reto.test.js` | manual | BLOQUEADA | |
@@ -137,6 +137,7 @@ Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
 
+LISTA · tarea 06 · 2026-10-25 00:09 · s-20261025T000615-1c534fda · 3bae315 · npm test pass 110, fail 0 (igual que al empezar; la tarea no añade pruebas unitarias) · js/ui/vista-tablero.js, css/vista-tablero.css, demo/vista.html, demo/vista.js
 LISTA · tarea 03 · 2026-10-25 00:02 · s-20261024T235325-c2b53216 · f668eb4 · pass 110, fail 0 (npm test global; 24 nuevas en tests/poliedros.test.js) · js/tableros/poliedros.js, js/tableros/index.js (import + elemento de la lista), tests/poliedros.test.js; y tests/tableros.test.js (ver desviaciones)
 LISTA · tarea 05 · 2026-10-24 23:57 · s-20261024T235342-779d7bfb · 836464a · 25 nuevas en tests/ia.test.js; azar + motor + ia = pass 60, fail 0. npm test global: pass 91, fail 2 — los 2 fallos son de tests/tableros.test.js (02) contra el js/tableros/index.js que la tarea 03 tenía a medias (sin comitear) en ese momento; no tocan ficheros de la 05. · js/ia/jugadores.js, js/ia/minimax.js, tests/ia.test.js
 LISTA · tarea 04 · 2026-10-24 23:53 · s-20261024T235025-d6f23bfd · d9dfd6d · pass 65 (motor: 31 nuevas; baseline al empezar: 4 de la 01 y las de la 02 en curso) · js/motor/ronda.js, js/motor/partida.js, tests/motor.test.js
