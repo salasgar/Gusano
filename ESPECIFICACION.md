@@ -342,6 +342,10 @@ generador existe) y la casilla inicial. El jugador es el gusano; el pájaro es l
 texto para copiar («Gusano #12 · 14/16 · par 15») y «Otra vez». El mejor resultado del
 día se guarda en `localStorage` (`gusano-reto-<numero>`).
 
+Detalles fijados al implementar (T10, incorporados el 2026-10-25): si `par` es `null`, el
+texto dice «par no calculable»; en `superficie` el azar del reto elige también el tipo
+(cilindro, toro, Möbius, Klein); las casillas del texto («14/16») son las no bloqueadas.
+
 ### 7.3 Editor de tableros (T11)
 
 Pantalla `editor`: lienzo SVG donde pulsar en vacío crea una casilla (círculo),
@@ -360,6 +364,14 @@ n: nombres, i: inicio, s: semilla, j: [[jugadas de la ronda 1 del par 1], […],
 partida se reconstruye reproduciendo las jugadas con `jugarEnPartida`. Sirve para enseñar
 una partida acabada y para jugar por turnos a distancia (cada uno manda el enlace tras
 su jugada); `jugar.js` acepta `datos.partida` sin terminar y continúa desde ahí.
+
+Detalles fijados al implementar (T12, incorporados el 2026-10-25): un tablero viaja como
+`{ g, pa }` solo si `generador(g).crear(pa)` lo reproduce idéntico; si no (editor,
+obstáculos, valores) viaja literal en `t`. Si los pares no comparten tablero, `ts` (lista
+de `{ g, pa }` o `{ t }`, uno por par) sustituye a `g`/`pa`/`t`; `v` sigue siendo 1. `j`
+tiene siempre 2 × pares listas, `[]` en las rondas no empezadas, y no incluye la casilla
+inicial cuando la puso la app. Al decodificar se rechaza lo que pase de 20 pares, 500
+casillas o nombres de 40 caracteres.
 
 ## 8. Pruebas y verificación
 

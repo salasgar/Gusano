@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-25T01:05:00Z · por la sesión s-20261025T003528-419b7e01 (cierre de la 11; recalculadas todas las filas, que estaban sin actualizar desde el cierre de la 08, la 13 y la 15)
+Regenerado: 2026-10-25T07:36Z · por la coordinadora s-20261025T073409-9564e458 (las sesiones de 09, 10 y 12 lo encontraron reservado al cerrar; recalculadas todas las filas: 01-15 LISTAS, 16 LIBRE)
 
 ## Antes de hacer nada
 
@@ -114,14 +114,14 @@ una conversación.
 | 06 | Vista del tablero en SVG y demo | tareas/tarea-06-vista-tablero.md | 02 y 04 LISTAS | 50 min | MEDIO | — | `js/ui/vista-tablero.js`, `css/vista-tablero.css`, `demo/vista.html`, `demo/vista.js` | manual | LISTA (3bae315) | |
 | 07 | Aplicación jugable: ajustes, partida, marcador, esbozos | tareas/tarea-07-app-jugable.md | 05 y 06 LISTAS | 75 min | MEDIO | — | `index.html`, `css/estilo.css`, `js/main.js`, `js/ui/app.js`, `ajustes.js`, `ayudas.js`, `js/pantallas/jugar.js`, `reto.js`, `analisis.js`, `editor.js`, `js/compartir/url.js`, `css/reto.css`, `analisis.css`, `editor.css`, `tests/ajustes.test.js` | manual | LISTA (b158e90) | |
 | 08 | Arnés de interfaz en Chrome sin cabeza y verificación de la app | tareas/tarea-08-verificacion-app.md | 07 LISTA | 40 min | MEDIO | — | `herramientas/cdp.js`, `herramientas/test-ui.js`; `reparto/salidas/08-verificacion-app/` | manual | LISTA (b35abe3) | |
-| 09 | Modo ayuda y pantalla de análisis | tareas/tarea-09-ayuda-y-analisis.md | 07 LISTA | 40 min | MEDIO | 10, 12 | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `tests/ayudas.test.js` | manual | EN CURSO | s-20261025T003459-4b606333 · 2026-10-25T01:36:26Z |
-| 10 | Reto del día | tareas/tarea-10-reto-del-dia.md | 07 LISTA | 35 min | MEDIO | 09, 12 | `js/pantallas/reto.js`, `css/reto.css`, `tests/reto.test.js` | manual | EN CURSO | s-20261025T003516-21648387 · 2026-10-25T01:45:16Z |
+| 09 | Modo ayuda y pantalla de análisis | tareas/tarea-09-ayuda-y-analisis.md | 07 LISTA | 40 min | MEDIO | 10, 12 | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `tests/ayudas.test.js` | manual | LISTA (58b7952) | |
+| 10 | Reto del día | tareas/tarea-10-reto-del-dia.md | 07 LISTA | 35 min | MEDIO | 09, 12 | `js/pantallas/reto.js`, `css/reto.css`, `tests/reto.test.js` | manual | LISTA (bc75dc0) | |
 | 11 | Editor de tableros y grafos aleatorios | tareas/tarea-11-editor.md | 07 LISTA | 50 min | MEDIO | — | `js/pantallas/editor.js`, `css/editor.css`, `tests/editor.test.js` | manual | LISTA (2069b60) | |
-| 12 | Compartir la partida por URL | tareas/tarea-12-compartir-url.md | 07 LISTA | 35 min | MEDIO | 09, 10 | `js/compartir/url.js`, `tests/url.test.js` | manual | EN CURSO | s-20261025T003550-ef2288e2 · 2026-10-25T01:41:19Z |
+| 12 | Compartir la partida por URL | tareas/tarea-12-compartir-url.md | 07 LISTA | 35 min | MEDIO | 09, 10 | `js/compartir/url.js`, `tests/url.test.js` | manual | LISTA (89a3125) | |
 | 13 | Obstáculos | tareas/tarea-13-obstaculos.md | 07 LISTA y ningún reclamo vivo de la 14 | 25 min | MEDIO | 14 | `js/tableros/obstaculos.js`, `js/ui/ajustes.js`, `tests/obstaculos.test.js` | manual | LISTA (db43c79) | |
-| 14 | Casillas con valor | tareas/tarea-14-casillas-con-valor.md | 13 LISTA | 40 min | MEDIO | 13 | `js/tableros/valores.js`, `js/ui/ajustes.js`, `tests/valores.test.js` | manual | EN CURSO | s-20261025T010301-36cecda1 · 2026-10-25T02:23:01Z |
+| 14 | Casillas con valor | tareas/tarea-14-casillas-con-valor.md | 13 LISTA | 40 min | MEDIO | 13 | `js/tableros/valores.js`, `js/ui/ajustes.js`, `tests/valores.test.js` | manual | LISTA (00eb633) | |
 | 15 | Página de reglas y README | tareas/tarea-15-reglas-y-readme.md | 07 LISTA | 30 min | MEDIO | — | `reglas.html`, `css/reglas.css`, `README.md` | manual | LISTA (50e4914) | |
-| 16 | Verificación final de la tanda | tareas/tarea-16-verificacion-final.md | 08-15 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/16-verificacion-final/` | manual | BLOQUEADA | |
+| 16 | Verificación final de la tanda | tareas/tarea-16-verificacion-final.md | 08-15 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/16-verificacion-final/` | manual | PENDIENTE (libre) | |
 
 Bandas hoy (de `proyecto.md`, comprobado el 2026-10-19 por Juan Luis): ALTO = Opus 5.5,
 esfuerzo Alto · MEDIO = Sonnet 5.5, esfuerzo Medio · BAJO = Haiku 5.5, esfuerzo Medio.
@@ -130,6 +130,7 @@ Reserva «ALTO (Fable 5.1, esfuerzo Alto)» para montar, recortar o coordinar.
 Paralelismo (cruzando «Ficheros que toca»): tras la 01, dos sesiones (02+03 y 04+05);
 cuando 02 y 04 estén LISTAS, también la 06; la 07 va sola; tras la 07, hasta siete a la
 vez (08, 09, 10, 11, 12, 13 y 15; la 14 detrás de la 13); la 16 al final, sola.
+Hoy: una sola sesión (la 16).
 
 ## Registro de finalizaciones
 
@@ -137,8 +138,12 @@ Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
 
-LISTA · tarea 13 · 2026-10-25 01:03 · s-20261025T003610-2477832b · db43c79 · obstaculos 8 nuevas; con ajustes pass 13, fail 0 · js/tableros/obstaculos.js, js/ui/ajustes.js, tests/obstaculos.test.js, tests/ajustes.test.js
+LISTA · tarea 10 · 2026-10-25 01:07 · s-20261025T003516-21648387 · bc75dc0 · npm test pass 166, fail 0 (6 nuevas en tests/reto.test.js) · js/pantallas/reto.js, css/reto.css, tests/reto.test.js
+LISTA · tarea 12 · 2026-10-25 01:04 · s-20261025T003550-ef2288e2 · 89a3125 · tests/url.test.js pass 12, fail 0 (12 nuevas) · js/compartir/url.js, tests/url.test.js
+LISTA · tarea 09 · 2026-10-25 01:04 · s-20261025T003459-4b606333 · 58b7952 · npm test pass 166, fail 0 (5 nuevas en tests/ayudas.test.js) · js/ui/ayudas.js, js/pantallas/analisis.js, css/analisis.css, tests/ayudas.test.js
+LISTA · tarea 14 · 2026-10-25 01:04 · s-20261025T010301-36cecda1 · 00eb633 · npm test pass 166, fail 0 (9 nuevas en tests/valores.test.js) · js/tableros/valores.js, js/ui/ajustes.js, tests/valores.test.js, tests/ajustes.test.js (fuera de ficha, ver incidencias)
 LISTA · tarea 11 · 2026-10-25 01:03 · s-20261025T003528-419b7e01 · 2069b60 · tests/editor.test.js 10 nuevas, 10 pass; npm test global pass 164, fail 2 (ajenos: tests/valores.test.js, tarea 14 en curso; 115 pass al empezar) · js/pantallas/editor.js, css/editor.css, tests/editor.test.js
+LISTA · tarea 13 · 2026-10-25 01:03 · s-20261025T003610-2477832b · db43c79 · obstaculos 8 nuevas; con ajustes pass 13, fail 0 · js/tableros/obstaculos.js, js/ui/ajustes.js, tests/obstaculos.test.js, tests/ajustes.test.js
 LISTA · tarea 08 · 2026-10-25 00:48 · s-20261025T003437-fc7af901 · b35abe3 · node herramientas/test-ui.js TODO OK; 115 pass de las tareas 01-07 en verde · herramientas/cdp.js, herramientas/test-ui.js, reparto/salidas/08-verificacion-app/
 LISTA · tarea 15 · 2026-10-25 00:44 · s-20261025T003638-d26d6bc3 · 50e4914 · sin pruebas nuevas; pass 115, fail 0 con lo comiteado · reglas.html, css/reglas.css, README.md
 LISTA · tarea 07 · 2026-10-25 00:32 · s-20261025T002203-ef62fbad · b158e90 · npm test pass 115, fail 0 (110 al empezar; 5 nuevas en tests/ajustes.test.js) · index.html, css/estilo.css, js/main.js, js/ui/app.js, js/ui/ajustes.js, js/ui/ayudas.js, js/pantallas/{jugar,reto,analisis,editor}.js, js/compartir/url.js, css/{reto,analisis,editor}.css, tests/ajustes.test.js
@@ -153,7 +158,11 @@ LISTA · tarea 01 · 2026-10-24 23:47 · s-20261024T234627-f387245a · 936008e �
 
 Derivado de `hechos/incidencias/`. Choques encontrados y cómo se resolvieron.
 
-(vacío todavía)
+- s-20261025T003610-2477832b (tarea 13): `tests/ajustes.test.js` (de la 07) comprueba las
+  claves exactas de `ajustesPorDefecto`; la 13 añadió `obstaculos` y la 14 `valores` a esa
+  lista (una línea cada una), fuera de ficha. Resuelto en db43c79 y 00eb633.
+- Sin fichero en `incidencias/`, anotado en las terminadas de 09, 10, 11 y 12: la reserva
+  del hook de la sesión de la 07 retuvo sus esbozos y el tablón ~25 min tras cerrar.
 
 Los automatismos activos y las rutas del proyecto están en `proyecto.md`, no aquí: este
 fichero se regenera entero y se los llevaría por delante.
