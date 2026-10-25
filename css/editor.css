@@ -1,1 +1,30 @@
-/* Gusano · © 2026 Juan Luis Salas García · Estilos de la pantalla «Editor» (los llena la tarea 11). */
+/* Gusano · © 2026 Juan Luis Salas García · Estilos de la pantalla «Editor». */
+
+.editor { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.editor > *, .editor fieldset { min-width: 0; }
+.editor .zona-lienzo { width: 100%; max-width: min(100%, 80vh); margin-inline: auto; }
+.editor .lienzo {
+  display: block; width: 100%; aspect-ratio: 1; touch-action: none; cursor: crosshair;
+  background: var(--panel); border: 1px solid var(--borde); border-radius: var(--radio);
+}
+.editor .lienzo:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.editor .arista { stroke: var(--texto-suave); stroke-width: 0.08; stroke-linecap: round; }
+.editor .nodo { fill: var(--panel); stroke: var(--texto); stroke-width: 0.08; cursor: grab; }
+.editor .nodo.seleccionado { fill: var(--acento); stroke: var(--acento); }
+
+.editor .panel-editor { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-content: start; }
+.editor .ayuda, .editor .contador, .editor .aviso { margin: 0; }
+.editor .ayuda { color: var(--texto-suave); font-size: 0.9rem; }
+.editor .aviso { min-height: 1.4em; font-weight: 600; }
+.editor fieldset { display: grid; gap: 8px; margin: 0; border: 1px solid var(--borde); border-radius: var(--radio); }
+.editor .campo { display: grid; grid-template-columns: 1fr 7rem; gap: 8px; align-items: center; }
+.editor .campo input, .editor .campo select { width: 100%; min-width: 0; }
+.editor .botones { display: flex; flex-wrap: wrap; gap: 8px; }
+.editor button:disabled { opacity: 0.5; cursor: not-allowed; }
+.editor .errores { margin: 0; padding-left: 1.2em; color: #b3261e; font-size: 0.9rem; }
+.editor .errores:empty { display: none; }
+
+@media (min-width: 760px) {
+  .editor { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; gap: 24px; }
+  .editor .zona-lienzo { margin-inline: 0; max-width: none; }
+}
