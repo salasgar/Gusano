@@ -90,6 +90,11 @@ tarea 01 crea el esqueleto de la app y es precondición de todas las demás. Reg
 - Tope de procesos: ninguno fijado (como mucho un Chrome sin cabeza por sesión).
 - Publicar (crear el repositorio en GitHub, `push`, activar Pages) **no forma parte de
   ninguna tarea**: lo hace Juan Luis cuando quiera (ver `autorizaciones.md`).
+- **Desde el 2026-10-25 hay remoto**: `origin` = https://github.com/salasgar/Gusano
+  (público), con GitHub Pages sobre `main` en https://salasgar.github.io/Gusano/. Lo creó
+  la coordinadora s-20261025T073409-9564e458 con la firma de Juan Luis y a petición
+  suya. **Las tareas siguen sin hacer `push`**: cada `push` publica la web, así que solo
+  se hace cuando él lo pide en la conversación.
 
 Vigía: ninguno. Si Juan Luis quiere uno, la coordinadora deja un `/loop` cada 30 min que
 lista `reparto/hechos/reclamos/`, compara `caduca:` con `date -u` y solo avisa de lo
