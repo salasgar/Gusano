@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-25T00:20:28Z · por la sesión s-20261020T220839-0f075d81 (coordinadora; las sesiones 02, 04 y 05 encontraron el tablón reservado al cerrar)
+Regenerado: 2026-10-25T00:20:56Z · por la sesión s-20261020T220839-0f075d81 (coordinadora: la sesión que cerró encontró el tablón reservado por el hook)
 
 ## Antes de hacer nada
 
