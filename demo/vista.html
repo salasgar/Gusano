@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Juan Luis Salas García">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gusano · demo de la vista</title>
+<link rel="stylesheet" href="../css/estilo.css">
+<link rel="stylesheet" href="../css/vista-tablero.css">
+<style>
+  /* Solo de esta página de prueba. */
+  .barra { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 12px; }
+  .barra label { display: inline-flex; gap: 4px; align-items: center; }
+  .barra input[type="number"] { width: 4.5em; }
+  button, select, input { font: inherit; }
+  button { padding: 6px 12px; border: 1px solid var(--borde); border-radius: 8px; background: var(--panel); color: var(--texto); cursor: pointer; }
+  #estado { margin: 8px 0; font-weight: 600; }
+  #tablero { margin-top: 8px; }
+</style>
+</head>
+<body>
+<h1>Vista del tablero</h1>
+<form class="barra" id="controles" onsubmit="return false">
+  <label>Tablero <select id="generador"></select></label>
+  <span id="parametros" class="barra"></span>
+  <button type="button" id="nuevo">Nuevo</button>
+</form>
+<div class="barra">
+  <label><input type="checkbox" id="resaltar" checked> Resaltar legales</label>
+  <label><input type="checkbox" id="numerar"> Numerar tramos</label>
+  <label><input type="checkbox" id="valores"> Mostrar valores</label>
+  <button type="button" id="valoresPrueba">Valores de prueba</button>
+  <button type="button" id="bloquear">Bloquear 3</button>
+</div>
+<div id="estado" role="status"></div>
+<div id="tablero"></div>
+<script type="module" src="vista.js"></script>
+</body>
+</html>

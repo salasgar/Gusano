@@ -1,0 +1,66 @@
+/* Gusano · © 2026 Juan Luis Salas García · Licencia MIT */
+/* Estilos de la vista del tablero (js/ui/vista-tablero.js). Usa las variables de estilo.css
+   con valores por defecto, para que funcione también sin esa hoja. */
+
+.vista-tablero {
+  display: block;
+  max-width: 100%;
+  max-height: 80vh;
+  margin: 0 auto;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.vista-tablero .casilla {
+  fill: var(--panel, #ffffff);
+  stroke: var(--borde, #d8d8d4);
+  stroke-width: 0.04;
+  stroke-linejoin: round;
+  cursor: default;
+}
+.vista-tablero .casilla.legal {
+  fill: var(--legal, #f2c94c);
+  cursor: pointer;
+}
+.vista-tablero .casilla.gusano { fill: color-mix(in srgb, var(--gusano, #2f9e5a) 35%, var(--panel, #ffffff)); }
+.vista-tablero .casilla.pajaro { fill: color-mix(in srgb, var(--pajaro, #6a5acd) 35%, var(--panel, #ffffff)); }
+.vista-tablero .casilla.cabeza {
+  stroke: var(--texto, #1a1a1a);
+  stroke-width: 0.1;
+}
+.vista-tablero .casilla.bloqueada {
+  fill: var(--bloqueada, #3c3c3c);
+  stroke: var(--bloqueada, #3c3c3c);
+  cursor: not-allowed;
+}
+.vista-tablero .casilla.inalcanzable { opacity: 0.4; }
+
+.vista-tablero .arista {
+  stroke: var(--borde, #b0b0aa);
+  stroke-width: 0.03;
+}
+
+.vista-tablero .gusano-cuerpo {
+  stroke: var(--gusano, #2f9e5a);
+  stroke-opacity: 0.7;
+}
+.vista-tablero .gusano-cabeza {
+  fill: var(--gusano, #2f9e5a);
+  stroke: var(--panel, #ffffff);
+  stroke-width: 0.04;
+}
+.vista-tablero .ojo { fill: #ffffff; }
+.vista-tablero .pupila { fill: #111111; }
+
+.vista-tablero text {
+  fill: var(--texto, #1a1a1a);
+  font-family: inherit;
+  font-weight: 600;
+  pointer-events: none;
+}
+.vista-tablero text.etiqueta {
+  fill: var(--texto-suave, #666);
+  font-weight: 400;
+}
+.vista-tablero text.valor-esquina { fill: var(--texto-suave, #666); }
