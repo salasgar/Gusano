@@ -51,9 +51,12 @@ function servir() {
 
 // Rellena el formulario de ajustes y pulsa «Empezar». `jugadores`: [{tipo, nivel}, {tipo, nivel}].
 // Con `ventanaDePapeles: false` se deja abierta la ventana de papeles; si no, se pulsa «Empezar».
-async function configurar(p, { generadorId = 'cuadrado4', parametros = {}, inicio = 'azar', jugadores, ventanaDePapeles = true }) {
+// `obstaculos` (0, 0.1, 0.2) y `valores` ('sin', 'uniforme', 'centro', 'trampas') solo se tocan si se indican.
+async function configurar(p, { generadorId = 'cuadrado4', parametros = {}, inicio = 'azar', jugadores, ventanaDePapeles = true, obstaculos, valores }) {
   await p.evaluar(`(() => {
     const ponValor = (campo, valor) => { campo.value = valor; campo.dispatchEvent(new Event('change', { bubbles: true })); };
+    ${obstaculos === undefined ? '' : `ponValor(document.querySelector('#ajuste-obstaculos'), ${JSON.stringify(String(obstaculos))});`}
+    ${valores === undefined ? '' : `ponValor(document.querySelector('#ajuste-valores'), ${JSON.stringify(valores)});`}
     const g = document.querySelector('#ajuste-generador');
     ponValor(g, ${JSON.stringify(generadorId)});
     const params = ${JSON.stringify(parametros)};
@@ -383,6 +386,224 @@ const casos = [
         await p.esperar(300);
         consolaLimpia(p);
       }
+    },
+  },
+
+  // ---------- casos de la verificación final (tarea 16) ----------
+
+  {
+    nombre: 'k) reto del día: se juega hasta el final y aparecen el par y el texto para copiar',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await p.pulsar('nav a[data-pantalla=reto]');
+      if (!await p.esperarHasta(`!!document.querySelector('.reto .zona-tablero svg')`, 5000)) throw new Error('el reto no muestra el tablero');
+      const fin = Date.now() + 60000;
+      let jugadas = 0;
+      while (!await p.evaluar(`!!document.querySelector('.reto-final')`)) {
+        if (Date.now() > fin) throw new Error('el reto no termina en 60 s');
+        if (await p.evaluar(`!!document.querySelector('.zona-tablero [data-indice].legal')`)) { await p.pulsar('.zona-tablero [data-indice].legal'); jugadas++; }
+        else await p.esperar(100);
+      }
+      if (!await p.esperarHasta(`!!document.querySelector('.reto-texto')`, 8000)) throw new Error('no aparece el texto para copiar (el par no se calculó)');
+      const r = await p.evaluar(`({ final: document.querySelector('.reto-final').textContent, par: document.querySelector('.reto-par').textContent,
+        texto: document.querySelector('.reto-texto').value, otra: [...document.querySelectorAll('.botones button')].map((b) => b.textContent) })`);
+      if (!/^Gusano #\d+ · \d+\/\d+ · par (\d+|no calculable)$/.test(r.texto)) throw new Error(`texto para copiar «${r.texto}»`);
+      if (!/^Par: \d+$/.test(r.par)) throw new Error(`línea del par «${r.par}»`);
+      if (!r.otra.includes('Otra vez')) throw new Error(`botones ${r.otra}`);
+      consolaLimpia(p);
+      await captura(ctx, p, 'k-reto');
+      return `${jugadas} jugadas, «${r.texto}»`;
+    },
+  },
+  {
+    nombre: 'l) editor: grafo aleatorio de 10, «Jugar con este tablero» y una jugada',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await p.pulsar('nav a[data-pantalla=editor]');
+      if (!await p.esperarHasta(`!!document.querySelector('.editor svg.lienzo')`, 5000)) throw new Error('el editor no monta');
+      await p.evaluar(`(() => {
+        const n = document.querySelector('.panel-editor input[type=number]');
+        n.value = '10'; n.dispatchEvent(new Event('input', { bubbles: true })); n.dispatchEvent(new Event('change', { bubbles: true }));
+      })()`);
+      await p.evaluar(`[...document.querySelectorAll('.panel-editor fieldset button')].find((b) => b.textContent === 'Grafo aleatorio').dataset.prueba = 'aleatorio'`);
+      await p.pulsar('[data-prueba=aleatorio]');
+      const contador = await p.evaluar(`document.querySelector('.contador').textContent`);
+      if (!contador.startsWith('10 casillas')) throw new Error(`contador «${contador}»`);
+      if (await p.evaluar(`document.querySelectorAll('.lienzo circle.nodo').length`) !== 10) throw new Error('el lienzo no dibuja 10 nodos');
+      await captura(ctx, p, 'l-editor');
+      await p.evaluar(`[...document.querySelectorAll('.panel-editor > button')].find((b) => b.textContent === 'Jugar con este tablero').dataset.prueba = 'jugar'`);
+      await p.pulsar('[data-prueba=jugar]');
+      if (!await p.esperarHasta(`!!document.querySelector('.zona-tablero svg')`, 5000)) throw new Error('«Jugar con este tablero» no abre la partida');
+      if (await p.evaluar(`document.querySelectorAll('.zona-tablero [data-indice]').length`) !== 10) throw new Error('la partida no tiene las 10 casillas del editor');
+      if (await p.esperarHasta(HAY_VENTANA, 2000)) await pulsarVentana(p, 'Empezar');
+      // Jugador A es humano y B la máquina (que mueve primero tras la casilla inicial): se espera a tener jugadas legales.
+      // En un grafo aleatorio la ronda puede acabar antes de que el humano mueva: entonces se pulsa «Continuar con …».
+      const fin = Date.now() + 20000;
+      while (!await p.evaluar(`!!document.querySelector('.zona-tablero [data-indice].legal')`)) {
+        if (Date.now() > fin) throw new Error('el humano no llega a tener jugadas legales');
+        const v = await ventana(p);
+        if (v?.botones.some((b) => b.startsWith('Continuar con'))) await pulsarVentana(p, 'Continuar con');
+        else if (v?.botones.includes('Empezar')) await pulsarVentana(p, 'Empezar');
+        else await p.esperar(150);
+      }
+      const antes = await rellenas(p);
+      await p.pulsar('.zona-tablero [data-indice].legal');
+      await p.esperar(100);
+      if (await rellenas(p) <= antes) throw new Error(`la jugada no rellena nada (${antes} casillas)`);
+      consolaLimpia(p);
+    },
+  },
+  {
+    nombre: 'm) compartir: el enlace tras 3 jugadas, abierto en otra pestaña, reproduce camino y saldos',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'cuadrado4', parametros: { lado: 4 }, inicio: 'libre', jugadores: HUMANOS });
+      for (let k = 0; k < 3; k++) await p.pulsar('.zona-tablero [data-indice].legal');
+      const estadoDe = (q) => q.evaluar(`({
+        casillas: [...document.querySelectorAll('.zona-tablero [data-indice]')].map((e) => [e.dataset.indice, e.classList.contains('gusano') ? 'g' : e.classList.contains('pajaro') ? 'p' : '-', e.classList.contains('cabeza') ? 'c' : '']).filter((c) => c[1] !== '-'),
+        saldos: [...document.querySelectorAll('.jugador-marcador .saldo')].map((e) => e.textContent),
+        ronda: document.querySelector('.ronda-actual')?.textContent })`);
+      const original = await estadoDe(p);
+      if (original.casillas.length !== 3) throw new Error(`se esperaban 3 casillas y hay ${original.casillas.length}`);
+      await p.evaluar(`[...document.querySelectorAll('.botones button')].find((b) => b.textContent === 'Compartir').dataset.prueba = 'compartir'`);
+      await p.pulsar('[data-prueba=compartir]');
+      const enlace = await p.evaluar(`document.querySelector('.enlace-campo')?.value`);
+      if (!enlace || !enlace.includes('#jugar&p=')) throw new Error(`enlace «${enlace}»`);
+      const otra = await Pagina.abrir(ctx.cdp);
+      await otra.tamano(1200, 900);
+      await otra.ir(enlace.replace(/^https?:\/\/[^/]+/, ctx.base));
+      if (!await otra.esperarHasta(`document.querySelectorAll('.zona-tablero [data-indice].gusano, .zona-tablero [data-indice].pajaro').length > 0`, 5000)) throw new Error('el enlace no reconstruye la partida');
+      if (await otra.evaluar(HAY_VENTANA)) await pulsarVentana(otra, 'Empezar');
+      const copia = await estadoDe(otra);
+      if (JSON.stringify(copia) !== JSON.stringify(original)) throw new Error(`la copia difiere: ${JSON.stringify(copia)} ≠ ${JSON.stringify(original)}`);
+      // Y se puede seguir jugando desde ahí.
+      await otra.pulsar('.zona-tablero [data-indice].legal');
+      if (await rellenas(otra) !== 4) throw new Error('en la copia no se puede continuar la partida');
+      consolaLimpia(p);
+      consolaLimpia(otra);
+      return `saldos ${original.saldos.join(' / ')}`;
+    },
+  },
+  {
+    nombre: 'n) obstáculos 20 % y valores «centro» en cuadrado8 lado 5, máquina contra máquina hasta el final',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, {
+        generadorId: 'cuadrado8', parametros: { lado: 5 }, obstaculos: 0.2, valores: 'centro',
+        jugadores: [{ tipo: 'maquina', nivel: 'voraz' }, { tipo: 'maquina', nivel: 'voraz' }],
+      });
+      const bloqueadas = await p.evaluar(`document.querySelectorAll('.zona-tablero [data-indice].bloqueada').length`);
+      if (bloqueadas !== 5) throw new Error(`con 20 % de 25 casillas se esperaban 5 bloqueadas y hay ${bloqueadas}`);
+      const valores = await p.evaluar(`[...new Set([...document.querySelectorAll('.zona-tablero svg text')].map((t) => t.textContent))].sort().join(',')`);
+      if (!/\b3\b/.test(valores)) throw new Error(`no se dibujan los valores del centro (textos: «${valores}»)`);
+      await captura(ctx, p, 'n-obstaculos-valores');
+      if (!await dejarJugarMaquinas(p, 60000)) throw new Error('no terminó en 60 s');
+      const v = await ventana(p);
+      if (!v.texto.includes('suman')) throw new Error(`con valores la ventana final debería decir «suman»: ${v.texto}`);
+      consolaLimpia(p);
+      return `${bloqueadas} bloqueadas, valores {${valores}}`;
+    },
+  },
+  {
+    nombre: 'o) análisis tras una partida: «Siguiente ›» recorre hasta la posición final y «‹ Anterior» vuelve',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, {
+        generadorId: 'cuadrado4', parametros: { lado: 4 },
+        jugadores: [{ tipo: 'maquina', nivel: 'voraz' }, { tipo: 'maquina', nivel: 'voraz' }],
+      });
+      if (!await dejarJugarMaquinas(p, 60000)) throw new Error('la partida no termina');
+      await pulsarVentana(p, 'Analizar');
+      if (!await p.esperarHasta(`!!document.querySelector('.analisis-pos')`, 5000)) throw new Error('no se abre el análisis');
+      if (await p.evaluar('location.hash') !== '#analisis') throw new Error('el hash no es #analisis');
+      const pos = () => p.evaluar(`document.querySelector('.analisis-pos').textContent`);
+      const dentro = () => p.evaluar(`document.querySelectorAll('.analisis-tablero [data-indice].gusano, .analisis-tablero [data-indice].pajaro').length`);
+      const boton = (texto) => p.evaluar(`[...document.querySelectorAll('.analisis-controles button')].find((b) => b.textContent === ${JSON.stringify(texto)}).dataset.prueba = 'an'`);
+      const [, k0, total] = (await pos()).match(/Jugada (\d+) de (\d+)/);
+      if (Number(total) < 2) throw new Error(`la ronda analizada tiene ${total} jugadas`);
+      let n = 0;
+      while (!await p.evaluar(`[...document.querySelectorAll('.analisis-controles button')].find((b) => b.textContent === 'Siguiente ›').disabled`)) {
+        if (++n > 40) throw new Error('«Siguiente ›» nunca se desactiva');
+        await boton('Siguiente ›');
+        await p.pulsar('[data-prueba=an]');
+      }
+      if (n !== Number(total) - Number(k0)) throw new Error(`se pulsó ${n} veces «Siguiente ›» y la ronda tiene ${total} jugadas desde la ${k0}`);
+      if ((await pos()) !== `Jugada ${total} de ${total}`) throw new Error(`posición final «${await pos()}»`);
+      if (await dentro() !== Number(total)) throw new Error(`en la posición final hay ${await dentro()} casillas rellenas, no ${total}`);
+      await captura(ctx, p, 'o-analisis-final');
+      await boton('‹ Anterior');
+      await p.pulsar('[data-prueba=an]');
+      if (await dentro() !== Number(total) - 1) throw new Error('«‹ Anterior» no quita una casilla');
+      consolaLimpia(p);
+      return `${total} jugadas recorridas`;
+    },
+  },
+  {
+    nombre: 'p) reglas.html carga con las siete secciones, sin desbordar a 375 px y con la consola limpia',
+    async correr(ctx) {
+      const p = await Pagina.abrir(ctx.cdp);
+      await p.tamano(375, 700);
+      await p.ir(`${ctx.base}/reglas.html`);
+      const ids = await p.evaluar(`[...document.querySelectorAll('main section, section')].map((s) => s.id)`);
+      const esperadas = ['como-se-juega', 'gusano-y-pajaro', 'pares-y-puntos', 'tableros', 'obstaculos-y-valores', 'consejos', 'para-clase'];
+      if (JSON.stringify(ids) !== JSON.stringify(esperadas)) throw new Error(`secciones ${ids}`);
+      const vacias = await p.evaluar(`[...document.querySelectorAll('section')].filter((s) => !s.querySelector('h2') || s.textContent.trim().length < 80).map((s) => s.id)`);
+      if (vacias.length) throw new Error(`secciones sin título o casi vacías: ${vacias}`);
+      const scroll = await p.evaluar('document.documentElement.scrollWidth');
+      if (scroll > 375) throw new Error(`scrollWidth ${scroll} > 375`);
+      if (!await p.evaluar(`!!document.querySelector('a[href="index.html"], a[href="./"], a[href="index.html#jugar"]')`)) throw new Error('no hay enlace de vuelta a la app');
+      consolaLimpia(p);
+      await captura(ctx, p, 'p-reglas-375');
+    },
+  },
+  {
+    nombre: 'q) modo oscuro: el fondo del body cambia y ningún texto queda ilegible (contraste < 2; los < 4,5 se avisan) en la app y en las reglas',
+    async correr(ctx) {
+      const medir = `(() => {
+        const rgb = (s) => s.match(/[\\d.]+/g).map(Number);
+        const lum = ([r, g, b]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+        const contraste = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((u, v) => v - u); return (x + 0.05) / (y + 0.05); };
+        const fondoDe = (e) => { for (let n = e; n; n = n.parentElement) { const c = rgb(getComputedStyle(n).backgroundColor); if (c.length < 4 || c[3] > 0.5) return c.slice(0, 3); } return rgb(getComputedStyle(document.documentElement).backgroundColor).slice(0, 3); };
+        const malos = [];
+        for (const e of document.querySelectorAll('body *')) {
+          if (!e.checkVisibility?.() || e.closest('svg')) continue;
+          if (![...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue;
+          const est = getComputedStyle(e);
+          const c = contraste(rgb(est.color).slice(0, 3), fondoDe(e));
+          if (c < 4.5) malos.push({ c, texto: e.tagName.toLowerCase() + '.' + e.className + ' ' + c.toFixed(1) + ' «' + e.textContent.trim().slice(0, 20) + '»' });
+        }
+        return { fondo: getComputedStyle(document.body).backgroundColor, html: getComputedStyle(document.documentElement).backgroundColor, malos };
+      })()`;
+      const resultados = [];
+      const avisos = [];
+      for (const [pagina, preparar] of [['index.html#jugar', null], ['reglas.html', null], ['index.html#jugar', 'partida']]) {
+        const p = await Pagina.abrir(ctx.cdp);
+        await p.tamano(1200, 900);
+        await p.enviar('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
+        await p.ir(`${ctx.base}/${pagina}`);
+        const claro = await p.evaluar(medir);
+        await p.enviar('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'dark' }] });
+        await p.esperar(200);
+        if (preparar === 'partida') {
+          await configurar(p, { generadorId: 'cuadrado4', parametros: { lado: 4 }, jugadores: HUMANOS, ventanaDePapeles: false });
+          await p.esperar(200);
+        }
+        const oscuro = await p.evaluar(medir);
+        const nombre = `${pagina}${preparar ? ' (ventana de papeles)' : ''}`;
+        if (!preparar && oscuro.html === claro.html && oscuro.fondo === claro.fondo) throw new Error(`${nombre}: el fondo no cambia (${claro.fondo})`);
+        // Ilegible = contraste < 2; entre 2 y 4,5 (AA) es un aviso que se anota en el detalle, no un fallo.
+        for (const [tema, m] of [['oscuro', oscuro], ['claro', claro]]) {
+          const ilegibles = m.malos.filter((x) => x.c < 2);
+          if (ilegibles.length) throw new Error(`${nombre} en ${tema}: texto ilegible: ${ilegibles.slice(0, 5).map((x) => x.texto).join(' | ')}`);
+          avisos.push(...m.malos.map((x) => `${tema}: ${x.texto}`));
+        }
+        resultados.push(`${nombre}: ${claro.html} → ${oscuro.html}`);
+        if (preparar === 'partida') await captura(ctx, p, 'q-oscuro-papeles');
+        else await captura(ctx, p, `q-oscuro-${pagina.split('.')[0]}`);
+        consolaLimpia(p);
+      }
+      const unicos = [...new Set(avisos)];
+      return `${resultados.join('; ')}${unicos.length ? ` · AVISO contraste < 4,5: ${unicos.join(' | ')}` : ''}`;
     },
   },
 ];
