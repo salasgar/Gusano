@@ -1,1 +1,31 @@
-/* Gusano · © 2026 Juan Luis Salas García · Estilos de la pantalla «Análisis» (los llena la tarea 09). */
+/* Gusano · © 2026 Juan Luis Salas García · Estilos de la pantalla «Análisis» */
+
+.analisis { display: grid; gap: 12px; max-width: 640px; margin: 0 auto; }
+.analisis-cabecera { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.analisis-cabecera select { flex: 1; min-width: 0; }
+.analisis-pos { color: var(--texto-suave); font-size: 0.9rem; white-space: nowrap; }
+.analisis-controles { display: flex; gap: 8px; align-items: center; }
+.analisis-controles input[type="range"] { flex: 1; min-width: 0; }
+.analisis-panel, .analisis-resumen {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 10px 12px;
+}
+.analisis-panel p, .analisis-resumen p { margin: 4px 0; }
+.analisis-resumen h3 { margin: 0 0 4px; font-size: 1rem; }
+.analisis .nota { color: var(--texto-suave); font-size: 0.9rem; }
+.analisis .veredicto { font-weight: 600; }
+.analisis .veredicto.malo { color: #b3261e; }
+.analisis .veredicto.bueno { color: var(--gusano); }
+.analisis-vacio { text-align: center; }
+
+.analisis .vista-tablero .casilla.mejor {
+  stroke: var(--acento);
+  stroke-width: 0.1;
+  stroke-dasharray: 0.18 0.12;
+}
+
+@media (prefers-color-scheme: dark) {
+  .analisis .veredicto.malo { color: #f2b8b5; }
+}
