@@ -9,7 +9,7 @@ import { partidaDesdeURL, enlaceDe } from '../js/compartir/url.js';
 
 test('ajustesPorDefecto tiene las claves del contrato', () => {
   const a = ajustesPorDefecto({ semilla: 7 });
-  assert.deepEqual(Object.keys(a).sort(), ['generadorId', 'inicio', 'jugadores', 'nombres', 'pares', 'parametros', 'semilla'].sort());
+  assert.deepEqual(Object.keys(a).sort(), ['generadorId', 'inicio', 'jugadores', 'nombres', 'obstaculos', 'pares', 'parametros', 'semilla'].sort());
   assert.equal(a.generadorId, 'cuadrado4');
   assert.equal(a.pares, 1);
   assert.equal(a.inicio, 'azar');

@@ -4,6 +4,8 @@
 
 import { generadores, generador } from '../tableros/index.js';
 import { niveles } from '../ia/jugadores.js';
+import { conObstaculos } from '../tableros/obstaculos.js';
+import { crearAzar } from '../util/azar.js';
 
 export function ajustesPorDefecto({ semilla = Date.now() } = {}) {
   return {
@@ -13,13 +15,17 @@ export function ajustesPorDefecto({ semilla = Date.now() } = {}) {
     inicio: 'azar',
     jugadores: [{ tipo: 'humano', nivel: null }, { tipo: 'maquina', nivel: 'fuerte' }],
     nombres: ['Jugador A', 'Jugador B'],
+    obstaculos: 0,
     semilla,
   };
 }
 
 // Punto único donde se aplican transformaciones al tablero recién generado.
-// La tarea 13 añade aquí los obstáculos (ajustes.obstaculos) y la 14 los valores (ajustes.valores).
+// La tarea 14 añade aquí los valores (ajustes.valores).
 function transformarTablero(tablero, ajustes, indicePar) {
+  if (ajustes.obstaculos > 0) {
+    tablero = conObstaculos(tablero, ajustes.obstaculos, crearAzar(ajustes.semilla + indicePar));
+  }
   return tablero;
 }
 
@@ -87,7 +93,10 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
   selGenerador.addEventListener('change', () => pintaParametros());
   pintaParametros(actuales.parametros);
 
-  // La tarea 13 añade aquí el campo Obstáculos y la 14 el campo Valores.
+  const selObstaculos = el('select', { id: 'ajuste-obstaculos' });
+  for (const p of [0, 0.1, 0.2]) selObstaculos.append(new Option(`${Math.round(p * 100)} %`, p));
+  selObstaculos.value = String(actuales.obstaculos ?? 0);
+  // La tarea 14 añade aquí el campo Valores.
 
   // --- partida ---
   const campoPares = el('input', { type: 'number', min: 1, max: 5, step: 1, value: actuales.pares, inputMode: 'numeric' });
@@ -123,7 +132,8 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
       el('legend', {}, 'Tablero'),
       el('label', { class: 'campo' }, 'Tablero', selGenerador),
       descripcion,
-      zonaParametros),
+      zonaParametros,
+      el('label', { class: 'campo' }, 'Obstáculos', selObstaculos)),
     el('fieldset', {},
       el('legend', {}, 'Partida'),
       el('label', { class: 'campo' }, 'Pares de rondas (1-5)', campoPares),
@@ -142,6 +152,7 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
       generadorId: selGenerador.value,
       parametros,
       pares,
+      obstaculos: Number(selObstaculos.value),
       inicio: selInicio.value,
       jugadores: jugadores.map((j) => ({
         tipo: j.tipo.value,
