@@ -75,6 +75,13 @@ Sigue «Cierre» de `_COMUN.md`. No encadenes (es la más larga de su tanda).
 - `jugar.js` (07) acepta `datos.tablero`; si al llegar no se salta los ajustes o no
   usa el tablero, es una reabierta de la 07, no un arreglo tuyo.
 
+- (Añadida al cerrar la 11.) `editor.js` y `editor.css` pueden seguir reservados por el hook
+  a nombre de la sesión de la 07 (30 min sin actividad): empieza por `tests/editor.test.js` y
+  deja el borrador en el scratchpad, con enlaces simbólicos a `js/` para probarlo; no borres
+  su fichero de `.claude/sesiones/`. En headless, `setPointerCapture` falla con punteros
+  sintéticos: envuélvelo en `try`. Chrome sin cabeza no baja de ~500 px de ventana: para
+  medir 375 px usa un `iframe` de ese ancho y compara `scrollWidth`.
+
 ## Prohibido
 - Tocar `jugar.js`, `app.js` o los tableros. Editar desde el shell. `git add -A`.
   Dependencias. Remoto o `push`.
