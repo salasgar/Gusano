@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Juan Luis Salas García">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gusano · Reglas</title>
+<link rel="stylesheet" href="css/estilo.css">
+<link rel="stylesheet" href="css/vista-tablero.css">
+<link rel="stylesheet" href="css/reglas.css">
+</head>
+<body>
+<header class="cabecera">
+  <h1>Gusano · Reglas</h1>
+  <nav aria-label="Volver">
+    <a href="index.html">Jugar</a>
+  </nav>
+</header>
+
+<main class="reglas">
+
+<section id="como-se-juega">
+  <h2>Cómo se juega</h2>
+  <p>Gusano se juega sobre un tablero hecho de casillas conectadas entre sí. Dos personas
+  (o una persona y la máquina) van alargando entre las dos <strong>el mismo gusano</strong>.</p>
+  <ol>
+    <li>Se rellena una <strong>casilla inicial</strong>. Ahí empieza el gusano.</li>
+    <li>Después os turnáis. En tu turno rellenas <strong>una casilla libre que sea vecina de
+    la última rellenada</strong>: esa última casilla es la cabeza del gusano. El primero en
+    mover es el pájaro.</li>
+    <li>Una casilla rellenada no se vacía hasta que acabe la ronda.</li>
+    <li>La ronda termina cuando la cabeza ya no tiene ninguna vecina libre.</li>
+    <li>Cada casilla rellenada vale 1 punto. Los puntos de la ronda son para quien hacía de
+    gusano.</li>
+  </ol>
+
+  <figure>
+    <svg class="vista-tablero" viewBox="0 0 4 4" role="img"
+      aria-label="Tablero de 4 por 4 con un gusano de 6 casillas que empieza arriba a la izquierda y baja y sube en escalera hasta la tercera fila, cuarta columna. Dos casillas amarillas, una encima y otra debajo de la cabeza, son las jugadas posibles.">
+      <rect class="casilla gusano" x="0.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="2.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="3.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla pajaro" x="0.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla gusano" x="1.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="2.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla legal" x="3.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="0.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla pajaro" x="1.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla gusano" x="2.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla pajaro cabeza" x="3.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="0.05" y="3.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="3.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="2.05" y="3.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla legal" x="3.05" y="3.05" width="0.9" height="0.9" rx="0.08"/>
+      <polyline class="gusano-cuerpo" points="0.5,0.5 0.5,1.5 1.5,1.5 1.5,2.5 2.5,2.5 3.5,2.5"
+        fill="none" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle class="gusano-cabeza" cx="3.5" cy="2.5" r="0.3"/>
+      <circle class="ojo" cx="3.44" cy="2.4" r="0.08"/><circle class="ojo" cx="3.44" cy="2.6" r="0.08"/>
+      <circle class="pupila" cx="3.47" cy="2.4" r="0.04"/><circle class="pupila" cx="3.47" cy="2.6" r="0.04"/>
+      <text x="0.5" y="0.5" text-anchor="middle" dominant-baseline="central" font-size="0.3">1</text>
+      <text x="0.5" y="1.5" text-anchor="middle" dominant-baseline="central" font-size="0.3">2</text>
+      <text x="1.5" y="1.5" text-anchor="middle" dominant-baseline="central" font-size="0.3">3</text>
+      <text x="1.5" y="2.5" text-anchor="middle" dominant-baseline="central" font-size="0.3">4</text>
+      <text x="2.5" y="2.5" text-anchor="middle" dominant-baseline="central" font-size="0.3">5</text>
+    </svg>
+    <figcaption>Seis casillas rellenas, numeradas por orden (la 6 es la cabeza, con ojos).
+    Verde: las puso quien hace de gusano; violeta: las puso el pájaro. Las amarillas son las
+    únicas jugadas posibles: casillas libres vecinas de la cabeza. La de la izquierda de la
+    cabeza ya está ocupada, y las diagonales no cuentan en este tablero. Ahora le toca al
+    gusano.</figcaption>
+  </figure>
+</section>
+
+<section id="gusano-y-pajaro">
+  <h2>Gusano y pájaro</h2>
+  <p>En cada ronda, cada jugador tiene un papel distinto:</p>
+  <ul>
+    <li><strong>Gusano</strong>: quiere que el camino sea <em>largo</em>, porque cada casilla
+    son puntos para él. Es quien «tiene» la casilla inicial.</li>
+    <li><strong>Pájaro</strong>: quiere que la ronda acabe <em>pronto</em>.</li>
+  </ul>
+  <p>Los dos rellenan casillas del mismo gusano, así que el pájaro también puede cortarle el
+  paso. Incluso puede acabar la ronda metiendo la cabeza en un callejón sin salida.</p>
+</section>
+
+<section id="pares-y-puntos">
+  <h2>Pares y puntos</h2>
+  <p>Una partida son uno o más <strong>pares</strong> de rondas. En cada par se juegan dos
+  rondas <strong>en el mismo tablero y desde la misma casilla inicial</strong>: en la primera
+  es gusano el jugador A y en la segunda lo es el jugador B. Así nadie sale con ventaja por
+  el tablero o por la casilla.</p>
+  <p>Gana quien sume más puntos entre todas las rondas. Si suman lo mismo hay empate, y la
+  aplicación te deja jugar <strong>un par más</strong> para desempatar.</p>
+</section>
+
+<section id="tableros">
+  <h2>Tableros</h2>
+  <p>Un tablero es un grafo: casillas y conexiones. Cambia el tablero y cambia el juego.</p>
+  <ul>
+    <li><strong>Cuadrado, 4 vecinas</strong>: cada casilla se conecta con la de arriba, abajo,
+    izquierda y derecha. Las esquinas tienen solo 2 salidas.</li>
+    <li><strong>Cuadrado, 8 vecinas</strong>: también cuentan las diagonales. Hay muchos más
+    caminos y el gusano puede cruzarse a sí mismo: las casillas son puntos, y eso no está
+    prohibido.</li>
+    <li><strong>Caballo</strong>: cada casilla se conecta con las que quedan a un salto de
+    caballo de ajedrez. Las jugadas legales se resaltan, porque las líneas de los saltos
+    serían un lío.</li>
+    <li><strong>Hexagonal</strong>: casillas hexagonales con 6 vecinas cada una (menos en el
+    borde).</li>
+    <li><strong>Superficies</strong> (cilindro, toro, banda de Möbius, botella de Klein): una
+    rejilla cuyos bordes están pegados. Si te sales por un lado, entras por el otro. En la
+    banda de Möbius y la botella de Klein el pegado le da la vuelta a la fila. ¿Cómo cambia
+    eso lo que le conviene al pájaro?</li>
+    <li><strong>Poliedros</strong> (tetraedro, cubo, octaedro, dodecaedro, icosaedro y balón
+    de fútbol): las casillas son las <em>caras</em> del sólido, y dos caras son vecinas si
+    comparten una arista. Se dibujan aplastados sobre el plano. ¿Dónde se escondería un
+    pájaro en un balón?</li>
+  </ul>
+</section>
+
+<section id="obstaculos-y-valores">
+  <h2>Obstáculos y valores</h2>
+  <ul>
+    <li><strong>Obstáculos</strong>: casillas bloqueadas desde el principio. Nadie puede
+    rellenarlas, ni siquiera como casilla inicial.</li>
+    <li><strong>Casillas con valor</strong>: no todas valen 1 punto. Algunas valen más y
+    otras restan (valor negativo). El valor de cada casilla se escribe en ella cuando no
+    es 1.</li>
+  </ul>
+</section>
+
+<section id="consejos">
+  <h2>Consejos</h2>
+  <ol>
+    <li>Si eres el <strong>pájaro</strong>, busca esquinas y callejones: una casilla con una
+    sola salida es una trampa para el gusano.</li>
+    <li>Si eres el <strong>gusano</strong>, huye de los bordes y de las esquinas: en medio
+    del tablero tienes más salidas.</li>
+    <li>Activa el <strong>modo ayuda</strong> y mira el «techo» del gusano: los puntos que
+    como máximo podría conseguir si recorriera todas las casillas a las que aún se llega.
+    Las casillas que ya no se alcanzan se ven atenuadas.</li>
+  </ol>
+</section>
+
+<section id="para-clase">
+  <h2>Para clase</h2>
+  <ul>
+    <li><strong>Reto del día</strong>: todos reciben el mismo tablero y la misma casilla
+    inicial. Haces de gusano contra un pájaro que no se equivoca. Al acabar, la aplicación te
+    dice cuánto has conseguido y cuánto era el máximo posible (el «par»), y te da un texto
+    para copiar y comparar con tus compañeros.</li>
+    <li><strong>Análisis</strong>: al terminar una partida puedes recorrerla jugada a jugada.
+    En los tableros pequeños se marca la mejor jugada de cada momento y cuántos puntos se
+    perdieron al no hacerla.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer class="pie">© 2026 Juan Luis Salas García · <a href="index.html">Volver al juego</a></footer>
+</body>
+</html>
