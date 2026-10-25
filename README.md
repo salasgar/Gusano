@@ -30,6 +30,18 @@ npm test
 Ejecuta `node --test`, que descubre `tests/*.test.js` (hace falta Node 22 o posterior). No
 hay nada que instalar.
 
+Las pruebas de la interfaz van aparte, en Chrome sin cabeza (hace falta tener Chrome
+instalado; no necesita paquetes):
+
+```sh
+node herramientas/test-ui.js
+```
+
+Abre la aplicación, juega partidas completas y termina con «TODO OK» (código 0) o con
+código 1 si algún caso falla. Opciones: `--solo <texto>` ejecuta solo los casos cuyo nombre
+contiene ese texto; `--capturas <carpeta>` guarda capturas de pantalla (por ejemplo,
+a 375 px de ancho); `--chrome <ruta>` indica dónde está Chrome si no lo encuentra.
+
 ## Estructura
 
 ```

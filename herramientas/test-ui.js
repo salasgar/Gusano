@@ -50,7 +50,8 @@ function servir() {
 // ---------- utilidades que se ejecutan en la página ----------
 
 // Rellena el formulario de ajustes y pulsa «Empezar». `jugadores`: [{tipo, nivel}, {tipo, nivel}].
-async function configurar(p, { generadorId = 'cuadrado4', parametros = {}, inicio = 'azar', jugadores }) {
+// Con `ventanaDePapeles: false` se deja abierta la ventana de papeles; si no, se pulsa «Empezar».
+async function configurar(p, { generadorId = 'cuadrado4', parametros = {}, inicio = 'azar', jugadores, ventanaDePapeles = true }) {
   await p.evaluar(`(() => {
     const ponValor = (campo, valor) => { campo.value = valor; campo.dispatchEvent(new Event('change', { bubbles: true })); };
     const g = document.querySelector('#ajuste-generador');
@@ -73,9 +74,60 @@ async function configurar(p, { generadorId = 'cuadrado4', parametros = {}, inici
   })()`);
   await p.pulsar('form.ajustes button[type=submit]');
   if (!await p.esperarHasta(`!!document.querySelector('.zona-tablero svg')`, 5000)) throw new Error('la partida no arrancó');
+  if (!await p.esperarHasta(HAY_VENTANA, 3000)) throw new Error('no sale la ventana de papeles al empezar');
+  if (ventanaDePapeles) await pulsarVentana(p, 'Empezar');
 }
 
 const HUMANOS = [{ tipo: 'humano' }, { tipo: 'humano' }];
+
+// ---------- ventanas de papeles y de fin de ronda ----------
+
+const HAY_VENTANA = `!!document.querySelector('dialog.ventana[open]')`;
+const MENOS = '−';
+
+// { titulo, texto, botones } de la ventana abierta, o null.
+const ventana = (p) => p.evaluar(`(() => {
+  const d = document.querySelector('dialog.ventana[open]');
+  return d ? { titulo: d.querySelector('h2').textContent, texto: d.innerText, botones: [...d.querySelectorAll('button')].map((b) => b.textContent) } : null;
+})()`);
+
+// Pulsa de verdad (con el ratón) el botón de la ventana abierta cuyo texto empieza por `inicio`.
+async function pulsarVentana(p, inicio) {
+  const hay = await p.evaluar(`(() => {
+    const b = [...document.querySelectorAll('dialog.ventana[open] button')].find((x) => x.textContent.startsWith(${JSON.stringify(inicio)}));
+    if (!b) return false;
+    b.dataset.prueba = 'ventana';
+    return true;
+  })()`);
+  if (!hay) throw new Error(`la ventana abierta no tiene el botón «${inicio}»: ${JSON.stringify(await ventana(p))}`);
+  await p.pulsar('[data-prueba=ventana]');
+  await p.esperar(100);
+}
+
+const saldosDom = (p) => p.evaluar(`[...document.querySelectorAll('.jugador-marcador .saldo')].map((e) => Number(e.textContent.replace('${MENOS}', '-')))`);
+const rellenas = (p) => p.evaluar(`document.querySelectorAll('.zona-tablero [data-indice].gusano, .zona-tablero [data-indice].pajaro').length`);
+
+// Juega a clics la primera casilla legal hasta que salga una ventana. `tope` jugadas.
+async function jugarHastaVentana(p, tope = 60) {
+  for (let k = 0; k < tope; k++) {
+    if (await p.evaluar(HAY_VENTANA)) return;
+    if (await p.evaluar(`!!document.querySelector('.zona-tablero [data-indice].legal')`)) await p.pulsar('.zona-tablero [data-indice].legal');
+    else await p.esperar(100);
+  }
+  throw new Error(`no sale ninguna ventana en ${tope} intentos`);
+}
+
+// Partida de máquinas: pulsa «Continuar con …» cada vez que sale; termina cuando la ventana final lleva «Un par más».
+async function dejarJugarMaquinas(p, tope) {
+  const fin = Date.now() + tope;
+  while (Date.now() < fin) {
+    const v = await ventana(p);
+    if (v?.botones.some((b) => b.startsWith('Continuar con'))) await pulsarVentana(p, 'Continuar con');
+    else if (v?.botones.includes('Un par más')) return true;
+    else await p.esperar(150);
+  }
+  return false;
+}
 
 async function abrirApp(ctx, ancho = 1200, alto = 900) {
   const p = await Pagina.abrir(ctx.cdp);
@@ -84,13 +136,10 @@ async function abrirApp(ctx, ancho = 1200, alto = 900) {
   return p;
 }
 
-const leeMarcadorDom = (p) => p.evaluar(`[...document.querySelectorAll('.jugador-marcador .puntos')].map((e) => Number(e.textContent))`);
 const hayResultado = (p) => p.evaluar(`!!document.querySelector('.resultado')`);
 
 function consolaLimpia(p) {
-  // El navegador pide /favicon.ico por su cuenta: ese 404 no es de la app.
-  const propios = p.consola.filter((l) => !/favicon/.test(l));
-  if (propios.length) throw new Error(`consola con mensajes: ${propios.join(' | ')}`);
+  if (p.consola.length) throw new Error(`consola con mensajes: ${p.consola.join(' | ')}`);
 }
 
 async function captura(ctx, p, nombre) {
@@ -142,12 +191,22 @@ const casos = [
         if (casilla === null) throw new Error(`jugada ${jugadas}: no hay casillas legales en pantalla`);
         await p.pulsar(`.zona-tablero [data-indice="${casilla}"]`);
         await p.evaluar(`(() => { const o = window.__motor; o.partida = o.m.jugarEnPartida(o.partida, ${casilla}); })()`);
-        const esperado = await p.evaluar(`window.__motor.m.marcador(window.__motor.partida).puntos`);
-        const dom = await leeMarcadorDom(p);
+        // Al cerrarse una ronda sale la ventana: se pulsa «Continuar con …» antes de comparar el marcador vivo.
+        const v = await ventana(p);
+        if (v?.botones.some((b) => b.startsWith('Continuar con'))) await pulsarVentana(p, 'Continuar con');
+        const puntos = await p.evaluar(`window.__motor.m.marcador(window.__motor.partida).puntos`);
+        const esperado = [puntos[0] - puntos[1], puntos[1] - puntos[0]];
+        const dom = await saldosDom(p);
         if (dom[0] !== esperado[0] || dom[1] !== esperado[1]) {
-          throw new Error(`jugada ${jugadas} (casilla ${casilla}): marcador en pantalla ${dom} ≠ motor ${esperado}`);
+          throw new Error(`jugada ${jugadas} (casilla ${casilla}): saldos en pantalla ${dom} ≠ motor ${esperado}`);
         }
       }
+      const final0 = await ventana(p);
+      if (!final0?.botones.includes('Ver tablero') || !final0.botones.includes('Un par más')) {
+        throw new Error(`la ventana final no trae los botones esperados: ${JSON.stringify(final0)}`);
+      }
+      await pulsarVentana(p, 'Ver tablero');
+      if (await p.evaluar(HAY_VENTANA)) throw new Error('«Ver tablero» no cierra la ventana final');
       const texto = await p.evaluar(`document.querySelector('.resultado').textContent`);
       const final = await p.evaluar(`window.__motor.m.marcador(window.__motor.partida)`);
       const terminada = await p.evaluar(`window.__motor.partida.terminada`);
@@ -168,7 +227,7 @@ const casos = [
         jugadores: [{ tipo: 'maquina', nivel: 'aleatorio' }, { tipo: 'maquina', nivel: 'perfecto' }],
       });
       const t0 = Date.now();
-      const acabo = await p.esperarHasta(`!!document.querySelector('.resultado')`, 60000);
+      const acabo = await dejarJugarMaquinas(p, 60000);
       const seg = ((Date.now() - t0) / 1000).toFixed(1);
       if (!acabo) throw new Error('no terminó en 60 s');
       consolaLimpia(p);
@@ -208,17 +267,122 @@ const casos = [
       if (await p.evaluar(`document.querySelector('button[aria-pressed]').getAttribute('aria-pressed')`) !== 'true') {
         throw new Error('el interruptor no queda activado');
       }
-      const rellenas = () => p.evaluar(`document.querySelectorAll('.zona-tablero [data-indice].gusano, .zona-tablero [data-indice].pajaro').length`);
       for (let k = 1; k <= 2; k++) {
-        const antes = await rellenas();
+        const antes = await rellenas(p);
         await p.pulsar(`.zona-tablero [data-indice].legal`);
         await p.esperar(100);
-        const despues = await rellenas();
+        const despues = await rellenas(p);
         if (despues !== antes + 1) throw new Error(`jugada ${k}: casillas rellenas ${antes} → ${despues}`);
       }
       if (!await p.evaluar(`!!document.querySelector('.techo')`)) throw new Error('con la ayuda no aparece el techo');
       consolaLimpia(p);
       await captura(ctx, p, 'e-ayuda');
+    },
+  },
+  {
+    nombre: 'f) la ventana de papeles sale al empezar, con los dos nombres, y mientras está abierta nadie juega',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, {
+        generadorId: 'cuadrado4', parametros: { lado: 4 }, ventanaDePapeles: false,
+        jugadores: [{ tipo: 'maquina', nivel: 'aleatorio' }, { tipo: 'maquina', nivel: 'aleatorio' }],
+      });
+      const v = await ventana(p);
+      if (v.titulo !== 'Par 1 · Ronda 1') throw new Error(`título «${v.titulo}»`);
+      for (const frase of ['Jugador A es el gusano', 'Jugador B es el pájaro', 'La casilla inicial ya está puesta: mueve primero Jugador B (pájaro).']) {
+        if (!v.texto.includes(frase)) throw new Error(`falta «${frase}» en: ${v.texto}`);
+      }
+      await captura(ctx, p, 'f-papeles-1200');
+      const antes = await rellenas(p);
+      await p.esperar(1500);
+      if (await rellenas(p) !== antes) throw new Error('la máquina jugó con la ventana de papeles abierta');
+      await pulsarVentana(p, 'Empezar');
+      if (!await p.esperarHasta(`document.querySelectorAll('.zona-tablero [data-indice].gusano, .zona-tablero [data-indice].pajaro').length > ${antes}`, 5000)) {
+        throw new Error('al pulsar «Empezar» la máquina no empieza a jugar');
+      }
+      consolaLimpia(p);
+    },
+  },
+  {
+    nombre: 'g) a mitad de la ronda 1 los saldos son +N y −N con N las casillas del gusano',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'cuadrado4', parametros: { lado: 4 }, inicio: 'libre', jugadores: HUMANOS });
+      for (let k = 0; k < 3; k++) await p.pulsar('.zona-tablero [data-indice].legal');
+      const n = await rellenas(p);
+      if (n !== 3) throw new Error(`se esperaban 3 casillas rellenas y hay ${n}`);
+      const dom = await saldosDom(p);
+      if (dom[0] !== n || dom[1] !== -n) throw new Error(`saldos ${dom}, se esperaba [${n}, ${-n}]`);
+      const textos = await p.evaluar(`[...document.querySelectorAll('.jugador-marcador .saldo')].map((e) => e.textContent)`);
+      if (textos[0] !== `+${n}` || textos[1] !== `${MENOS}${n}`) throw new Error(`saldos escritos «${textos}»`);
+      const brutos = await p.evaluar(`[...document.querySelectorAll('.jugador-marcador .brutos')].map((e) => e.textContent)`);
+      if (brutos[0] !== `${n} como gusano`) throw new Error(`puntos brutos «${brutos}»`);
+      consolaLimpia(p);
+      return `saldos ${textos.join(' / ')}`;
+    },
+  },
+  {
+    nombre: 'h) fin de ronda: ventana, «Ver tablero» deja la ronda cerrada sin que juegue la máquina, y «Continuar» sigue',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, {
+        generadorId: 'cuadrado4', parametros: { lado: 4 },
+        jugadores: [{ tipo: 'maquina', nivel: 'aleatorio' }, { tipo: 'humano' }],
+      });
+      await jugarHastaVentana(p);
+      const n = await rellenas(p);
+      const v = await ventana(p);
+      if (!v.texto.includes('Fin de la ronda 1 del par 1')) throw new Error(`ventana inesperada: ${v.texto}`);
+      if (!v.texto.includes(`mide ${n} casillas`)) throw new Error(`se esperaba «mide ${n} casillas» en: ${v.texto}`);
+      if (!v.texto.includes(`Jugador A +${n}, Jugador B ${MENOS}${n}`)) throw new Error(`falta el reparto +${n}/−${n}: ${v.texto}`);
+      if (!v.botones.includes('Continuar con la ronda 2') || !v.botones.includes('Ver tablero')) throw new Error(`botones ${v.botones}`);
+      await captura(ctx, p, 'h-fin-de-ronda-1200');
+      await pulsarVentana(p, 'Ver tablero');
+      if (await p.evaluar(HAY_VENTANA)) throw new Error('«Ver tablero» no cierra la ventana');
+      await p.esperar(2000);
+      if (await rellenas(p) !== n) throw new Error('al mirar el tablero cerrado la máquina ha jugado en la ronda siguiente');
+      if (!await p.evaluar(`[...document.querySelectorAll('.botones button')].some((b) => b.textContent === 'Continuar con la ronda 2')`)) {
+        throw new Error('no queda el botón «Continuar con la ronda 2» en la zona de botones');
+      }
+      const dom = await saldosDom(p);
+      if (dom[0] !== n || dom[1] !== -n) throw new Error(`saldos con el tablero cerrado ${dom}, se esperaba [${n}, ${-n}]`);
+      await captura(ctx, p, 'h-ver-tablero-1200');
+      await p.pulsar('.botones button.principal');
+      const cabecera = await p.evaluar(`document.querySelector('.ronda-actual').textContent`);
+      if (!cabecera.includes('Ronda 2')) throw new Error(`tras «Continuar» la cabecera dice «${cabecera}»`);
+      if (!await p.esperarHasta(`document.querySelectorAll('.zona-tablero [data-indice].gusano, .zona-tablero [data-indice].pajaro').length !== ${n}`, 5000)) {
+        throw new Error('tras «Continuar» la ronda 2 no avanza');
+      }
+      consolaLimpia(p);
+      return `ronda 1 de ${n} casillas`;
+    },
+  },
+  {
+    nombre: 'i) un solo history.back() vuelve a la pantalla anterior (Jugar → Reto → Análisis → Editor)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      for (const id of ['reto', 'analisis', 'editor']) {
+        await p.pulsar(`nav a[data-pantalla=${id}]`);
+        await p.esperar(250);
+      }
+      await p.evaluar('history.back()');
+      await p.esperar(400);
+      const hash = await p.evaluar('location.hash');
+      if (hash !== '#analisis') throw new Error(`tras un history.back() el hash es «${hash}», no #analisis`);
+      const actual = await p.evaluar(`document.querySelector('nav a[aria-current=page]')?.dataset.pantalla`);
+      if (actual !== 'analisis') throw new Error(`la pantalla activa es «${actual}»`);
+      consolaLimpia(p);
+    },
+  },
+  {
+    nombre: 'j) las páginas no dejan el 404 del icono en la consola',
+    async correr(ctx) {
+      for (const pagina of ['index.html', 'reglas.html']) {
+        const p = await Pagina.abrir(ctx.cdp);
+        await p.ir(`${ctx.base}/${pagina}`);
+        await p.esperar(300);
+        consolaLimpia(p);
+      }
     },
   },
 ];

@@ -3,7 +3,7 @@
 
 import { generador } from '../tableros/index.js';
 import { crearAzar } from '../util/azar.js';
-import { jugadasLegales, cotaSuperior, puntuacion } from '../motor/ronda.js';
+import { jugadasLegales, cotaSuperior } from '../motor/ronda.js';
 import {
   nuevaPartida, rondaActual, jugadorEnTurno, jugarEnPartida, marcador, anadirPar,
 } from '../motor/partida.js';
@@ -12,6 +12,9 @@ import { crearVista } from '../ui/vista-tablero.js';
 import { ajustesPorDefecto, tablerosDesdeAjustes, montarAjustes } from '../ui/ajustes.js';
 import { decoraciones } from '../ui/ayudas.js';
 import { enlaceDe } from '../compartir/url.js';
+import {
+  saldos, conSigno, marcadorAlCierre, sinEmpezar, papeles, finDeRonda, resultado,
+} from '../ui/textos-partida.js';
 
 export const id = 'jugar';
 export const titulo = 'Jugar';
@@ -37,7 +40,10 @@ function boton(texto, alPulsar, clase = '') {
   return b;
 }
 
-const parasPuntos = (n) => `${n} ${Math.abs(n) === 1 ? 'punto' : 'puntos'}`;
+// «**Jugador A es el gusano**: …» → nodos de texto y <strong>.
+function conNegrita(texto) {
+  return texto.split(/\*\*(.+?)\*\*/).map((trozo, i) => (i % 2 ? el('strong', {}, trozo) : trozo));
+}
 
 export function montar(contenedor, contexto) {
   const { irA, datos = {} } = contexto;
@@ -48,11 +54,15 @@ export function montar(contenedor, contexto) {
   let vista = null;
   let parDeLaVista = -1;
   let ayuda = false;
-  let aviso = '';
   let pensando = false;
+  // Ventana abierta (o null) y ronda terminada que se está mirando sin haber pulsado «Continuar»:
+  // { par, ronda, continuar }. En cualquiera de los dos casos nadie juega.
+  let dialogo = null;
+  let cierre = null;
 
   const activo = () => contenedor.isConnected;
   const azarMaquina = crearAzar();
+  const enPausa = () => dialogo !== null || cierre !== null;
 
   // ---------- fase 1: ajustes ----------
 
@@ -61,6 +71,8 @@ export function montar(contenedor, contexto) {
     vista?.destruir();
     vista = null;
     parDeLaVista = -1;
+    dialogo = null;
+    cierre = null;
     montarAjustes(contenedor, ajustes, (aceptados) => {
       // Elegir un tablero en el formulario sustituye al que venía del editor.
       const { tableroFijo, ...resto } = aceptados;
@@ -77,7 +89,6 @@ export function montar(contenedor, contexto) {
       inicio: ajustes.inicio,
       semilla: ajustes.semilla,
     });
-    aviso = '';
     ayuda = false;
     construirPartida();
   }
@@ -90,69 +101,74 @@ export function montar(contenedor, contexto) {
     vista?.destruir();
     vista = null;
     parDeLaVista = -1;
+    dialogo = null;
+    cierre = null;
     zonas.marcador = el('section', { class: 'marcador', 'aria-live': 'polite' });
     zonas.estado = el('p', { class: 'estado', role: 'status' });
     zonas.tablero = el('div', { class: 'zona-tablero' });
     zonas.botones = el('div', { class: 'botones' });
     zonas.enlace = el('div', { class: 'enlace' });
+    zonas.ventanas = el('div', { class: 'ventanas' });
     const lateral = el('div', { class: 'lateral' }, zonas.marcador, zonas.estado, zonas.botones, zonas.enlace);
-    contenedor.replaceChildren(el('div', { class: 'partida' }, zonas.tablero, lateral));
+    contenedor.replaceChildren(el('div', { class: 'partida' }, zonas.tablero, lateral, zonas.ventanas));
+    // La ventana de papeles se abre antes del primer pintado para que la máquina no se adelante.
+    if (sinEmpezar(partida)) abrirPapeles();
     pintar();
   }
 
   function nombreDe(i) { return partida.nombres[i]; }
 
-  function pintaMarcador(m, ronda) {
-    const gusano = partida.ronda;
-    const enTurno = partida.terminada ? null : jugadorEnTurno(partida);
+  // Los papeles y el marcador que se ven: los de la ronda cerrada mientras se la mira, los de la actual si no.
+  const rondaVista = () => (cierre ? cierre.ronda : partida.ronda);
+  const parVisto = () => (cierre ? cierre.par : partida.par);
+
+  function pintaMarcador(ronda) {
+    const m = cierre ? marcadorAlCierre(partida, cierre) : marcador(partida);
+    const [saldoA, saldoB] = saldos(m.puntos);
+    const gusano = rondaVista();
+    const enTurno = partida.terminada || cierre ? null : jugadorEnTurno(partida);
     const columnas = [0, 1].map((i) => {
       const esGusano = i === gusano;
+      const saldo = i === 0 ? saldoA : saldoB;
       const caja = el('div', { class: `jugador-marcador${i === enTurno ? ' turno' : ''}` });
       caja.append(
         el('span', { class: 'nombre' }, nombreDe(i)),
-        el('span', { class: 'puntos' }, String(m.puntos[i])),
+        el('span', { class: `saldo ${saldo > 0 ? 'positivo' : saldo < 0 ? 'negativo' : 'cero'}` }, conSigno(saldo)),
+        el('span', { class: 'brutos' }, `${m.puntos[i]} como gusano`),
       );
       if (!partida.terminada) {
         caja.append(el('span', { class: `rol ${esGusano ? 'gusano' : 'pajaro'}` }, esGusano ? 'gusano' : 'pájaro'));
-        if (ayuda && esGusano) caja.append(el('span', { class: 'techo' }, `techo ${cotaSuperior(ronda)}`));
+        if (ayuda && esGusano && !cierre) caja.append(el('span', { class: 'techo' }, `techo ${cotaSuperior(ronda)}`));
       }
       return caja;
     });
     const total = partida.pares.length;
     const cabecera = partida.terminada
       ? 'Partida terminada'
-      : `Par ${partida.par + 1} de ${total} · Ronda ${partida.ronda + 1}`;
+      : `Par ${parVisto() + 1} de ${total} · Ronda ${rondaVista() + 1}${cierre ? ' (terminada)' : ''}`;
     zonas.marcador.replaceChildren(el('div', { class: 'ronda-actual' }, cabecera), ...columnas);
   }
 
   function pintaEstado(humanoEnTurno) {
-    let texto;
-    if (partida.terminada) {
+    let texto = '';
+    if (partida.terminada || cierre) {
       texto = '';
     } else if (pensando) {
       texto = `${nombreDe(jugadorEnTurno(partida))} está pensando…`;
     } else if (humanoEnTurno) {
       texto = `Turno de ${nombreDe(jugadorEnTurno(partida))}.`;
-    } else {
-      texto = '';
     }
-    zonas.estado.replaceChildren(
-      ...(aviso ? [el('span', { class: 'aviso' }, aviso), ' '] : []),
-      texto,
-    );
+    zonas.estado.replaceChildren(texto);
   }
 
   function pintaBotones() {
     const botones = [];
     if (partida.terminada) {
-      const m = marcador(partida);
-      const [a, b] = m.puntos;
-      const resultado = m.ganador === null
-        ? `Empate a ${a} puntos.`
-        : `Gana ${nombreDe(m.ganador)} por ${m.puntos[m.ganador]} a ${m.puntos[1 - m.ganador]}.`;
-      botones.push(el('p', { class: 'resultado' }, resultado));
+      botones.push(el('p', { class: 'resultado' }, resultado(partida)));
       botones.push(boton('Un par más', unParMas));
       botones.push(boton('Analizar', () => irA('analisis', { partida })));
+    } else if (cierre) {
+      botones.push(boton(cierre.continuar, continuar, 'principal'));
     } else {
       const interruptor = boton(`Modo ayuda: ${ayuda ? 'sí' : 'no'}`, () => { ayuda = !ayuda; pintar(); });
       interruptor.setAttribute('aria-pressed', String(ayuda));
@@ -165,28 +181,89 @@ export function montar(contenedor, contexto) {
 
   function pintar() {
     if (!activo()) return;
-    const ronda = rondaActual(partida);
-    const par = partida.pares[partida.par];
+    // Con una ronda cerrada a la vista se dibuja ella, sobre su tablero, aunque el motor ya esté en otra.
+    const ronda = cierre ? partida.pares[cierre.par].rondas[cierre.ronda] : rondaActual(partida);
+    const par = partida.pares[parVisto()];
 
-    if (parDeLaVista !== partida.par) {
+    if (parDeLaVista !== parVisto()) {
       vista?.destruir();
       zonas.tablero.replaceChildren();
       vista = crearVista(zonas.tablero, par.tablero, { alClicar });
-      parDeLaVista = partida.par;
+      parDeLaVista = parVisto();
     }
 
-    const humanoEnTurno = !partida.terminada && ajustes.jugadores[jugadorEnTurno(partida)].tipo === 'humano';
+    const humanoEnTurno = !partida.terminada && !enPausa()
+      && ajustes.jugadores[jugadorEnTurno(partida)].tipo === 'humano';
     vista.actualizar({
       ronda,
       legales: humanoEnTurno ? jugadasLegales(ronda) : [],
       decoraciones: ayuda ? decoraciones(ronda) : new Map(),
       mostrarValores: true,
     });
-    pintaMarcador(marcador(partida), ronda);
+    pintaMarcador(ronda);
     pintaEstado(humanoEnTurno);
     pintaBotones();
 
-    if (!partida.terminada && !humanoEnTurno && !pensando) programaMaquina();
+    if (!partida.terminada && !humanoEnTurno && !pensando && !enPausa()) programaMaquina();
+  }
+
+  // ---------- ventanas ----------
+
+  // botones: [{ texto, principal?, alPulsar }]; `alCancelar` es lo que hace Esc.
+  function abrirVentana({ titulo: encabezado, parrafos, botones, alCancelar }) {
+    const d = el('dialog', { class: 'ventana' });
+    const cuerpo = parrafos.map((p) => el('p', {}, ...conNegrita(p)));
+    const fila = el('div', { class: 'botones-ventana' });
+    let atendida = false;
+    // Cualquier salida (botón, Esc, close) se atiende una sola vez: Esc dispara «cancel» y luego «close».
+    const atender = (accion) => {
+      if (atendida) return;
+      atendida = true;
+      if (dialogo === d) dialogo = null;
+      if (d.open) d.close();
+      d.remove();
+      accion();
+    };
+    for (const b of botones) fila.append(boton(b.texto, () => atender(b.alPulsar), b.principal ? 'principal' : ''));
+    d.append(el('h2', {}, encabezado), ...cuerpo, fila);
+    d.addEventListener('cancel', (e) => { e.preventDefault(); atender(alCancelar); });
+    d.addEventListener('close', () => atender(alCancelar));
+    zonas.ventanas.append(d);
+    dialogo = d;
+    d.showModal();
+    fila.querySelector('button.principal')?.focus();
+  }
+
+  function abrirPapeles() {
+    const t = papeles(partida);
+    const empezarRonda = () => pintar();
+    abrirVentana({
+      titulo: t.titulo,
+      parrafos: t.parrafos,
+      botones: [{ texto: t.boton, principal: true, alPulsar: empezarRonda }],
+      alCancelar: empezarRonda,
+    });
+  }
+
+  // `cierre` ya está puesto (null si la partida ha terminado): «Ver tablero» solo tiene que pintar.
+  function abrirFinDeRonda(t) {
+    const verTablero = () => pintar();
+    const botones = [];
+    if (t.continuar) {
+      botones.push({ texto: t.continuar, principal: true, alPulsar: continuar });
+      botones.push({ texto: 'Ver tablero', alPulsar: verTablero });
+    } else {
+      botones.push({ texto: 'Ver tablero', principal: true, alPulsar: verTablero });
+      botones.push({ texto: 'Un par más', alPulsar: unParMas });
+      botones.push({ texto: 'Analizar', alPulsar: () => irA('analisis', { partida }) });
+      botones.push({ texto: 'Nueva partida', alPulsar: nuevaPartidaNueva });
+    }
+    abrirVentana({ titulo: t.titulo, parrafos: t.parrafos, botones, alCancelar: verTablero });
+  }
+
+  function continuar() {
+    cierre = null;
+    pintar();
   }
 
   // ---------- jugadas ----------
@@ -194,16 +271,18 @@ export function montar(contenedor, contexto) {
   function jugarCasilla(casilla) {
     const antes = partida;
     partida = jugarEnPartida(partida, casilla);
-    aviso = '';
-    if (partida.par !== antes.par || partida.ronda !== antes.ronda || partida.terminada) {
-      const cerrada = partida.pares[antes.par].rondas[antes.ronda];
-      aviso = `Fin de la ronda: ${nombreDe(antes.ronda)} (gusano) suma ${parasPuntos(puntuacion(cerrada))}.`;
-    }
     zonas.enlace.replaceChildren();
+    if (partida.par !== antes.par || partida.ronda !== antes.ronda || partida.terminada) {
+      // La ronda cerrada se guarda ahora: el motor ya ha pasado a la siguiente.
+      const cerrada = { par: antes.par, ronda: antes.ronda };
+      const t = finDeRonda(partida, cerrada);
+      cierre = partida.terminada ? null : { ...cerrada, continuar: t.continuar };
+      abrirFinDeRonda(t);
+    }
   }
 
   function alClicar(casilla) {
-    if (!partida || partida.terminada || pensando) return;
+    if (!partida || partida.terminada || pensando || enPausa()) return;
     if (ajustes.jugadores[jugadorEnTurno(partida)].tipo !== 'humano') return;
     if (!jugadasLegales(rondaActual(partida)).includes(casilla)) return;
     jugarCasilla(casilla);
@@ -239,7 +318,8 @@ export function montar(contenedor, contexto) {
 
   function unParMas() {
     partida = anadirPar(partida, tableroNuevo());
-    aviso = '';
+    cierre = null;
+    if (sinEmpezar(partida)) abrirPapeles();
     pintar();
   }
 

@@ -135,7 +135,7 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
     el('h2', {}, 'Ajustes'),
     el('fieldset', {},
       el('legend', {}, 'Tablero'),
-      el('label', { class: 'campo' }, 'Tablero', selGenerador),
+      el('label', { class: 'campo' }, 'Tipo', selGenerador),
       descripcion,
       zonaParametros,
       el('label', { class: 'campo' }, 'Obstáculos', selObstaculos),

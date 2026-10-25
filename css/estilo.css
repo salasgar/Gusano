@@ -58,13 +58,28 @@ select, input[type="text"], input[type="number"] {
 }
 .jugador-marcador.turno { border-color: var(--acento); }
 .jugador-marcador .nombre { font-weight: 600; overflow-wrap: anywhere; text-align: center; }
-.jugador-marcador .puntos { font-size: 1.8rem; font-weight: 700; line-height: 1.1; }
+.jugador-marcador .saldo { font-size: 2rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.jugador-marcador .saldo.positivo { color: var(--gusano); }
+.jugador-marcador .saldo.negativo { color: var(--pajaro); }
+.jugador-marcador .brutos { font-size: 0.8rem; color: var(--texto-suave); }
 .jugador-marcador .rol { font-size: 0.85rem; padding: 0 8px; border-radius: 99px; color: #fff; }
 .jugador-marcador .rol.gusano { background: var(--gusano); }
 .jugador-marcador .rol.pajaro { background: var(--pajaro); }
 .jugador-marcador .techo { font-size: 0.85rem; color: var(--texto-suave); }
 .estado { margin: 0; min-height: 1.5em; text-align: center; }
-.estado .aviso { font-weight: 600; }
+
+/* Ventanas de papeles y de fin de ronda */
+dialog.ventana {
+  width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; padding: 16px 18px;
+  border: 1px solid var(--borde); border-radius: 12px; background: var(--panel); color: var(--texto);
+}
+dialog.ventana::backdrop { background: rgba(0, 0, 0, 0.5); }
+dialog.ventana h2 { margin: 0 0 8px; font-size: 1.2rem; }
+dialog.ventana p { margin: 0 0 10px; line-height: 1.4; }
+dialog.ventana strong:first-of-type { color: var(--gusano); }
+dialog.ventana p strong:nth-of-type(2) { color: var(--pajaro); }
+.botones-ventana { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.botones-ventana button { flex: 1 1 auto; }
 .botones { display: flex; flex-wrap: wrap; gap: 8px; }
 .botones .resultado { flex-basis: 100%; margin: 0; font-size: 1.15rem; font-weight: 700; text-align: center; }
 .enlace { display: grid; gap: 4px; }

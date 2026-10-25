@@ -24,7 +24,8 @@ export function pantallaActual() {
 export function irA(id, datos = {}) {
   const pantalla = pantallas.find((p) => p.id === id) ?? pantallas[0];
   const contenedor = document.getElementById('pantalla');
-  if (idActual !== pantalla.id || idDelHash() !== pantalla.id) {
+  // Si el hash ya es `#<id>` (el enlace del menú lo acaba de poner) no se añade otra entrada al historial.
+  if (location.hash !== `#${pantalla.id}`) {
     // Cambia el hash sin disparar «hashchange» (main.js solo reacciona a los cambios ajenos).
     const cambio = idActual === null ? 'replaceState' : 'pushState';
     history[cambio](null, '', `#${pantalla.id}`);
