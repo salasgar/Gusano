@@ -67,7 +67,12 @@ estás en verde y nadie las tiene; si no, frases y para.
 ## Trampas conocidas
 - `valorExacto` en 25-30 casillas puede tardar segundos: calcúlalo en un `setTimeout`
   para que la pantalla pinte antes, y nunca para más de una posición a la vez.
-- Ninguna otra por ahora.
+- `tests/ajustes.test.js` (07) llama a `decoraciones({})`: debe devolver un `Map` vacío y no
+  lanzar con algo que no sea una ronda.
+- Los ficheros de esta tarea (`ayudas.js`, `analisis.js`, `analisis.css`) los tenía reservados
+  la sesión de la 07 hasta 30 min después de cerrar (el hook los guarda por actividad): ábrela
+  cuando esa reserva haya caducado o empieza con la prueba y el resto en el scratchpad.
+- Con inicio al azar la casilla inicial no la elige nadie: el análisis no la juzga.
 
 ## Prohibido
 - Tocar `jugar.js`, `app.js`, `index.html` o `estilo.css`: si el enganche de la 07 no
