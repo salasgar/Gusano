@@ -108,7 +108,11 @@ las siete frases. No encadenes.
   casillas: pinta «pensando…» **antes** del `setTimeout`, no dentro.
 - Al copiar al portapapeles, `navigator.clipboard` solo funciona en `localhost` o HTTPS;
   muestra el enlace en un `<input readonly>` además de copiarlo.
-- Ninguna otra por ahora.
+- Con la columna lateral en `flex-direction: column`, un `flex-basis: 100%` heredado de la
+  versión móvil con `flex-wrap` empuja los botones a una segunda columna y desborda: en
+  escritorio, `nowrap` y `flex-basis: auto`. Se vio a 1100 px, no a 375.
+- Chrome sin cabeza por CDP: justo tras `Page.navigate` el formulario puede no estar aún
+  pintado; espera a `#ajuste-generador` antes de rellenar los ajustes.
 
 ## Prohibido
 - Implementar el reto, el análisis, el editor, compartir, obstáculos o valores: solo sus

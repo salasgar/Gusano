@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-25T00:20:56Z · por la sesión s-20261020T220839-0f075d81 (coordinadora: la sesión que cerró encontró el tablón reservado por el hook)
+Regenerado: 2026-10-25T00:32:30Z · por la sesión s-20261025T002203-ef62fbad (cierre de la 07)
 
 ## Antes de hacer nada
 
@@ -112,15 +112,15 @@ una conversación.
 | 04 | Motor: ronda, partida por pares, marcador | tareas/tarea-04-motor.md | 01 LISTA | 35 min | MEDIO | 05 | `js/motor/ronda.js`, `js/motor/partida.js`, `tests/motor.test.js` | manual | LISTA (d9dfd6d) | |
 | 05 | Máquina: niveles, alfa-beta, resolutor exacto | tareas/tarea-05-maquina.md | 02 y 04 LISTAS | 50 min | MEDIO | 04 | `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia.test.js` | manual | LISTA (836464a) | |
 | 06 | Vista del tablero en SVG y demo | tareas/tarea-06-vista-tablero.md | 02 y 04 LISTAS | 50 min | MEDIO | — | `js/ui/vista-tablero.js`, `css/vista-tablero.css`, `demo/vista.html`, `demo/vista.js` | manual | LISTA (3bae315) | |
-| 07 | Aplicación jugable: ajustes, partida, marcador, esbozos | tareas/tarea-07-app-jugable.md | 05 y 06 LISTAS | 75 min | MEDIO | — | `index.html`, `css/estilo.css`, `js/main.js`, `js/ui/app.js`, `ajustes.js`, `ayudas.js`, `js/pantallas/jugar.js`, `reto.js`, `analisis.js`, `editor.js`, `js/compartir/url.js`, `css/reto.css`, `analisis.css`, `editor.css`, `tests/ajustes.test.js` | manual | PENDIENTE | |
-| 08 | Arnés de interfaz en Chrome sin cabeza y verificación de la app | tareas/tarea-08-verificacion-app.md | 07 LISTA | 40 min | MEDIO | — | `herramientas/cdp.js`, `herramientas/test-ui.js`; `reparto/salidas/08-verificacion-app/` | manual | BLOQUEADA | |
-| 09 | Modo ayuda y pantalla de análisis | tareas/tarea-09-ayuda-y-analisis.md | 07 LISTA | 40 min | MEDIO | 10, 12 | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `tests/ayudas.test.js` | manual | BLOQUEADA | |
-| 10 | Reto del día | tareas/tarea-10-reto-del-dia.md | 07 LISTA | 35 min | MEDIO | 09, 12 | `js/pantallas/reto.js`, `css/reto.css`, `tests/reto.test.js` | manual | BLOQUEADA | |
-| 11 | Editor de tableros y grafos aleatorios | tareas/tarea-11-editor.md | 07 LISTA | 50 min | MEDIO | — | `js/pantallas/editor.js`, `css/editor.css`, `tests/editor.test.js` | manual | BLOQUEADA | |
-| 12 | Compartir la partida por URL | tareas/tarea-12-compartir-url.md | 07 LISTA | 35 min | MEDIO | 09, 10 | `js/compartir/url.js`, `tests/url.test.js` | manual | BLOQUEADA | |
-| 13 | Obstáculos | tareas/tarea-13-obstaculos.md | 07 LISTA y ningún reclamo vivo de la 14 | 25 min | MEDIO | 14 | `js/tableros/obstaculos.js`, `js/ui/ajustes.js`, `tests/obstaculos.test.js` | manual | BLOQUEADA | |
+| 07 | Aplicación jugable: ajustes, partida, marcador, esbozos | tareas/tarea-07-app-jugable.md | 05 y 06 LISTAS | 75 min | MEDIO | — | `index.html`, `css/estilo.css`, `js/main.js`, `js/ui/app.js`, `ajustes.js`, `ayudas.js`, `js/pantallas/jugar.js`, `reto.js`, `analisis.js`, `editor.js`, `js/compartir/url.js`, `css/reto.css`, `analisis.css`, `editor.css`, `tests/ajustes.test.js` | manual | LISTA (b158e90) | |
+| 08 | Arnés de interfaz en Chrome sin cabeza y verificación de la app | tareas/tarea-08-verificacion-app.md | 07 LISTA | 40 min | MEDIO | — | `herramientas/cdp.js`, `herramientas/test-ui.js`; `reparto/salidas/08-verificacion-app/` | manual | PENDIENTE | |
+| 09 | Modo ayuda y pantalla de análisis | tareas/tarea-09-ayuda-y-analisis.md | 07 LISTA | 40 min | MEDIO | 10, 12 | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `tests/ayudas.test.js` | manual | PENDIENTE | |
+| 10 | Reto del día | tareas/tarea-10-reto-del-dia.md | 07 LISTA | 35 min | MEDIO | 09, 12 | `js/pantallas/reto.js`, `css/reto.css`, `tests/reto.test.js` | manual | PENDIENTE | |
+| 11 | Editor de tableros y grafos aleatorios | tareas/tarea-11-editor.md | 07 LISTA | 50 min | MEDIO | — | `js/pantallas/editor.js`, `css/editor.css`, `tests/editor.test.js` | manual | PENDIENTE | |
+| 12 | Compartir la partida por URL | tareas/tarea-12-compartir-url.md | 07 LISTA | 35 min | MEDIO | 09, 10 | `js/compartir/url.js`, `tests/url.test.js` | manual | PENDIENTE | |
+| 13 | Obstáculos | tareas/tarea-13-obstaculos.md | 07 LISTA y ningún reclamo vivo de la 14 | 25 min | MEDIO | 14 | `js/tableros/obstaculos.js`, `js/ui/ajustes.js`, `tests/obstaculos.test.js` | manual | PENDIENTE | |
 | 14 | Casillas con valor | tareas/tarea-14-casillas-con-valor.md | 13 LISTA | 40 min | MEDIO | 13 | `js/tableros/valores.js`, `js/ui/ajustes.js`, `tests/valores.test.js` | manual | BLOQUEADA | |
-| 15 | Página de reglas y README | tareas/tarea-15-reglas-y-readme.md | 07 LISTA | 30 min | MEDIO | — | `reglas.html`, `css/reglas.css`, `README.md` | manual | BLOQUEADA | |
+| 15 | Página de reglas y README | tareas/tarea-15-reglas-y-readme.md | 07 LISTA | 30 min | MEDIO | — | `reglas.html`, `css/reglas.css`, `README.md` | manual | PENDIENTE | |
 | 16 | Verificación final de la tanda | tareas/tarea-16-verificacion-final.md | 08-15 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/16-verificacion-final/` | manual | BLOQUEADA | |
 
 Bandas hoy (de `proyecto.md`, comprobado el 2026-10-19 por Juan Luis): ALTO = Opus 5.5,
@@ -137,6 +137,7 @@ Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
 
+LISTA · tarea 07 · 2026-10-25 00:32 · s-20261025T002203-ef62fbad · b158e90 · npm test pass 115, fail 0 (110 al empezar; 5 nuevas en tests/ajustes.test.js) · index.html, css/estilo.css, js/main.js, js/ui/app.js, js/ui/ajustes.js, js/ui/ayudas.js, js/pantallas/{jugar,reto,analisis,editor}.js, js/compartir/url.js, css/{reto,analisis,editor}.css, tests/ajustes.test.js
 LISTA · tarea 06 · 2026-10-25 00:09 · s-20261025T000615-1c534fda · 3bae315 · npm test pass 110, fail 0 (igual que al empezar; la tarea no añade pruebas unitarias) · js/ui/vista-tablero.js, css/vista-tablero.css, demo/vista.html, demo/vista.js
 LISTA · tarea 03 · 2026-10-25 00:02 · s-20261024T235325-c2b53216 · f668eb4 · pass 110, fail 0 (npm test global; 24 nuevas en tests/poliedros.test.js) · js/tableros/poliedros.js, js/tableros/index.js (import + elemento de la lista), tests/poliedros.test.js; y tests/tableros.test.js (ver desviaciones)
 LISTA · tarea 05 · 2026-10-24 23:57 · s-20261024T235342-779d7bfb · 836464a · 25 nuevas en tests/ia.test.js; azar + motor + ia = pass 60, fail 0. npm test global: pass 91, fail 2 — los 2 fallos son de tests/tableros.test.js (02) contra el js/tableros/index.js que la tarea 03 tenía a medias (sin comitear) en ese momento; no tocan ficheros de la 05. · js/ia/jugadores.js, js/ia/minimax.js, tests/ia.test.js
