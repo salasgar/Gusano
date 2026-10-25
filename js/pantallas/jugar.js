@@ -223,6 +223,8 @@ export function montar(contenedor, contexto) {
       if (d.open) d.close();
       d.remove();
       accion();
+      // Al cerrar, el foco va a «Continuar con …» (o al primer botón de la zona), salvo que la acción abra otra ventana.
+      if (dialogo === null) (zonas.botones.querySelector('button.principal') ?? zonas.botones.querySelector('button'))?.focus();
     };
     for (const b of botones) fila.append(boton(b.texto, () => atender(b.alPulsar), b.principal ? 'principal' : ''));
     d.append(el('h2', {}, encabezado), ...cuerpo, fila);

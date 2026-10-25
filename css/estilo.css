@@ -2,10 +2,17 @@
 :root {
   --fondo: #f9f9f7; --texto: #1a1a1a; --texto-suave: #666; --borde: #d8d8d4; --panel: #ffffff;
   --acento: #2f6fdb; --gusano: #2f9e5a; --pajaro: #6a5acd; --legal: #f2c94c; --bloqueada: #3c3c3c;
+  --gusano-texto: var(--gusano); --pajaro-texto: var(--pajaro); --rol-gusano: var(--gusano); --rol-pajaro: var(--pajaro);
+  --sobre-acento: #fff;
   --radio: 10px;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --fondo: #0d0d0d; --texto: #ececec; --texto-suave: #a0a0a0; --borde: #333; --panel: #181818; --acento: #6b9cff; --bloqueada: #555; }
+  :root {
+    --fondo: #0d0d0d; --texto: #ececec; --texto-suave: #a0a0a0; --borde: #333; --panel: #181818; --acento: #6b9cff; --bloqueada: #555;
+    /* Texto a 4,5:1 sobre --panel; --gusano y --pajaro (relleno del tablero) no cambian. */
+    --gusano-texto: #5fd08a; --pajaro-texto: #a99cff; --rol-gusano: #1f7a45; --rol-pajaro: #5a49c0;
+    --sobre-acento: #0d0d0d;
+  }
 }
 html { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--fondo); color: var(--texto); }
 body { margin: 0 auto; padding: 16px; max-width: 960px; }
@@ -18,7 +25,7 @@ button {
   min-height: 44px; padding: 8px 16px; border: 1px solid var(--borde); border-radius: 8px;
   background: var(--panel); cursor: pointer;
 }
-button.principal { background: var(--acento); border-color: var(--acento); color: #fff; font-weight: 600; }
+button.principal { background: var(--acento); border-color: var(--acento); color: var(--sobre-acento); font-weight: 600; }
 button[aria-pressed="true"] { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); }
 select, input[type="text"], input[type="number"] {
   min-height: 44px; padding: 6px 10px; border: 1px solid var(--borde); border-radius: 8px; background: var(--panel);
@@ -59,12 +66,12 @@ select, input[type="text"], input[type="number"] {
 .jugador-marcador.turno { border-color: var(--acento); }
 .jugador-marcador .nombre { font-weight: 600; overflow-wrap: anywhere; text-align: center; }
 .jugador-marcador .saldo { font-size: 2rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.jugador-marcador .saldo.positivo { color: var(--gusano); }
-.jugador-marcador .saldo.negativo { color: var(--pajaro); }
+.jugador-marcador .saldo.positivo { color: var(--gusano-texto); }
+.jugador-marcador .saldo.negativo { color: var(--pajaro-texto); }
 .jugador-marcador .brutos { font-size: 0.8rem; color: var(--texto-suave); }
 .jugador-marcador .rol { font-size: 0.85rem; padding: 0 8px; border-radius: 99px; color: #fff; }
-.jugador-marcador .rol.gusano { background: var(--gusano); }
-.jugador-marcador .rol.pajaro { background: var(--pajaro); }
+.jugador-marcador .rol.gusano { background: var(--rol-gusano); }
+.jugador-marcador .rol.pajaro { background: var(--rol-pajaro); }
 .jugador-marcador .techo { font-size: 0.85rem; color: var(--texto-suave); }
 .estado { margin: 0; min-height: 1.5em; text-align: center; }
 
@@ -76,8 +83,8 @@ dialog.ventana {
 dialog.ventana::backdrop { background: rgba(0, 0, 0, 0.5); }
 dialog.ventana h2 { margin: 0 0 8px; font-size: 1.2rem; }
 dialog.ventana p { margin: 0 0 10px; line-height: 1.4; }
-dialog.ventana strong:first-of-type { color: var(--gusano); }
-dialog.ventana p strong:nth-of-type(2) { color: var(--pajaro); }
+dialog.ventana strong:first-of-type { color: var(--gusano-texto); }
+dialog.ventana p strong:nth-of-type(2) { color: var(--pajaro-texto); }
 .botones-ventana { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .botones-ventana button { flex: 1 1 auto; }
 .botones { display: flex; flex-wrap: wrap; gap: 8px; }

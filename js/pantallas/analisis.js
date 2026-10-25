@@ -193,7 +193,7 @@ export function montar(contenedor, contexto) {
         else if (!j.completo) lineas.push(el('p', { class: 'nota' }, 'Esta posición es demasiado grande para calcular el valor exacto.'));
         else if (j.perdidos > 0) {
           decos.set(j.mejor, { clase: 'mejor' });
-          const frase = j.mover === 'gusano' ? `Aquí el gusano perdió ${puntos(j.perdidos)}` : `Aquí el pájaro regaló ${puntos(j.perdidos)}`;
+          const frase = j.mover === 'gusano' ? `Aquí el gusano perdió ${puntos(j.perdidos)}` : `Aquí el pájaro perdió ${puntos(j.perdidos)}`;
           lineas.push(el('p', { class: 'veredicto malo' }, `${frase}. La mejor jugada era la casilla ${textoCasilla(j.mejor)} (marcada).`));
         } else {
           lineas.push(el('p', { class: 'veredicto bueno' }, 'Jugada óptima: no se pierde nada.'));
@@ -222,7 +222,7 @@ export function montar(contenedor, contexto) {
     const partes = [el('h3', {}, 'Resumen de la ronda')];
     if (pendientes) partes.push(el('p', { class: 'nota' }, 'calculando…'));
     partes.push(el('p', {}, `${partida.nombres[actual.r]} (gusano) perdió ${puntos(gusano)}.`));
-    partes.push(el('p', {}, `${partida.nombres[1 - actual.r]} (pájaro) regaló ${puntos(pajaro)}.`));
+    partes.push(el('p', {}, `${partida.nombres[1 - actual.r]} (pájaro) perdió ${puntos(pajaro)}.`));
     if (incompleto) partes.push(el('p', { class: 'nota' }, 'Alguna jugada no se pudo calcular con exactitud y no cuenta.'));
     resumen.replaceChildren(...partes);
   }

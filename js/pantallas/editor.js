@@ -160,6 +160,8 @@ export function montar(contenedor, contexto) {
   let seleccionada = null;
   let mensaje = '';
   let errores = [];
+  // Tras una importación fallida el aviso habla solo del archivo, hasta que el lienzo cambie.
+  let soloArchivo = false;
   let arrastre = null;
 
   const svg = elSvg('svg', { class: 'lienzo', role: 'img', 'aria-label': 'Lienzo del editor', tabindex: '0' });
@@ -180,7 +182,7 @@ export function montar(contenedor, contexto) {
 
   const panel = el(
     'div', { class: 'panel-editor' },
-    el('p', { class: 'ayuda' }, 'Pulsa en un hueco para crear una casilla; pulsa dos casillas seguidas para conectarlas o desconectarlas; arrastra para moverlas.'),
+    el('p', { class: 'ayuda' }, 'Pulsa en un hueco para crear una casilla; pulsa dos casillas seguidas para conectarlas o desconectarlas; arrastra para moverlas. La selección se encadena: tras conectar dos casillas queda seleccionada la segunda, y una casilla nueva queda seleccionada; para empezar de cero, pulsa otra vez la seleccionada y se deselecciona.'),
     contador, aviso,
     el('div', { class: 'botones' }, botonBorrar, botonExportar,
       boton('Importar', () => entradaArchivo.click()), entradaArchivo),
@@ -214,7 +216,7 @@ export function montar(contenedor, contexto) {
     const problemas = [];
     if (n >= 1 && !esConexo(estado)) problemas.push('No conexo: hay casillas sin camino entre sí.');
     if (n < MIN_CASILLAS_JUGABLE) problemas.push(`Hacen falta al menos ${MIN_CASILLAS_JUGABLE} casillas para jugar.`);
-    aviso.textContent = [mensaje, ...problemas].filter(Boolean).join(' ');
+    aviso.textContent = [mensaje, ...(soloArchivo ? [] : problemas)].filter(Boolean).join(' ');
     botonBorrar.disabled = seleccionada === null;
     botonExportar.disabled = n < 2;
     botonJugar.disabled = !jugable();
@@ -224,6 +226,7 @@ export function montar(contenedor, contexto) {
   function cambia(mensajeNuevo = '') {
     mensaje = mensajeNuevo;
     errores = [];
+    soloArchivo = false;
     pinta();
   }
 
@@ -344,6 +347,7 @@ export function montar(contenedor, contexto) {
     } catch (error) {
       mensaje = '';
       errores = [`El archivo no es JSON válido: ${error.message}`];
+      soloArchivo = true;
       pinta();
       return;
     }
@@ -351,6 +355,7 @@ export function montar(contenedor, contexto) {
     if (!veredicto.ok) {
       mensaje = 'El tablero importado no es válido:';
       errores = veredicto.errores;
+      soloArchivo = true;
       pinta();
       return;
     }

@@ -17,7 +17,7 @@
 .analisis .nota { color: var(--texto-suave); font-size: 0.9rem; }
 .analisis .veredicto { font-weight: 600; }
 .analisis .veredicto.malo { color: #b3261e; }
-.analisis .veredicto.bueno { color: var(--gusano); }
+.analisis .veredicto.bueno { color: var(--gusano-texto); }
 .analisis-vacio { text-align: center; }
 
 .analisis .vista-tablero .casilla.mejor {
