@@ -119,3 +119,5 @@ Sigue «Cierre» de `_COMUN.md`. Con la 17 LISTA pasa a PENDIENTE la 16: da su f
 - Cambiar `marcador()` ni nada de `js/motor/`. Tocar `js/pantallas/reto.js`.
 - Tocar en `ajustes.js` otra cosa que la etiqueta.
 - Editar desde el shell. `git add -A`. Dependencias. Remoto o `push`.
+- (Añadida al cerrar, sid s-20261025T101834-a5ce285e) `marcador()` ya cuenta la casilla inicial de la ronda siguiente en cuanto el motor pasa a ella: para el saldo «al cierre» de una ronda usa `marcadorAlCierre()` de `textos-partida.js`, no `marcador(partida)`.
+- Con `<dialog>` modal los clics reales de `test-ui.js` no llegan al tablero: los casos tienen que pulsar «Empezar» / «Continuar con …» (helpers `pulsarVentana`, `jugarHastaVentana`, `dejarJugarMaquinas`).
