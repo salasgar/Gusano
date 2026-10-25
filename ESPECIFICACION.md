@@ -318,8 +318,9 @@ bloqueada gris oscuro, inalcanzable atenuada (`.inalcanzable`).
     brutos de cada uno («9 como gusano»). `marcador()` del motor no cambia. Resultado al
     final: «Gana Jugador B con +4 (8 como gusano frente a 4).» / «Empate (8 y 8 como
     gusano).»
-  - **Ventana de papeles** (`<dialog>` modal) al empezar la partida, y al abrir un enlace
-    (§7.4) que deja una ronda sin empezar. Texto, con los nombres de los ajustes: «Par 1
+  - **Ventana de papeles** (`<dialog>` modal) al empezar la partida, al empezar el par
+    que añade «Un par más», y al abrir un enlace (§7.4) que deja una ronda sin empezar.
+    `Esc` en ella equivale a «Empezar». Texto, con los nombres de los ajustes: «Par 1
     · Ronda 1. **Jugador A es el gusano**: tiene que conseguir que el gusano sea lo más
     largo posible. **Jugador B es el pájaro**: tiene que conseguir que el gusano sea lo
     más corto posible.» Con casillas con valor, «que las casillas del gusano sumen lo
