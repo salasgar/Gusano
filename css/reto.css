@@ -1,1 +1,14 @@
-/* Gusano · © 2026 Juan Luis Salas García · Estilos de la pantalla «Reto del día» (los llena la tarea 10). */
+/* Gusano · © 2026 Juan Luis Salas García · Estilos de la pantalla «Reto del día». */
+.reto .reto-titulo { margin: 0; font-size: 1.3rem; text-align: center; }
+.reto .reto-ayuda { margin: 0; text-align: center; color: var(--texto-suave); }
+.reto .reto-puntos { text-align: center; font-size: 1.2rem; font-weight: 700; }
+
+.reto-resultado { display: grid; gap: 6px; }
+.reto-resultado:empty { display: none; }
+.reto-resultado p { margin: 0; text-align: center; }
+.reto-resultado .reto-final { font-size: 1.15rem; font-weight: 700; }
+.reto-resultado .reto-par { font-size: 1.15rem; }
+.reto-resultado .reto-mejor { color: var(--texto-suave); }
+.reto-copiar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.reto-copiar .reto-texto { width: 100%; min-width: 0; }
+.reto-copiar .nota { grid-column: 1 / -1; font-size: 0.85rem; color: var(--texto-suave); }
