@@ -727,9 +727,10 @@ if (!elegidos.length) { console.error(`Ningún caso contiene «${solo}».`); pro
 const t0 = Date.now();
 const servidor = await servir();
 const base = `http://127.0.0.1:${servidor.address().port}`;
-const cdp = await Cdp.lanzar({ chrome });
+let cdp = null;
 let fallos = 0;
 try {
+  cdp = await Cdp.lanzar({ chrome });
   for (const caso of elegidos) {
     const t1 = Date.now();
     try {
@@ -741,7 +742,7 @@ try {
     }
   }
 } finally {
-  await cdp.cerrar();
+  await cdp?.cerrar();
   servidor.close();
 }
 console.log(fallos ? `${fallos} caso(s) con FALLO (${((Date.now() - t0) / 1000).toFixed(1)} s)` : `TODO OK (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
