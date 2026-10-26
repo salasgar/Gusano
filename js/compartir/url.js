@@ -1,7 +1,9 @@
 /* Gusano · © 2026 Juan Luis Salas García · Licencia MIT */
 // Compartir por URL (ESPECIFICACION.md §7.4): la partida viaja en el hash como base64url de un JSON
 //   { v: 1, g, pa, t, n, i, s, j }
-// y se reconstruye reproduciendo las jugadas con jugarEnPartida.
+// y se reconstruye reproduciendo las jugadas con jugarEnPartida. Con un modo distinto del clásico la
+// versión es 2: añade `m: [gusanos, cabezas]` y cada jugada de `j` es la casilla (extremo 0) o
+// [casilla, 1] (extremo 1). El clásico sigue siendo v: 1 exacta.
 // j lleva una lista por ronda (par 1 ronda 1, par 1 ronda 2, par 2 ronda 1, …) con las jugadas que
 // hay que reproducir: sin la casilla inicial cuando la puso la app (inicio al azar, o la segunda
 // ronda de un par con inicio libre).
@@ -12,6 +14,7 @@ import { generador } from '../tableros/index.js';
 import { validarTablero } from '../tableros/tipos.js';
 
 const VERSION = 1;
+const VERSION_MODOS = 2; // §10.6: lleva `m: [gusanos, cabezas]` y los extremos
 const MAX_PARES = 20;
 const MAX_CASILLAS = 500;
 const MAX_NOMBRE = 40;
@@ -51,12 +54,16 @@ function descriptorDe(tablero) {
   return { t: tablero };
 }
 
-function jugadasPorRonda(partida) {
+const esClasico = (modo) => (modo?.gusanos ?? 1) === 1 && (modo?.cabezas ?? 1) === 1;
+
+// v: 1 lleva casillas; v: 2, una casilla (extremo 0) o [casilla, 1] (extremo 1). El gusano sale del turno.
+function jugadasPorRonda(partida, v2) {
   const rondas = [];
   for (const par of partida.pares) {
     par.rondas.forEach((ronda, r) => {
-      const puesta = par.inicioFijo !== null && (partida.inicio === 'azar' || r === 1) ? 1 : 0;
-      rondas.push(ronda.camino.slice(puesta));
+      const hechas = par.inicioFijo !== null && (partida.inicio === 'azar' || r === 1) ? [par.inicioFijo].flat().length : 0;
+      if (!v2) rondas.push(ronda.camino.slice(hechas));
+      else rondas.push(ronda.jugadas.slice(hechas).map((j) => (j.extremo === 1 ? [j.casilla, 1] : j.casilla)));
     });
   }
   return rondas;
@@ -64,14 +71,16 @@ function jugadasPorRonda(partida) {
 
 export function codificar(partida) {
   const descriptores = partida.pares.map((par) => descriptorDe(par.tablero));
-  const carga = { v: VERSION };
+  const v2 = !esClasico(partida.modo);
+  const carga = { v: v2 ? VERSION_MODOS : VERSION };
+  if (v2) carga.m = [partida.modo.gusanos, partida.modo.cabezas];
   const primero = JSON.stringify(descriptores[0]);
   if (descriptores.every((d) => JSON.stringify(d) === primero)) Object.assign(carga, descriptores[0]);
   else carga.ts = descriptores;
   carga.n = partida.nombres;
   carga.i = partida.inicio;
   carga.s = partida.semilla;
-  carga.j = jugadasPorRonda(partida);
+  carga.j = jugadasPorRonda(partida, v2);
   return aBase64url(JSON.stringify(carga));
 }
 
@@ -92,17 +101,26 @@ function tableroDe({ g, pa, t }) {
   return tablero;
 }
 
-const esJugada = (x) => Number.isInteger(x) && x >= 0;
+const esCasilla = (x) => Number.isInteger(x) && x >= 0;
+const esJugada = (x) => esCasilla(x) || (Array.isArray(x) && x.length === 2 && esCasilla(x[0]) && (x[1] === 0 || x[1] === 1));
+const aJugada = (x) => (Array.isArray(x) ? { casilla: x[0], extremo: x[1] } : { casilla: x, extremo: 0 });
 
 function reconstruir(texto) {
   const c = JSON.parse(desdeBase64url(texto));
-  if (c === null || typeof c !== 'object' || c.v !== VERSION) return null;
+  if (c === null || typeof c !== 'object' || (c.v !== VERSION && c.v !== VERSION_MODOS)) return null;
+  const v2 = c.v === VERSION_MODOS;
+  let modo;
+  if (v2) {
+    const { m } = c;
+    if (!Array.isArray(m) || m.length !== 2 || !m.every((x) => x === 1 || x === 2)) return null;
+    modo = { gusanos: m[0], cabezas: m[1] };
+  }
   const { n, i, s, j } = c;
   if (!Array.isArray(n) || n.length !== 2 || !n.every((x) => typeof x === 'string' && x.length <= MAX_NOMBRE)) return null;
   if (i !== 'azar' && i !== 'libre') return null;
   if (!Number.isInteger(s)) return null;
   if (!Array.isArray(j) || j.length === 0 || j.length % 2 !== 0 || j.length > 2 * MAX_PARES) return null;
-  if (!j.every((r) => Array.isArray(r) && r.length <= MAX_CASILLAS && r.every(esJugada))) return null;
+  if (!j.every((r) => Array.isArray(r) && r.length <= MAX_CASILLAS && r.every(v2 ? esJugada : esCasilla))) return null;
 
   const pares = j.length / 2;
   let tableros;
@@ -114,11 +132,12 @@ function reconstruir(texto) {
     tableros = Array.from({ length: pares }, () => uno);
   }
 
-  let partida = nuevaPartida({ nombres: n, tableros, inicio: i, semilla: s });
+  let partida = nuevaPartida({ nombres: n, tableros, inicio: i, semilla: s, ...(v2 && { modo }) });
   for (let k = 0; k < j.length; k++) {
     if (j[k].length === 0) continue;
     if (partida.terminada || partida.par * 2 + partida.ronda !== k) return null;
-    for (const casilla of j[k]) partida = jugarEnPartida(partida, casilla); // lanza si es ilegal
+    // lanza si es ilegal; en v: 2 siempre como objeto, porque un índice puede ser ambiguo con dos cabezas
+    for (const jugada of j[k]) partida = jugarEnPartida(partida, v2 ? aJugada(jugada) : jugada);
   }
   return partida;
 }

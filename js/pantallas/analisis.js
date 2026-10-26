@@ -1,7 +1,7 @@
 /* Gusano · © 2026 Juan Luis Salas García · Licencia MIT */
 // Pantalla «Análisis» (ESPECIFICACION.md §7.1): repasa una partida y señala dónde se perdieron puntos.
 
-import { nuevaRonda, jugar, puntuacion, cotaSuperior } from '../motor/ronda.js';
+import { nuevaRonda, jugar, puntuacion, cotaSuperior, duenoDe } from '../motor/ronda.js';
 import { valorExacto, MAX_CASILLAS_EXACTO } from '../ia/minimax.js';
 import { crearVista } from '../ui/vista-tablero.js';
 
@@ -9,6 +9,7 @@ export const id = 'analisis';
 export const titulo = 'Análisis';
 
 const MAX_ESTADOS = 2_000_000;
+const TIEMPO_MAXIMO_MS = 3000; // con dos cabezas o dos gusanos el árbol crece mucho: que no congele la página
 
 function el(nombre, atributos = {}, ...hijos) {
   const nodo = document.createElement(nombre);
@@ -50,7 +51,8 @@ export function montar(contenedor, contexto) {
   const rondas = [];
   partida.pares.forEach((par, p) => par.rondas.forEach((ronda, r) => {
     if (ronda.camino.length === 0) return;
-    rondas.push({ p, r, etiqueta: `Par ${p + 1} · ronda ${r + 1} (gusano: ${partida.nombres[r]})` });
+    const quien = partida.modo?.gusanos === 2 ? `mueve primero: ${partida.nombres[r]}` : `gusano: ${partida.nombres[r]}`;
+    rondas.push({ p, r, etiqueta: `Par ${p + 1} · ronda ${r + 1} (${quien})` });
   }));
   if (rondas.length === 0) {
     contenedor.replaceChildren(el('section', { class: 'analisis analisis-vacio' }, el('p', {}, 'La partida no tiene jugadas que analizar.')));
@@ -65,13 +67,19 @@ export function montar(contenedor, contexto) {
 
   const activo = () => contenedor.isConnected;
   const camino = () => partida.pares[actual.p].rondas[actual.r].camino;
+  const jugadas = () => partida.pares[actual.p].rondas[actual.r].jugadas; // { casilla, gusano, extremo }
   const tablero = () => partida.pares[actual.p].tablero;
+  const dosGusanos = partida.modo?.gusanos === 2;
+  const salidas = dosGusanos ? 2 : 1; // jugadas que son la casilla inicial (una por gusano)
   const exacto = () => tablero().casillas.length <= MAX_CASILLAS_EXACTO;
-  const rondaEn = (m) => camino().slice(0, m).reduce((rd, c) => jugar(rd, c), nuevaRonda(tablero()));
+  const rondaEn = (m) => jugadas().slice(0, m).reduce((rd, j) => jugar(rd, j), nuevaRonda(tablero(), partida.modo));
   const clave = (m) => `${actual.p}.${actual.r}.${m}`;
+  // Nombre del jugador que tiene el papel p (0: gusano o gusano 0) en esta ronda.
+  const jugadorDe = (p) => partida.nombres[p === 0 ? actual.r : 1 - actual.r];
+  const extremoTexto = (j) => (j.extremo === 1 ? ' por la cola' : '');
 
-  // La jugada m (0 = casilla inicial) solo se analiza si alguien la eligió: la inicial, solo en inicio libre.
-  const analizable = (m) => exacto() && (m > 0 || (partida.inicio === 'libre' && actual.r === 0));
+  // La jugada m solo se analiza si alguien la eligió: las salidas, solo en inicio libre y en la ronda 1.
+  const analizable = (m) => exacto() && (m >= salidas || (partida.inicio === 'libre' && actual.r === 0));
   const necesaria = (m) => m < camino().length && (analizable(m) || (m >= 1 && analizable(m - 1)));
 
   // Valor exacto tras m jugadas: calculado, o trivial si la ronda ya había acabado.
@@ -89,8 +97,8 @@ export function montar(contenedor, contexto) {
     const despues = posicion(m + 1);
     if (!antes || !despues) return null;
     if (!antes.completo || !despues.completo) return { completo: false };
-    const mover = m % 2 === 0 ? 'gusano' : 'pajaro';
-    const perdidos = mover === 'gusano' ? antes.valor - despues.valor : despues.valor - antes.valor;
+    const mover = rondaEn(m).mueve; // papel que mueve en esa posición (0 maximiza)
+    const perdidos = mover === 0 ? antes.valor - despues.valor : despues.valor - antes.valor;
     return { completo: true, mover, perdidos, mejor: antes.jugada };
   }
 
@@ -111,7 +119,7 @@ export function montar(contenedor, contexto) {
       trabajando = false;
       if (!activo()) return;
       const m = pendiente();
-      if (m !== undefined) cache.set(clave(m), valorExacto(rondaEn(m), { maxEstados: MAX_ESTADOS }));
+      if (m !== undefined) cache.set(clave(m), valorExacto(rondaEn(m), { maxEstados: MAX_ESTADOS, tiempoMaximoMs: TIEMPO_MAXIMO_MS }));
       pintar();
       planificar();
     }, 0);
@@ -177,9 +185,10 @@ export function montar(contenedor, contexto) {
       lineas.push(el('p', {}, 'Tablero vacío. Pulsa «Siguiente» para ver la primera jugada.'));
     } else {
       const m = k - 1;
-      const quien = m % 2 === 0 ? 'gusano' : 'pájaro';
-      const nombre = partida.nombres[m % 2 === 0 ? actual.r : 1 - actual.r];
-      lineas.push(el('p', {}, `Jugada ${k}: ${quien} (${nombre}) → casilla ${textoCasilla(camino()[m])}.`));
+      const papel = duenoDe(partida.pares[actual.p].rondas[actual.r], m); // papel que rellenó esa casilla
+      const nombre = jugadorDe(papel);
+      const quien = dosGusanos ? nombre : `${papel === 0 ? 'gusano' : 'pájaro'} (${nombre})`;
+      lineas.push(el('p', {}, `Jugada ${k}: ${quien} → casilla ${textoCasilla(camino()[m])}${extremoTexto(jugadas()[m])}.`));
     }
     lineas.push(el('p', {}, `Puntos hasta aquí: ${puntuacion(rd)} · cota superior: ${cotaSuperior(rd)}.`));
 
@@ -192,9 +201,11 @@ export function montar(contenedor, contexto) {
         else if (j.noAnalizable) lineas.push(el('p', { class: 'nota' }, 'Casilla inicial: no la eligió nadie, no se analiza.'));
         else if (!j.completo) lineas.push(el('p', { class: 'nota' }, 'Esta posición es demasiado grande para calcular el valor exacto.'));
         else if (j.perdidos > 0) {
-          decos.set(j.mejor, { clase: 'mejor' });
-          const frase = j.mover === 'gusano' ? `Aquí el gusano perdió ${puntos(j.perdidos)}` : `Aquí el pájaro perdió ${puntos(j.perdidos)}`;
-          lineas.push(el('p', { class: 'veredicto malo' }, `${frase}. La mejor jugada era la casilla ${textoCasilla(j.mejor)} (marcada).`));
+          const mejor = typeof j.mejor === 'object' ? j.mejor : { casilla: j.mejor, extremo: 0 }; // índice u objeto (§10.4)
+          decos.set(mejor.casilla, { clase: 'mejor' });
+          const quien = dosGusanos ? jugadorDe(j.mover) : j.mover === 0 ? 'el gusano' : 'el pájaro';
+          lineas.push(el('p', { class: 'veredicto malo' },
+            `Aquí ${quien} perdió ${puntos(j.perdidos)}. La mejor jugada era la casilla ${textoCasilla(mejor.casilla)}${extremoTexto(mejor)} (marcada).`));
         } else {
           lineas.push(el('p', { class: 'veredicto bueno' }, 'Jugada óptima: no se pierde nada.'));
         }
@@ -216,13 +227,14 @@ export function montar(contenedor, contexto) {
       const j = juicio(m);
       if (j === null) { pendientes = true; continue; }
       if (!j.completo) { incompleto = true; continue; }
-      if (j.mover === 'gusano') gusano += j.perdidos;
+      if (j.mover === 0) gusano += j.perdidos;
       else pajaro += j.perdidos;
     }
     const partes = [el('h3', {}, 'Resumen de la ronda')];
     if (pendientes) partes.push(el('p', { class: 'nota' }, 'calculando…'));
-    partes.push(el('p', {}, `${partida.nombres[actual.r]} (gusano) perdió ${puntos(gusano)}.`));
-    partes.push(el('p', {}, `${partida.nombres[1 - actual.r]} (pájaro) perdió ${puntos(pajaro)}.`));
+    const rol = (texto) => (dosGusanos ? '' : ` (${texto})`);
+    partes.push(el('p', {}, `${jugadorDe(0)}${rol('gusano')} perdió ${puntos(gusano)}.`));
+    partes.push(el('p', {}, `${jugadorDe(1)}${rol('pájaro')} perdió ${puntos(pajaro)}.`));
     if (incompleto) partes.push(el('p', { class: 'nota' }, 'Alguna jugada no se pudo calcular con exactitud y no cuenta.'));
     resumen.replaceChildren(...partes);
   }

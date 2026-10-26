@@ -8,12 +8,15 @@ export function decoraciones(ronda) {
   const mapa = new Map();
   if (!ronda?.tablero || !ronda.camino) return mapa;
   const { tablero, camino } = ronda;
-  if (camino.length > 0) {
+  const cuerpos = ronda.cuerpos ?? [camino];
+  // Mientras algún gusano no ha salido, todo lo libre sigue siendo alcanzable para él.
+  if (camino.length > 0 && cuerpos.every((cuerpo) => cuerpo.length > 0)) {
     const alcance = new Set(alcanzables(ronda));
     tablero.casillas.forEach((_, i) => {
       if (!ocupada(ronda, i) && !alcance.has(i)) mapa.set(i, { clase: 'inalcanzable' });
     });
   }
-  camino.forEach((casilla, k) => mapa.set(casilla, { texto: String(k + 1) }));
+  // Número de tramo: por gusano y en el orden de su cuerpo (de la cola a la cabeza).
+  cuerpos.forEach((cuerpo) => cuerpo.forEach((casilla, k) => mapa.set(casilla, { texto: String(k + 1) })));
   return mapa;
 }
