@@ -1,0 +1,10 @@
+hex toro r=1: 7 casillas, grados {6}, simétrico True, sin bucles True
+hex toro r=2: 19 casillas, grados {6}, simétrico True, sin bucles True
+hex toro r=3: 37 casillas, grados {6}, simétrico True, sin bucles True
+4x4 doble: valores por inicio min 12 max 12 de 16; casillas sin salida 0
+4x4 manhattan: valores por inicio min 1 max 11 de 16; casillas sin salida 2
+4x4 manhattan toro: valores por inicio min 8 max 8 de 16; casillas sin salida 0
+4x4 corriente toro: valores por inicio min 13 max 13 de 16; casillas sin salida 0
+5x5 manhattan: valores por inicio min 1 max 25 de 25; casillas sin salida 1
+4x4 corriente plano: valores por inicio min 1 max 7 de 16; casillas sin salida 1
+hex r=2 tres corrientes: min 6 max 19 de 19; sin salida 0

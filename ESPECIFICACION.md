@@ -60,6 +60,11 @@ demo/vista.html       página de prueba de la vista (T06)
 herramientas/         cdp.js y test-ui.js, pruebas de interfaz en Chrome sin cabeza (T08)
 tests/*.test.js       pruebas unitarias; cada tarea crea las suyas
 reparto/              el reparto (tablón, fichas, hechos); no es parte de la app
+
+Tanda 2 (§10):
+js/tableros/sentido.js  conSentidoUnico, flechas al azar (T20)
+js/ui/textos-partida.js textos de la pantalla de juego (T17; T26 los amplía)
+js/ui/vista-3d.js     vista 3D de los poliedros (T24), con css/vista-3d.css y demo/vista-3d.*
 ```
 
 ## 1. Reglas del juego
@@ -464,7 +469,199 @@ casillas o nombres de 40 caracteres.
 6. **Colores**: gusano verde, pájaro violeta, jugadas legales amarillo. Son distinguibles
    con las deficiencias rojo-verde más comunes; se revisan con Juan Luis si quiere.
 7. **Sin servidor y sin cuentas**: todo en el navegador; compartir es un enlace.
-8. Fuera de esta tanda: grafos dirigidos, gusano de dos cabezas, dos gusanos, 3D,
+8. Fuera de esta tanda (la 2, §10, recoge dirigidos, dos cabezas, dos gusanos y 3D): grafos dirigidos, gusano de dos cabezas, dos gusanos, 3D,
    inglés, publicación en GitHub Pages (eso lo hace Juan Luis cuando quiera: crear el
    repositorio en GitHub, `git push` y activar Pages sobre `main`; no hay nada que
    compilar).
+
+## 10. Tanda 2 (T20-T29): toro en todas las rejillas, flechas, dos cabezas, dos gusanos, 3D
+
+Decidido por Juan Luis el 2026-10-26. Lo que no eligió está en
+`reparto/datos/sugerencias-futuras.md`. **Todo lo de la tanda 1 sigue valiendo**: con los
+ajustes por defecto, los tableros, las rondas, las URL y los retos son idénticos a los de
+antes, y las pruebas de la tanda 1 siguen en verde sin cambiarlas (salvo las que cuenten
+algo que esta sección cambia, y quien las cambie lo dice en su terminada).
+
+**Todo es combinable**: bordes pegados, flechas, obstáculos y valores con cualquier modo, y
+los modos entre sí (dos gusanos de dos cabezas cada uno incluido).
+
+### 10.1 Tablero dirigido (T20)
+
+- `crearTablero` acepta además `arcos: [[i, j], …]`: conexión de i a j en un solo sentido.
+  Si hay alguno, el tablero lleva `dirigido: true`, `vecinos[i]` son las casillas a las que
+  **se puede ir** desde i (las de las aristas más los arcos que salen de i) y
+  `predecesores[i]` las casillas **desde las que se llega** a i. Sin arcos, el tablero no
+  lleva ni `dirigido` ni `predecesores` (se entiende `predecesores = vecinos`) y es
+  idéntico al de la tanda 1. Un par que salga a la vez como arista y como arco es un error.
+- `validarTablero`: si `dirigido`, `predecesores` es exactamente la inversa de `vecinos`
+  (ordenada, sin repetidos); si no, `vecinos` simétrica, como ahora.
+- `js/tableros/sentido.js`: `conSentidoUnico(tablero, proporcion, azar)` → tablero nuevo en
+  el que `round(proporcion × aristas de doble sentido)` aristas, elegidas con `azar`, pasan a
+  un solo sentido, también al azar. Nunca deja una casilla no bloqueada sin salida ni sin
+  entrada (si un sentido lo haría, prueba el otro; si los dos, esa arista se queda doble).
+  `id: ${id}-sen${porcentaje}`; la `descripcion` añade «N conexiones de un solo sentido».
+  Proporciones que ofrece la interfaz: 0 (defecto), 0,25, 0,5 y 1.
+
+### 10.2 Bordes pegados, rectángulos, flechas con patrón y casillas fantasma (T21)
+
+- `cuadrado4`, `cuadrado8` y `caballo` ganan dos parámetros: `alto` (filas; entero, mismo
+  rango que `lado`; si falta, igual a `lado`) y `bordes` (opción: `normales` (defecto) /
+  `cilindro` / `toro` / `mobius` / `klein`). `lado` son las columnas. Con los defectos, el
+  tablero es idéntico al de la tanda 1, `id` incluido; si no, `id` lleva `-<lado>x<alto>`
+  y `-<bordes>` (p. ej. `cuadrado8-6x4-toro`).
+- Pegado, en la casilla (fila f, columna c) con `alto` filas y `lado` columnas (§2.2
+  generalizado): cilindro, c módulo `lado`; toro, f módulo `alto` y c módulo `lado`;
+  mobius, al cruzar el borde izquierdo o derecho la fila se invierte (f → alto − 1 − f);
+  klein, toro con esa inversión en izquierda/derecha. En 8 vecinas y caballo se aplica el
+  mismo desplazamiento que en el plano y después el pegado. Nunca una casilla es vecina de
+  sí misma ni se repite una vecina (se descartan).
+- `hexagonal` gana `bordes`: `normales` (defecto) / `toro`. Toro hexagonal: el hexágono de
+  radio r con los lados opuestos pegados; en las coordenadas axiales (q, r) de
+  `hexagonal.js`, una vecina que cae fuera se trae dentro sumándole una combinación entera
+  de las traslaciones (2r+1, −r) y (r, r+1). Oráculo (comprobado en
+  `reparto/datos/analisis-2026-10-26/`): todas las casillas con 6 vecinas, simétrico, sin
+  bucles, y es el grafo circulante de 3r²+3r+1 casillas con saltos 1, 3r+1 y 3r+2; radio 1
+  da 7 casillas todas vecinas entre sí.
+- `superficie` sigue existiendo, igual, para las URL antiguas y el reto del día, pero
+  **sale de la lista visible**: `generadores` ya no la incluye y `generador('superficie')`
+  la sigue devolviendo (sus tipos se piden ahora con `bordes` en `cuadrado4`).
+- **Flechas con patrón**, parámetro `flechas` de `cuadrado4` y `cuadrado8`: `ninguna`
+  (defecto) / `manhattan` (calles alternas: la fila 0 va hacia la derecha, la 1 hacia la
+  izquierda, y así; la columna 0 hacia abajo, la 1 hacia arriba, y así; en `cuadrado8` las
+  diagonales siguen de doble sentido) / `corriente` (todas las horizontales hacia la
+  derecha y todas las verticales hacia abajo; **solo con `bordes: toro`**: en el plano las
+  partidas salen demasiado cortas, como mucho 7 de 16 casillas en 4×4). En `hexagonal`:
+  `ninguna` / `corrientes` (de las tres direcciones de la rejilla, cada una en un solo
+  sentido, a 120° entre sí: cada casilla interior con 3 salidas y 3 entradas). Si en
+  Möbius o Klein el pegado contradice el patrón, esa conexión se queda de doble sentido.
+  Un parámetro de tipo opción puede declarar en una opción `soloSi: { bordes: ['toro'] }`:
+  el formulario de ajustes (T26) la oculta cuando no se cumple, y `crear` lanza Error si
+  se la piden sin cumplirse. Valores comprobados en 4×4: manhattan plano, de 1 a 11 según
+  el inicio (dos esquinas sin salida); manhattan en toro, 8; corriente en toro, 13.
+- **Casillas fantasma.** Con bordes pegados, el tablero lleva
+  `dibujo.fantasmas: [{ casilla, x, y, vertices? }]`: una franja de una casilla de ancho
+  junto a cada borde pegado (y en las esquinas, si los dos están pegados), cada fantasma
+  una copia de la casilla real que hay al otro lado del pegado, con la inversión de Möbius
+  o Klein cuando toque. En el toro hexagonal, un anillo alrededor del hexágono. La caja de
+  `dibujo` crece para que quepan; las casillas reales se desplazan, no cambian de tamaño.
+
+### 10.3 Motor general (T22)
+
+La ronda gana un **modo** `{ gusanos: 1 | 2, cabezas: 1 | 2 }`. Defecto `{ 1, 1 }`, que es
+la tanda 1 exacta.
+
+```js
+export function nuevaRonda(tablero, modo = { gusanos: 1, cabezas: 1 })
+  // → { tablero, modo, camino: [], jugadas: [], cuerpos: [[]] o [[], []], mueve: 0 }
+  //   camino: TODAS las casillas en el orden en que se rellenaron (como en la tanda 1)
+  //   jugadas[k] = { casilla, gusano, extremo } de camino[k]; cuerpos[g] = el gusano g de la
+  //   cola a la cabeza; mueve = papel que tiene el turno (0: el que «tiene» el gusano 0)
+export function extremos(ronda, gusano = 0)  // → [cabeza] o, con dos cabezas y cuerpo ≥ 2, [cabeza, cola]
+export function jugadasCompletas(ronda)      // → [{ casilla, gusano, extremo }] legales ahora
+export function jugadasLegales(ronda)        // → índices de casilla (las de jugadasCompletas, sin repetir): igual que antes
+export function jugadasEn(ronda, casilla)    // → las jugadasCompletas con esa casilla (más de una = hay que elegir extremo)
+export function jugar(ronda, jugada)         // jugada: objeto, o índice si jugadasEn da exactamente una;
+                                             //   si no, Error('jugada ilegal') o Error('jugada ambigua')
+export function maximiza(ronda)              // → true si mueve el papel 0
+export function turno(ronda)                 // → 'gusano' si maximiza, 'pajaro' si no (como antes con 1 gusano)
+export function duenoDe(ronda, k)            // → papel (0 | 1) que rellenó camino[k]
+// cabeza, ocupada, rondaTerminada, puntuacion, alcanzables, cotaSuperior: como antes, generalizadas abajo
+```
+
+- **Crecer.** Una cabeza crece a una casilla libre de `vecinos[cabeza]`; la cola (dos
+  cabezas) crece a una casilla libre de `predecesores[cola]` (sin flechas, las mismas). Un
+  gusano de una sola casilla con dos cabezas: `extremo 0` crece por `vecinos` y la nueva
+  pasa a ser la cabeza; `extremo 1` crece por `predecesores` y la nueva pasa a ser la cola;
+  si el tablero no es dirigido, solo se ofrece `extremo 0` (las dos darían el mismo
+  gusano).
+- **Un gusano** (clásico o dos cabezas): `camino[0]` es la casilla inicial; luego alternan
+  pájaro, gusano, … (`duenoDe` = paridad de k). La ronda acaba cuando ningún extremo puede
+  crecer. `puntuacion` = suma de valores del camino, como antes.
+- **Dos gusanos.** `camino[0]` es la salida del gusano 0 (papel 0) y `camino[1]` la del
+  gusano 1; después mueve el papel 0, luego el 1, y así; cada uno alarga **solo el suyo**
+  por cualquiera de sus extremos. Las casillas de los dos gusanos bloquean a los dos. Si el
+  que tiene el turno no puede crecer, pasa el turno; **si uno queda bloqueado, el otro
+  sigue solo** hasta bloquearse. La ronda acaba cuando ninguno puede crecer. `puntuacion` =
+  suma de valores del gusano 0 menos la del gusano 1 (puede ser negativa): gana el más
+  largo.
+- `alcanzables`: casillas libres a las que se llega desde **cualquier** extremo de
+  **cualquier** gusano (desde una cabeza siguiendo `vecinos`, desde una cola siguiendo
+  `predecesores`). `cotaSuperior`: con un gusano, como antes con este `alcanzables`; con
+  dos, suma del gusano 0 + positivos de lo alcanzable desde el gusano 0 − suma del gusano 1.
+- **Partida** (`js/motor/partida.js`): `nuevaPartida({ …, modo })` guarda `partida.modo` y
+  crea las rondas con él; `jugarEnPartida(partida, jugada)` acepta lo mismo que `jugar`.
+  En la ronda r de cada par el jugador r tiene el papel 0, como ahora, y `marcador` no
+  cambia de fórmula. Dos gusanos con inicio `azar`: la app sortea dos salidas distintas,
+  no bloqueadas, a distancia (contando las conexiones sin sentido) de al menos
+  `max(2, ⌈diámetro / 2⌉)` (si no hay ningún par así, el par más alejado), y las pone como
+  `camino[0]` y `camino[1]` antes del primer turno; en la segunda ronda del par las salidas
+  son las mismas, así que **cada jugador sale de la casilla que tuvo el otro**, y el papel 0
+  (que mueve primero) le toca ahora al otro jugador. Con inicio `libre`: en la primera ronda
+  el jugador del papel 0 elige su salida y después el otro la suya; la segunda ronda empieza
+  con las dos puestas. `inicioFijo` pasa a ser índice (un gusano), `[s0, s1]` (dos) o null.
+  Con un gusano y flechas, la casilla inicial sorteada tiene al menos una salida.
+
+### 10.4 Máquina (T25)
+
+`elegirJugada(nivel, ronda, opciones)` devuelve una jugada que `jugar` acepta: un índice
+cuando `jugadasEn` da una sola para esa casilla, y si no el objeto. `minimax.js` recorre
+`jugadasCompletas` y maximiza o minimiza según `maximiza(ronda)` (con dos gusanos el mismo
+papel puede mover dos veces seguidas). La clave de memoria incluye las ocupadas, los
+extremos de cada gusano y quién mueve. Heurística de `voraz` y `fuerte` con dos gusanos:
+diferencia de casillas libres que cada gusano alcanza antes que el otro (regiones de
+Voronoi por distancia desde sus extremos), más la diferencia de `puntuacion`. `perfecto`:
+exacto si el tablero tiene ≤ 30 casillas y cabe en el presupuesto; si no, `fuerte`.
+`par(tablero, inicio, opciones)` acepta `opciones.modo` (el reto sigue usando el clásico).
+Con el modo clásico, los oráculos de §4 dan lo mismo que antes. Para los modos nuevos, las
+pruebas comparan con un minimax ingenuo escrito en la propia prueba en tableros de ≤ 9
+casillas.
+
+### 10.5 Vista (T23) y vista 3D (T24)
+
+- `crearVista` y `actualizar` mantienen su firma. `actualizar` acepta además
+  `elegirExtremo: [casillas]` (marca esas casillas con la clase `elegir-extremo`). Lo nuevo
+  que se dibuja: **fantasmas** (`dibujo.fantasmas`; clase `fantasma` más las mismas clases
+  de estado que su casilla real; pulsar uno llama a `alClicar(casilla real)`); **flechas**
+  en cada conexión de un solo sentido, haya o no `dibujo.aristas` (`<line class="arco">`
+  con punta); **un trazo por gusano** (`gusano-cuerpo gusano-0` / `gusano-1`) de la cola a
+  la cabeza, con ojos en la cabeza y, con dos cabezas, también en la cola. Un tramo entre
+  dos casillas vecinas a través de un borde pegado no cruza el tablero: va hasta el
+  fantasma de la de destino, si lo hay, o se corta en el borde. Colores: con un gusano,
+  como ahora (casillas del gusano y del pájaro); con dos, cada casilla con el color de su
+  gusano (`--gusano` el 0, `--pajaro` el 1).
+- `js/ui/vista-3d.js`: `crearVista3D(contenedor, tablero, { alClicar })` con la misma
+  interfaz (`actualizar` con las mismas opciones, `destruir`). Necesita
+  `tablero.dibujo3d = { caras: [[[x, y, z], …], …] }`: el polígono 3D de cada casilla
+  (cara), con el centro del sólido en el origen, que añade `poliedros.js` (T24). SVG, sin
+  dependencias: proyección ortográfica, caras traseras ocultas (normal hacia atrás) y el
+  resto pintado de atrás adelante; **arrastrar gira** (punteros, también en pantalla
+  táctil) y **pulsar sin arrastrar** (menos de 5 px) llama a `alClicar(cara)`. Las caras
+  llevan las mismas clases que en el plano; el gusano es una línea por los centros de las
+  caras visibles, con la cabeza.
+
+### 10.6 Aplicación (T26, T27)
+
+- **Ajustes**: campos nuevos «Gusanos» (uno / dos), «Cabezas» (una / dos) y «Sentido
+  único» (no / 25 % / 50 % / todas); `ajustesPorDefecto()` gana `gusanos: 1, cabezas: 1,
+  sentido: 0`. Transformaciones en el punto único, en este orden: obstáculos → sentido
+  único → valores. Los parámetros nuevos de los generadores (`alto`, `bordes`, `flechas`)
+  salen solos del formulario, que respeta `soloSi`.
+- **Jugar**: si la casilla pulsada admite dos jugadas (dos extremos), se marcan los dos
+  extremos con `elegirExtremo` y el aviso dice «¿Por qué extremo? Pulsa uno»; pulsar uno
+  juega; pulsar otra cosa o `Esc` cancela. Con `tablero.dibujo3d`, un interruptor «Vista:
+  plano / 3D» (defecto plano). Marcador y ventanas (§6) con los textos de cada modo: dos
+  cabezas, «El gusano puede crecer por cualquiera de sus dos extremos»; flechas, «Las
+  flechas marcan el sentido: la cabeza avanza a favor de la flecha y la cola, en contra»;
+  dos gusanos, sin gusano ni pájaro: «Jugador A lleva el gusano verde y Jugador B el
+  violeta. Cada uno alarga el suyo; las casillas de los dos bloquean; si uno se queda sin
+  salida, el otro sigue solo. Gana el gusano más largo». Fin de ronda con dos gusanos:
+  «El gusano de Jugador A mide 9 y el de Jugador B, 6: Jugador A +3, Jugador B −3». Techo
+  del modo ayuda: solo con un gusano.
+- **Ayudas, análisis y compartir** (T27): `decoraciones` con el `alcanzables` general;
+  el análisis repasa `jugadas` y, con dos gusanos, dice el nombre del jugador en vez del
+  papel («Aquí Jugador A perdió 2 puntos»). Compartir: con el modo clásico, la carga sigue
+  siendo `v: 1` exacta; con cualquier otro, `v: 2` con `m: [gusanos, cabezas]` y cada
+  jugada como índice (extremo 0) o `[casilla, 1]` (extremo 1); el gusano sale del turno.
+  Los tableros con flechas al azar viajan literales en `t`, como los de obstáculos.
+  `partidaDesdeURL` sigue leyendo `v: 1`.
+- El reto del día y el editor no cambian (el editor no maneja flechas: decidido).

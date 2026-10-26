@@ -238,3 +238,27 @@ nombre de su nota en `reparto/hechos/notas/`.
 - **Verificación en dos puntos**: 08 justo después de la app jugable (07), con el arnés
   de interfaz que después reutiliza 16, y 16 al final de la tanda. Ambas separan
   veredicto de hallazgos fuera de criterio.
+
+## Tanda 2 (T20-T29), montada el 2026-10-26
+
+Montada por la coordinadora s-20261025T073409-9564e458 con Juan Luis delante: él eligió
+cada regla (bordes pegados y rectángulos en todas las rejillas con franja de casillas
+fantasma; flechas al azar y con patrón; gusano de dos cabezas en el que quien mueve elige
+extremo; dos gusanos en los que gana el más largo, con salidas sorteadas; poliedros en 3D
+con las caras como casillas; todo combinable). Lo que no eligió está en
+`reparto/datos/sugerencias-futuras.md`. El contrato es `ESPECIFICACION.md` §10.
+
+- **Cortado por capas, como la tanda 1**: modelo de tablero (20), generadores (21), motor
+  (22), vista plana (23) y vista 3D (24) en paralelo contra §10; después la máquina (25),
+  que necesita el motor; después la app (26) y ayudas/análisis/compartir (27), en
+  paralelo; reglas (28) detrás de la 26; verificación (29) al final.
+- **Compatibilidad hacia atrás como regla dura**: con los ajustes por defecto, tableros,
+  rondas, URL `v: 1` y retos idénticos a los de la tanda 1, y sus pruebas sin cambiar. Por
+  eso `jugadasLegales` sigue devolviendo índices y la lista con extremos es otra función
+  (`jugadasCompletas`).
+- **La 22 (motor) es ALTO**: es el contrato del que cuelga todo lo demás.
+- **`corriente` solo en el toro**: comprobado que en el plano las partidas son demasiado
+  cortas (`reparto/datos/analisis-2026-10-26/`).
+- Sin inglés ni teclado en las casillas: decididos fuera (sugerencias futuras).
+- Para coordinar la tanda 2, la frase de la coordinadora vale cambiando el nombre a
+  `GU Coordinadora T20-T29 (ALTO)`.
