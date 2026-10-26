@@ -587,7 +587,10 @@ export function duenoDe(ronda, k)            // → papel (0 | 1) que rellenó c
 - `alcanzables`: casillas libres a las que se llega desde **cualquier** extremo de
   **cualquier** gusano (desde una cabeza siguiendo `vecinos`, desde una cola siguiendo
   `predecesores`). `cotaSuperior`: con un gusano, como antes con este `alcanzables`; con
-  dos, suma del gusano 0 + positivos de lo alcanzable desde el gusano 0 − suma del gusano 1.
+  dos, suma del gusano 0 + positivos de lo alcanzable desde el gusano 0 − suma del gusano 1
+  − negativos de lo alcanzable desde el gusano 1 (corregido el 2026-10-26: sin este último
+  término no es cota cuando hay casillas negativas, porque el gusano 1 puede comérselas;
+  lo vio la 22 y lo implementa la 25).
 - **Partida** (`js/motor/partida.js`): `nuevaPartida({ …, modo })` guarda `partida.modo` y
   crea las rondas con él; `jugarEnPartida(partida, jugada)` acepta lo mismo que `jugar`.
   En la ronda r de cada par el jugador r tiene el papel 0, como ahora, y `marcador` no
@@ -645,7 +648,10 @@ casillas.
   único» (no / 25 % / 50 % / todas); `ajustesPorDefecto()` gana `gusanos: 1, cabezas: 1,
   sentido: 0`. Transformaciones en el punto único, en este orden: obstáculos → sentido
   único → valores. Los parámetros nuevos de los generadores (`alto`, `bordes`, `flechas`)
-  salen solos del formulario, que respeta `soloSi`.
+  salen solos del formulario, que respeta `soloSi`. **`alto` sigue a `lado`** mientras el
+  jugador no lo cambie a mano: hasta entonces el formulario no lo envía (y `crear` toma
+  `alto = lado`), así que `cuadrado4` lado 4 sigue siendo 4×4 (lo vio la 21: si el
+  formulario manda el defecto 6, sale 4×6).
 - **Jugar**: si la casilla pulsada admite dos jugadas (dos extremos), se marcan los dos
   extremos con `elegirExtremo` y el aviso dice «¿Por qué extremo? Pulsa uno»; pulsar uno
   juega; pulsar otra cosa o `Esc` cancela. Con `tablero.dibujo3d`, un interruptor «Vista:

@@ -31,6 +31,10 @@ ajustes.
    (§10.6); `conSentidoUnico` en el punto único de transformaciones, en el orden obstáculos
    → sentido → valores; el formulario respeta `soloSi` de las opciones (oculta la que no se
    cumple y, si estaba elegida, vuelve al defecto); el modo se pasa a `nuevaPartida`.
+   **`alto` sigue a `lado`** hasta que el jugador lo cambie (§10.6; incidencia de la 21,
+   `reparto/hechos/incidencias/s-20261026T105255-ac53ab24.md`): hoy el formulario manda el
+   defecto 6 y `cuadrado4` lado 4 sale 4×6, y por eso los casos b) y n) del arnés están en
+   rojo desde la 21. Con el arreglo vuelven a verde.
    Ajusta en `tests/ajustes.test.js` la lista de claves de `ajustesPorDefecto` y añade
    pruebas de lo nuevo.
 2. `js/pantallas/jugar.js`: la jugada con elección de extremo (§10.6) con `jugadasEn` y

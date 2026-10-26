@@ -3,7 +3,10 @@
 Actualizado: 2026-10-26 (tanda 2; coordinadora s-20261025T073409-9564e458)
 Precondición: 22 LISTA · Disparo: MANUAL
 Duración esperada: 40 min (tiempo de sesión, no de persona) · Caducidad del reclamo: 80 min · Banda de modelo: MEDIO · Encadenable con: —
-Ficheros que toca: `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia-variantes.test.js` (nuevo)
+Ficheros que toca: `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia-variantes.test.js` (nuevo);
+y, añadido el 2026-10-26 por la coordinadora, `js/motor/ronda.js` **solo `cotaSuperior`
+con dos gusanos** y una prueba en `tests/variantes.test.js` (la 22 está LISTA y nadie más
+tiene esos ficheros)
 
 La banda dice con qué modelo conviene abrir la sesión (tabla en `reparto/proyecto.md`).
 **Este fichero es la fuente de la banda**: el tablón la copia de aquí.
@@ -25,6 +28,11 @@ clásico.
 `npm test` en verde. Después `valorExacto` sobre `jugadasCompletas` y `maximiza`.
 
 ## Qué hay que hacer
+0. **`cotaSuperior` con dos gusanos** (incidencia de la 22,
+   `reparto/hechos/incidencias/s-20261026T104959-d4133524.md`): réstale además los valores
+   negativos de lo alcanzable desde el gusano 1 (§10.3, corregido). Prueba en
+   `tests/variantes.test.js`: con dos gusanos y una casilla de valor −2 al alcance del
+   gusano 1, la puntuación final de cualquier partida no supera la cota. Nada más del motor.
 1. `js/ia/minimax.js` y `js/ia/jugadores.js`: todo §10.4. Con el modo clásico, mismas
    jugadas y mismos valores que hoy (`tests/ia.test.js` y `tests/reto.test.js` sin
    cambios). `elegirJugada` devuelve un índice cuando no hay ambigüedad y el objeto cuando
@@ -47,7 +55,8 @@ clásico.
 
 ## Salida esperada
 Commit: `git add tests/ia-variantes.test.js && git commit -m "Tarea 25: la máquina en las
-variantes" -- js/ia/jugadores.js js/ia/minimax.js tests/ia-variantes.test.js`.
+variantes" -- js/ia/jugadores.js js/ia/minimax.js tests/ia-variantes.test.js
+js/motor/ronda.js tests/variantes.test.js`.
 
 ## Cómo saber que ha terminado
 `npm test` en verde (≥ 10 pruebas nuevas) con las de la tanda 1 sin tocar; recuentos de
@@ -64,6 +73,6 @@ Sigue «Cierre» de `_COMUN.md`. **No hagas `push`.**
   profundidad, pregúntale a `maximiza`.
 
 ## Prohibido
-- Cambiar el comportamiento en modo clásico o las pruebas de la tanda 1. Tocar el motor (si
-  le falta algo, incidencia y dilo).
+- Cambiar el comportamiento en modo clásico o las pruebas de la tanda 1. Tocar del motor
+  otra cosa que `cotaSuperior` con dos gusanos (si le falta algo más, incidencia y dilo).
 - Editar desde el shell. `git add -A`. Dependencias. Remoto o `push`.

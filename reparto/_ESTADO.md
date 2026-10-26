@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-26T10:59Z (cierre de la 22; recoge también los cierres de 20, 23 y 24, que no pudieron regenerar) · por s-20261026T104959-d4133524 (recalculadas todas las filas: 01-20 y 22-24 LISTAS; 21 EN CURSO; 25 LIBRE; 26-29 BLOQUEADAS)
+Regenerado: 2026-10-26T11:12Z · por la coordinadora s-20261025T073409-9564e458 (la 21 lo encontró reservado al cerrar; recalculadas todas las filas: 01-24 LISTAS, 25 LIBRE, 26-29 BLOQUEADAS; la 25 gana `cotaSuperior` del motor por la incidencia de la 22)
 
 ## Antes de hacer nada
 
@@ -126,12 +126,12 @@ una conversación.
 | 18 | Retoques de la verificación final: contraste, foco, editor y análisis | tareas/tarea-18-retoques-verificacion.md | 16 y 17 LISTAS | 15 min | MEDIO | 19 (después de esta) | `css/estilo.css`, `css/analisis.css` (bloque oscuro), `js/pantallas/jugar.js` (foco), `js/pantallas/editor.js`, `js/pantallas/analisis.js` (textos), `tests/editor.test.js` (opcional) | manual | LISTA (33dc5e7) | |
 | 19 | Investigar el fallo intermitente del arnés y endurecerlo con lo de la 18 | tareas/tarea-19-arnes-intermitente.md | 18 LISTA | 20 min | MEDIO | 18 (detrás de ella) | `herramientas/test-ui.js`; `jugar.js` o `editor.js` solo si la causa está ahí; `reparto/salidas/19-arnes-intermitente/` | manual | LISTA (3a99843) | |
 | 20 | Tablero dirigido y «sentido único» al azar | tareas/tarea-20-tablero-dirigido.md | ninguna | 20 min | MEDIO | 21 (detrás de esta) | `js/tableros/tipos.js`, `js/tableros/sentido.js`, `tests/dirigidos.test.js` | manual | LISTA (24987c6) | |
-| 21 | Bordes pegados y rectángulos en todas las rejillas, flechas con patrón, fantasmas | tareas/tarea-21-bordes-y-flechas.md | 20 LISTA | 45 min | MEDIO | 20 (detrás de ella) | `js/tableros/rejillas.js`, `js/tableros/hexagonal.js`, `js/tableros/index.js`, `tests/bordes.test.js`, `tests/tableros.test.js` (orden del registro) | manual | EN CURSO | s-20261026T105255-ac53ab24 · 2026-10-26T12:22:55Z |
+| 21 | Bordes pegados y rectángulos en todas las rejillas, flechas con patrón, fantasmas | tareas/tarea-21-bordes-y-flechas.md | 20 LISTA | 45 min | MEDIO | 20 (detrás de ella) | `js/tableros/rejillas.js`, `js/tableros/hexagonal.js`, `js/tableros/index.js`, `tests/bordes.test.js`, `tests/tableros.test.js` (orden del registro) | manual | LISTA (808d175) | |
 | 22 | Motor general: dos cabezas, dos gusanos y flechas | tareas/tarea-22-motor-variantes.md | ninguna | 45 min | ALTO | — | `js/motor/ronda.js`, `js/motor/partida.js`, `tests/variantes.test.js` | manual | LISTA (337354c) | |
 | 23 | Vista: fantasmas, flechas, dos gusanos y dos cabezas | tareas/tarea-23-vista-variantes.md | ninguna | 45 min | MEDIO | — | `js/ui/vista-tablero.js`, `css/vista-tablero.css`, `demo/vista.html`, `demo/vista.js` | manual | LISTA (2844876) | |
 | 24 | Poliedros en 3D que se giran con el ratón | tareas/tarea-24-vista-3d.md | ninguna | 50 min | MEDIO | — | `js/tableros/poliedros.js`, `js/ui/vista-3d.js`, `css/vista-3d.css`, `demo/vista-3d.html`, `demo/vista-3d.js`, `tests/poliedros3d.test.js` | manual | LISTA (57284ea) | |
-| 25 | La máquina juega todas las variantes | tareas/tarea-25-maquina-variantes.md | 22 LISTA | 40 min | MEDIO | — | `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia-variantes.test.js` | manual | PENDIENTE (libre) | |
-| 26 | Las variantes en la app: ajustes, partida, extremo, 3D y textos | tareas/tarea-26-app-variantes.md | 20-25 LISTAS | 50 min | MEDIO | 28 (después de esta) | `js/ui/ajustes.js`, `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `css/estilo.css`, `index.html`, `tests/ajustes.test.js`, `tests/textos-partida.test.js` | manual | BLOQUEADA (espera a 21 y 25) | |
+| 25 | La máquina juega todas las variantes | tareas/tarea-25-maquina-variantes.md | 22 LISTA | 40 min | MEDIO | — | `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia-variantes.test.js`; `js/motor/ronda.js` (solo `cotaSuperior` con dos gusanos), `tests/variantes.test.js` (una prueba) | manual | PENDIENTE (libre) | |
+| 26 | Las variantes en la app: ajustes, partida, extremo, 3D y textos | tareas/tarea-26-app-variantes.md | 20-25 LISTAS | 50 min | MEDIO | 28 (después de esta) | `js/ui/ajustes.js`, `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `css/estilo.css`, `index.html`, `tests/ajustes.test.js`, `tests/textos-partida.test.js` | manual | BLOQUEADA (espera a la 25) | |
 | 27 | Modo ayuda, análisis y compartir con las variantes | tareas/tarea-27-ayudas-analisis-url.md | 20, 22 y 25 LISTAS | 35 min | MEDIO | — | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `js/compartir/url.js`, `tests/ayudas.test.js`, `tests/url.test.js` | manual | BLOQUEADA (espera a la 25) | |
 | 28 | Las variantes en la página de reglas y en el README | tareas/tarea-28-reglas-variantes.md | 26 LISTA | 20 min | MEDIO | 26 (detrás de ella) | `reglas.html`, `css/reglas.css`, `README.md` | manual | BLOQUEADA (espera a la 26) | |
 | 29 | Verificación de la tanda 2 | tareas/tarea-29-verificacion-tanda2.md | 20-28 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/29-verificacion-tanda2/` | manual | BLOQUEADA (espera a 20-28) | |
@@ -143,7 +143,7 @@ Reserva «ALTO (Fable 5.1, esfuerzo Alto)» para montar, recortar o coordinar.
 Paralelismo (cruzando «Ficheros que toca»): tras la 01, dos sesiones (02+03 y 04+05);
 cuando 02 y 04 estén LISTAS, también la 06; la 07 va sola; tras la 07, hasta siete a la
 vez (08, 09, 10, 11, 12, 13 y 15; la 14 detrás de la 13); la 16 al final, sola.
-Hoy (tanda 2): 20, 22, 23 y 24 LISTAS; la 21 en curso; la 25 libre (sus ficheros, `js/ia/`, no se cruzan con los de la 21): dos sesiones a la vez. Después 26 (tras 21 y 25) y 27 (tras 25) a la vez (disjuntos); 28 detrás de la 26 (cadena 26+28); 29 al final, sola.
+Hoy (tanda 2): una sola sesión, la 25 (detrás de ella, 26 y 27 a la vez; 28 encadenada tras la 26; 29 al final). Ojo: desde la 21, los casos b) y n) de `herramientas/test-ui.js` están en rojo por el formulario de ajustes (incidencia de la 21); lo arregla la 26.
 
 ## Registro de finalizaciones
 
