@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-26T10:04Z (alta de la tanda 2, 20-29) · por la coordinadora s-20261025T073409-9564e458 (recalculadas todas las filas: 01-19 LISTAS; 20, 22, 23 y 24 LIBRES; 21, 25-29 BLOQUEADAS)
+Regenerado: 2026-10-26T10:59Z (cierre de la 22; recoge también los cierres de 20, 23 y 24, que no pudieron regenerar) · por s-20261026T104959-d4133524 (recalculadas todas las filas: 01-20 y 22-24 LISTAS; 21 EN CURSO; 25 LIBRE; 26-29 BLOQUEADAS)
 
 ## Antes de hacer nada
 
@@ -125,14 +125,14 @@ una conversación.
 | 17 | Marcador de suma cero, ventanas de papeles y fin de ronda, retoques de la 08 | tareas/tarea-17-ventanas-y-retoques.md | 01-15 LISTAS y ningún reclamo vivo de la 16 | 40 min | MEDIO | — | `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `tests/textos-partida.test.js`, `css/estilo.css`, `js/ui/app.js`, `js/ui/ajustes.js`, `index.html`, `reglas.html`, `README.md`, `herramientas/test-ui.js` | manual | LISTA (fc27fd5) | |
 | 18 | Retoques de la verificación final: contraste, foco, editor y análisis | tareas/tarea-18-retoques-verificacion.md | 16 y 17 LISTAS | 15 min | MEDIO | 19 (después de esta) | `css/estilo.css`, `css/analisis.css` (bloque oscuro), `js/pantallas/jugar.js` (foco), `js/pantallas/editor.js`, `js/pantallas/analisis.js` (textos), `tests/editor.test.js` (opcional) | manual | LISTA (33dc5e7) | |
 | 19 | Investigar el fallo intermitente del arnés y endurecerlo con lo de la 18 | tareas/tarea-19-arnes-intermitente.md | 18 LISTA | 20 min | MEDIO | 18 (detrás de ella) | `herramientas/test-ui.js`; `jugar.js` o `editor.js` solo si la causa está ahí; `reparto/salidas/19-arnes-intermitente/` | manual | LISTA (3a99843) | |
-| 20 | Tablero dirigido y «sentido único» al azar | tareas/tarea-20-tablero-dirigido.md | ninguna | 20 min | MEDIO | 21 (detrás de esta) | `js/tableros/tipos.js`, `js/tableros/sentido.js`, `tests/dirigidos.test.js` | manual | PENDIENTE (libre) | |
-| 21 | Bordes pegados y rectángulos en todas las rejillas, flechas con patrón, fantasmas | tareas/tarea-21-bordes-y-flechas.md | 20 LISTA | 45 min | MEDIO | 20 (detrás de ella) | `js/tableros/rejillas.js`, `js/tableros/hexagonal.js`, `js/tableros/index.js`, `tests/bordes.test.js`, `tests/tableros.test.js` (orden del registro) | manual | BLOQUEADA (espera a la 20) | |
-| 22 | Motor general: dos cabezas, dos gusanos y flechas | tareas/tarea-22-motor-variantes.md | ninguna | 45 min | ALTO | — | `js/motor/ronda.js`, `js/motor/partida.js`, `tests/variantes.test.js` | manual | PENDIENTE (libre) | |
-| 23 | Vista: fantasmas, flechas, dos gusanos y dos cabezas | tareas/tarea-23-vista-variantes.md | ninguna | 45 min | MEDIO | — | `js/ui/vista-tablero.js`, `css/vista-tablero.css`, `demo/vista.html`, `demo/vista.js` | manual | PENDIENTE (libre) | |
-| 24 | Poliedros en 3D que se giran con el ratón | tareas/tarea-24-vista-3d.md | ninguna | 50 min | MEDIO | — | `js/tableros/poliedros.js`, `js/ui/vista-3d.js`, `css/vista-3d.css`, `demo/vista-3d.html`, `demo/vista-3d.js`, `tests/poliedros3d.test.js` | manual | PENDIENTE (libre) | |
-| 25 | La máquina juega todas las variantes | tareas/tarea-25-maquina-variantes.md | 22 LISTA | 40 min | MEDIO | — | `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia-variantes.test.js` | manual | BLOQUEADA (espera a la 22) | |
-| 26 | Las variantes en la app: ajustes, partida, extremo, 3D y textos | tareas/tarea-26-app-variantes.md | 20-25 LISTAS | 50 min | MEDIO | 28 (después de esta) | `js/ui/ajustes.js`, `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `css/estilo.css`, `index.html`, `tests/ajustes.test.js`, `tests/textos-partida.test.js` | manual | BLOQUEADA (espera a 20-25) | |
-| 27 | Modo ayuda, análisis y compartir con las variantes | tareas/tarea-27-ayudas-analisis-url.md | 20, 22 y 25 LISTAS | 35 min | MEDIO | — | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `js/compartir/url.js`, `tests/ayudas.test.js`, `tests/url.test.js` | manual | BLOQUEADA (espera a 20, 22 y 25) | |
+| 20 | Tablero dirigido y «sentido único» al azar | tareas/tarea-20-tablero-dirigido.md | ninguna | 20 min | MEDIO | 21 (detrás de esta) | `js/tableros/tipos.js`, `js/tableros/sentido.js`, `tests/dirigidos.test.js` | manual | LISTA (24987c6) | |
+| 21 | Bordes pegados y rectángulos en todas las rejillas, flechas con patrón, fantasmas | tareas/tarea-21-bordes-y-flechas.md | 20 LISTA | 45 min | MEDIO | 20 (detrás de ella) | `js/tableros/rejillas.js`, `js/tableros/hexagonal.js`, `js/tableros/index.js`, `tests/bordes.test.js`, `tests/tableros.test.js` (orden del registro) | manual | EN CURSO | s-20261026T105255-ac53ab24 · 2026-10-26T12:22:55Z |
+| 22 | Motor general: dos cabezas, dos gusanos y flechas | tareas/tarea-22-motor-variantes.md | ninguna | 45 min | ALTO | — | `js/motor/ronda.js`, `js/motor/partida.js`, `tests/variantes.test.js` | manual | LISTA (337354c) | |
+| 23 | Vista: fantasmas, flechas, dos gusanos y dos cabezas | tareas/tarea-23-vista-variantes.md | ninguna | 45 min | MEDIO | — | `js/ui/vista-tablero.js`, `css/vista-tablero.css`, `demo/vista.html`, `demo/vista.js` | manual | LISTA (2844876) | |
+| 24 | Poliedros en 3D que se giran con el ratón | tareas/tarea-24-vista-3d.md | ninguna | 50 min | MEDIO | — | `js/tableros/poliedros.js`, `js/ui/vista-3d.js`, `css/vista-3d.css`, `demo/vista-3d.html`, `demo/vista-3d.js`, `tests/poliedros3d.test.js` | manual | LISTA (57284ea) | |
+| 25 | La máquina juega todas las variantes | tareas/tarea-25-maquina-variantes.md | 22 LISTA | 40 min | MEDIO | — | `js/ia/jugadores.js`, `js/ia/minimax.js`, `tests/ia-variantes.test.js` | manual | PENDIENTE (libre) | |
+| 26 | Las variantes en la app: ajustes, partida, extremo, 3D y textos | tareas/tarea-26-app-variantes.md | 20-25 LISTAS | 50 min | MEDIO | 28 (después de esta) | `js/ui/ajustes.js`, `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `css/estilo.css`, `index.html`, `tests/ajustes.test.js`, `tests/textos-partida.test.js` | manual | BLOQUEADA (espera a 21 y 25) | |
+| 27 | Modo ayuda, análisis y compartir con las variantes | tareas/tarea-27-ayudas-analisis-url.md | 20, 22 y 25 LISTAS | 35 min | MEDIO | — | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `js/compartir/url.js`, `tests/ayudas.test.js`, `tests/url.test.js` | manual | BLOQUEADA (espera a la 25) | |
 | 28 | Las variantes en la página de reglas y en el README | tareas/tarea-28-reglas-variantes.md | 26 LISTA | 20 min | MEDIO | 26 (detrás de ella) | `reglas.html`, `css/reglas.css`, `README.md` | manual | BLOQUEADA (espera a la 26) | |
 | 29 | Verificación de la tanda 2 | tareas/tarea-29-verificacion-tanda2.md | 20-28 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/29-verificacion-tanda2/` | manual | BLOQUEADA (espera a 20-28) | |
 
@@ -143,13 +143,18 @@ Reserva «ALTO (Fable 5.1, esfuerzo Alto)» para montar, recortar o coordinar.
 Paralelismo (cruzando «Ficheros que toca»): tras la 01, dos sesiones (02+03 y 04+05);
 cuando 02 y 04 estén LISTAS, también la 06; la 07 va sola; tras la 07, hasta siete a la
 vez (08, 09, 10, 11, 12, 13 y 15; la 14 detrás de la 13); la 16 al final, sola.
-Hoy (tanda 2): cuatro sesiones a la vez sin estorbarse: 20+21 (cadena), 22, 23 y 24 (ficheros disjuntos). Después 25 (tras la 22); después 26 y 27 a la vez (disjuntos); 28 detrás de la 26 (cadena 26+28); 29 al final, sola.
+Hoy (tanda 2): 20, 22, 23 y 24 LISTAS; la 21 en curso; la 25 libre (sus ficheros, `js/ia/`, no se cruzan con los de la 21): dos sesiones a la vez. Después 26 (tras 21 y 25) y 27 (tras 25) a la vez (disjuntos); 28 detrás de la 26 (cadena 26+28); 29 al final, sola.
 
 ## Registro de finalizaciones
 
 Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
+
+LISTA · tarea 22 · 2026-10-26 10:58 · s-20261026T104959-d4133524 · 337354c · npm test pass 243, fail 0 (22 nuevas en tests/variantes.test.js); clásico idéntico al anterior (comparación diferencial en 63 tableros) · js/motor/ronda.js, js/motor/partida.js, tests/variantes.test.js
+LISTA · tarea 23 · 2026-10-26 10:56 · s-20261026T105031-7056d700 · 2844876 · npm test pass 224, fail 0 (sin pruebas nuevas); test-ui.js TODO OK · js/ui/vista-tablero.js, css/vista-tablero.css, demo/vista.html, demo/vista.js
+LISTA · tarea 24 · 2026-10-26 10:55 · s-20261026T105050-9ce9bef5 · 57284ea · npm test pass 224, fail 0 (33 nuevas en tests/poliedros3d.test.js); verificado en Chrome sin cabeza · js/tableros/poliedros.js, js/ui/vista-3d.js, css/vista-3d.css, demo/vista-3d.html, demo/vista-3d.js, tests/poliedros3d.test.js
+LISTA · tarea 20 · 2026-10-26 10:52 · s-20261026T105015-feab800d · 24987c6 · npm test pass 191, fail 0 (12 nuevas en tests/dirigidos.test.js) · js/tableros/tipos.js, js/tableros/sentido.js, tests/dirigidos.test.js
 
 LISTA · tarea 19 · 2026-10-25 22:35 · s-20261025T220142-93453c05 · 3a99843 · npm test pass 179, fail 0; test-ui.js TODO OK (20 casos, 4 pasadas seguidas), caso l) 50/50; causa del fallo: la ronda 1 acaba antes de que mueva el humano (no es de la app) · herramientas/test-ui.js, reparto/salidas/19-arnes-intermitente/
 LISTA · tarea 18 · 2026-10-25 22:04 · s-20261025T215630-c06c0ea6 · 33dc5e7 · npm test pass 179, fail 0; test-ui.js TODO OK (17 casos), caso q) sin avisos de contraste · css/estilo.css, css/analisis.css, js/pantallas/jugar.js, js/pantallas/editor.js, js/pantallas/analisis.js
@@ -174,6 +179,14 @@ LISTA · tarea 01 · 2026-10-24 23:47 · s-20261024T234627-f387245a · 936008e �
 ## Incidencias de coordinación
 
 Derivado de `hechos/incidencias/`. Choques encontrados y cómo se resolvieron.
+
+- s-20261026T104959-d4133524 (tarea 22), **aviso para la 25**: con dos gusanos y valores
+  negativos, `cotaSuperior` (fórmula de §10.3) no es cota, porque el gusano 1 puede crecer
+  por casillas negativas. Si la 25 poda con ella, con dos gusanos tiene que restar también
+  los negativos que alcanza el gusano 1, o no podar. Sin negativos sí es cota.
+- Sin fichero en `incidencias/`, anotado en los latidos de 20, 21, 23 y 24: el tablón quedó
+  reservado por el hook tras el reclamo de la 22 (editado con `Edit` a las 10:51Z) y las
+  cuatro cerraron o reclamaron sin poder regenerarlo; esta regeneración las recoge.
 
 - s-20261025T003610-2477832b (tarea 13): `tests/ajustes.test.js` (de la 07) comprueba las
   claves exactas de `ajustesPorDefecto`; la 13 añadió `obstaculos` y la 14 `valores` a esa

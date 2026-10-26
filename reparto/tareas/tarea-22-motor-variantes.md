@@ -76,6 +76,15 @@ de otra sesión; da su frase). **No hagas `push`.**
   bloquea: guarda `mueve` en la ronda.
 - La distancia de las salidas se mide sin sentido (como si todas las conexiones fueran
   dobles): con flechas, «estar lejos» no depende de hacia dónde apunten.
+- (Cierre, 2026-10-26.) `tests/motor.test.js` juega con `casillas.reduce(jugar, ronda)`:
+  `jugar` recibe un tercer y un cuarto argumento (índice y lista) y tiene que ignorarlos.
+- (Cierre.) «Exactamente lo mismo» se comprobó cargando el `ronda.js`/`partida.js` de antes
+  (`git show HEAD:…` a una carpeta temporal con `azar.js` y un `package.json` de módulo) y
+  jugando las dos versiones a la vez en todos los generadores; es la forma barata de
+  asegurarlo, y le sirve igual a la 25 con `js/ia/`.
+- (Cierre.) Editar `_ESTADO.md` con `Edit` al reclamar lo reserva 30 min: las cuatro
+  sesiones que cerraron o reclamaron en esa media hora no pudieron regenerarlo. Quien
+  cierre dentro de esa media hora tiene que recoger también sus filas.
 
 ## Prohibido
 - Cambiar el resultado de cualquier función en modo clásico. Cambiar pruebas de la tanda
