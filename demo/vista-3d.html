@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Juan Luis Salas García">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gusano · demo de la vista 3D</title>
+<link rel="stylesheet" href="../css/estilo.css">
+<link rel="stylesheet" href="../css/vista-3d.css">
+<style>
+  /* Solo de esta página de prueba. */
+  .barra { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 12px; }
+  .barra label { display: inline-flex; gap: 4px; align-items: center; }
+  button, select { font: inherit; }
+  #estado { margin: 8px 0; font-weight: 600; }
+  #tablero { margin-top: 8px; }
+</style>
+</head>
+<body>
+<h1>Vista 3D de los poliedros</h1>
+<p>Arrastra para girar el sólido; pulsa una cara para jugar en ella.</p>
+<form class="barra" onsubmit="return false">
+  <label>Sólido <select id="solido"></select></label>
+  <button type="button" id="reiniciar">Reiniciar ronda</button>
+  <label><input type="checkbox" id="resaltar" checked> Resaltar legales</label>
+  <label><input type="checkbox" id="numerar"> Numerar tramos</label>
+</form>
+<div id="estado" role="status"></div>
+<div id="tablero"></div>
+<script type="module" src="vista-3d.js"></script>
+</body>
+</html>

@@ -119,6 +119,25 @@ function encontrarCaras(vertices) {
   return caras;
 }
 
+// Los vértices de una cara ordenados alrededor de ella, de modo que la normal por la regla
+// de la mano derecha apunte hacia fuera (sentido contrario a las agujas del reloj mirándola
+// desde fuera).
+function ordenarAlrededor(cara, vertices) {
+  const puntos = cara.vertices.map((i) => vertices[i]);
+  const centro = escala(puntos.reduce(suma), 1 / puntos.length);
+  const e1 = unitario(resta(puntos[0], centro));
+  const e2 = cruz(cara.normal, e1);
+  const angulo = (p) => Math.atan2(punto(resta(p, centro), e2), punto(resta(p, centro), e1));
+  return puntos.sort((a, b) => angulo(a) - angulo(b));
+}
+
+// Polígonos 3D de las caras (mismo orden que las casillas), con el sólido centrado en el
+// origen y escalado a radio 1 (§10.5).
+function caras3d(caras, vertices) {
+  const radio = Math.max(...vertices.map(norma));
+  return caras.map((cara) => ordenarAlrededor(cara, vertices).map((p) => escala(p, 1 / radio)));
+}
+
 // Dos caras de un poliedro convexo son vecinas si comparten dos vértices (una arista).
 function adyacenciaDeCaras(caras) {
   const aristas = [];
@@ -280,6 +299,7 @@ function geometriaDe(solido) {
     geometrias.set(solido, {
       centros: posicion,
       aristas,
+      caras3d: caras3d(caras, vertices),
       radio: Math.min(RADIO_MAXIMO, 0.4 * separacion),
     });
   }
@@ -298,9 +318,9 @@ export const poliedro = {
   ],
   crear(parametros) {
     const p = resolverParametros(poliedro.parametros, parametros);
-    const { centros, aristas, radio } = geometriaDe(p.solido);
+    const { centros, aristas, caras3d: caras, radio } = geometriaDe(p.solido);
     const nombreSolido = SOLIDOS[p.solido].nombre.replace(/ \(.*\)$/, '').toLowerCase();
-    return crearTablero({
+    const tablero = crearTablero({
       id: `poliedro-${p.solido}`,
       nombre: `Caras del ${nombreSolido}`,
       descripcion: 'Las casillas son las caras; dos caras son vecinas si comparten una arista.',
@@ -309,5 +329,7 @@ export const poliedro = {
       aristas,
       dibujo: { ancho: LADO_CAJA, alto: LADO_CAJA, aristas: true, radio },
     });
+    tablero.dibujo3d = { caras: caras.map((cara) => cara.map((v) => [...v])) };
+    return tablero;
   },
 };

@@ -1,0 +1,63 @@
+/* Gusano · © 2026 Juan Luis Salas García · Licencia MIT */
+/* Estilos de la vista 3D (js/ui/vista-3d.js). Autosuficiente: repite lo mínimo de la vista
+   plana bajo .vista-3d, con las variables de estilo.css y valores por defecto. */
+
+.vista-3d {
+  display: block;
+  max-width: min(100%, 80vh);
+  margin: 0 auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.vista-3d.girando { cursor: grabbing; }
+
+.vista-3d .casilla {
+  fill: var(--panel, #ffffff);
+  stroke: var(--borde, #b0b0aa);
+  stroke-width: 0.02;
+  stroke-linejoin: round;
+  cursor: inherit;
+}
+.vista-3d .casilla.legal { fill: var(--legal, #f2c94c); cursor: pointer; }
+.vista-3d .casilla.gusano { fill: color-mix(in srgb, var(--gusano, #2f9e5a) 35%, var(--panel, #ffffff)); }
+.vista-3d .casilla.pajaro { fill: color-mix(in srgb, var(--pajaro, #6a5acd) 35%, var(--panel, #ffffff)); }
+.vista-3d .casilla.cabeza {
+  stroke: var(--texto, #1a1a1a);
+  stroke-width: 0.045;
+}
+.vista-3d .casilla.bloqueada { fill: var(--bloqueada, #3c3c3c); stroke: var(--bloqueada, #3c3c3c); }
+.vista-3d .casilla.inalcanzable { opacity: 0.4; }
+.vista-3d .casilla.elegir-extremo {
+  stroke: var(--acento, #2f6fdb);
+  stroke-width: 0.06;
+  stroke-dasharray: 0.06 0.04;
+  cursor: pointer;
+}
+
+.vista-3d .gusano-cuerpo { stroke: var(--gusano, #2f9e5a); stroke-opacity: 0.8; }
+.vista-3d .gusano-cuerpo.gusano-1 { stroke: var(--pajaro, #6a5acd); }
+.vista-3d .gusano-cabeza {
+  fill: var(--gusano, #2f9e5a);
+  stroke: var(--panel, #ffffff);
+  stroke-width: 0.02;
+}
+.vista-3d .gusano-cabeza.gusano-1 { fill: var(--pajaro, #6a5acd); }
+.vista-3d .ojo { fill: #ffffff; }
+.vista-3d .pupila { fill: #111111; }
+
+.vista-3d text {
+  fill: var(--texto, #1a1a1a);
+  font-family: inherit;
+  font-weight: 600;
+  pointer-events: none;
+}
+.vista-3d text.valor-esquina { fill: var(--texto-suave, #666); }
+
+@media (prefers-color-scheme: dark) {
+  /* El texto sigue siendo --texto (#ececec) sobre rellenos mezclados con --panel oscuro:
+     más de 4,5:1. Las caras del gusano y el pájaro quedan oscuras, no saturadas. */
+  .vista-3d .casilla { stroke: var(--borde, #555); }
+  .vista-3d .casilla.legal { fill: color-mix(in srgb, var(--legal, #f2c94c) 55%, var(--panel, #181818)); }
+}
