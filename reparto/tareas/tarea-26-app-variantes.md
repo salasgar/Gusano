@@ -76,6 +76,9 @@ nombra, encadénala. **No hagas `push`.**
   escuchando clics.
 - En dos gusanos no hay «gusano» ni «pájaro» en el marcador: cada jugador con el color de
   su gusano.
+- `herramientas/test-ui.js` toma el primer `<select>` del grupo «Partida» por el de la casilla
+  inicial: los campos nuevos de ese grupo van detrás de él, o los casos b)-r) dejan de
+  arrancar.
 
 ## Prohibido
 - Tocar `ayudas.js`, `analisis.js`, `url.js` (de la 27), las vistas, el motor o la IA (si les
