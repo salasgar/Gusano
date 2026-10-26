@@ -16,6 +16,9 @@
   button { padding: 6px 12px; border: 1px solid var(--borde); border-radius: 8px; background: var(--panel); color: var(--texto); cursor: pointer; }
   #estado { margin: 8px 0; font-weight: 600; }
   #tablero { margin-top: 8px; }
+  .ejemplos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; }
+  .ejemplos figure { margin: 0; }
+  .ejemplos figcaption { margin-top: 4px; font-size: 0.9rem; color: var(--texto-suave); }
 </style>
 </head>
 <body>
@@ -34,6 +37,13 @@
 </div>
 <div id="estado" role="status"></div>
 <div id="tablero"></div>
+<h2>Ejemplos de la tanda 2 (hechos a mano)</h2>
+<div class="ejemplos">
+  <figure><div id="ej-toro"></div><figcaption>Toro 4×4 con su franja de fantasmas y un gusano que cruza el pegado.</figcaption></figure>
+  <figure><div id="ej-arcos"></div><figcaption>Conexiones de un solo sentido (calles alternas): el gusano sigue las flechas.</figcaption></figure>
+  <figure><div id="ej-dos"></div><figcaption>Dos gusanos de dos cabezas cada uno (ojos en la cabeza y en la cola).</figcaption></figure>
+  <figure><div id="ej-extremo"></div><figcaption>Gusano de dos cabezas con «¿Por qué extremo?»: los dos extremos marcados.</figcaption></figure>
+</div>
 <script type="module" src="vista.js"></script>
 </body>
 </html>

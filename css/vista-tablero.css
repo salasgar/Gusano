@@ -64,3 +64,45 @@
   font-weight: 400;
 }
 .vista-tablero text.valor-esquina { fill: var(--texto-suave, #666); }
+
+/* Tanda 2 (ESPECIFICACION.md §10.5). */
+
+/* Casillas fantasma: copias tenues de las del otro lado de un borde pegado. */
+.vista-tablero .casilla.fantasma { opacity: 0.45; stroke-dasharray: 0.12 0.08; }
+.vista-tablero .casilla.fantasma.bloqueada { opacity: 0.6; }
+
+/* Conexiones de un solo sentido: flecha con punta. */
+.vista-tablero .arco {
+  stroke: var(--texto-suave, #666);
+  stroke-width: 0.06;
+  stroke-linecap: round;
+}
+.vista-tablero .punta { fill: var(--texto-suave, #666); }
+
+/* Segundo gusano (y primero de dos): el cuerpo y la cabeza llevan el color del pájaro. */
+.vista-tablero .gusano-cuerpo.gusano-1 { stroke: var(--pajaro, #6a5acd); }
+.vista-tablero .gusano-cabeza.gusano-1 { fill: var(--pajaro, #6a5acd); }
+
+/* Cola con ojos (gusano de dos cabezas): la misma cabeza, con borde para distinguirla del cuerpo. */
+.vista-tablero .casilla.cola {
+  stroke: var(--texto, #1a1a1a);
+  stroke-width: 0.1;
+}
+.vista-tablero .gusano-cabeza.cola { stroke-width: 0.06; }
+.vista-tablero .ojo.cola { fill: #ffffff; }
+.vista-tablero .pupila.cola { fill: #111111; }
+
+/* Hay que elegir extremo: anillo discontinuo que gira. Usa --texto, así se ve en claro y en oscuro. */
+.vista-tablero .casilla.elegir-extremo {
+  stroke: var(--texto, #1a1a1a);
+  stroke-width: 0.14;
+  stroke-dasharray: 0.2 0.12;
+  cursor: pointer;
+  animation: gira-anillo 1.2s linear infinite;
+}
+@keyframes gira-anillo {
+  to { stroke-dashoffset: -0.32; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vista-tablero .casilla.elegir-extremo { animation: none; }
+}
