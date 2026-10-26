@@ -82,6 +82,13 @@ Sigue «Cierre» de `_COMUN.md`. **No hagas `push`.**
   descartan las repetidas, no es un error.
 - Las fantasmas de la esquina en un toro rectangular: la casilla opuesta en diagonal.
 
+- (Hallada al cerrar, sid s-20261026T105255-ac53ab24.) `alto` tiene defecto numérico y el
+  formulario de ajustes lo manda siempre: hasta que la 26 lo arregle, `cuadrado4` lado 4
+  desde la app sale 4×6 (fallan b y n de `herramientas/test-ui.js`). Con `alto` ausente,
+  `crear` usa `lado`. Ver `hechos/incidencias/s-20261026T105255-ac53ab24.md`.
+- `generador.parametros` de un tablero de rejilla lleva ahora `alto`, `bordes` (y `flechas`):
+  quien compare con el tablero antiguo debe ignorar esas claves.
+
 ## Prohibido
 - Tocar `tipos.js` o `sentido.js` (son de la 20), `poliedros.js` (de la 24), el motor o la
   vista. Cambiar `id`, casillas o vecinos de un tablero con los parámetros por defecto.
