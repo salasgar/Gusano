@@ -3,17 +3,19 @@
 
 import { generador } from '../tableros/index.js';
 import { crearAzar } from '../util/azar.js';
-import { jugadasLegales, cotaSuperior } from '../motor/ronda.js';
+import { jugadasLegales, jugadasEn, cotaSuperior, cabeza } from '../motor/ronda.js';
 import {
   nuevaPartida, rondaActual, jugadorEnTurno, jugarEnPartida, marcador, anadirPar,
 } from '../motor/partida.js';
 import { elegirJugada } from '../ia/jugadores.js';
 import { crearVista } from '../ui/vista-tablero.js';
-import { ajustesPorDefecto, tablerosDesdeAjustes, montarAjustes } from '../ui/ajustes.js';
+import { crearVista3D } from '../ui/vista-3d.js';
+import { ajustesPorDefecto, tablerosDesdeAjustes, montarAjustes, modoDeAjustes } from '../ui/ajustes.js';
 import { decoraciones } from '../ui/ayudas.js';
 import { enlaceDe } from '../compartir/url.js';
 import {
   saldos, conSigno, marcadorAlCierre, sinEmpezar, papeles, finDeRonda, resultado,
+  dosGusanos, etiquetaDePapel, brutos, AVISO_EXTREMO,
 } from '../ui/textos-partida.js';
 
 export const id = 'jugar';
@@ -23,6 +25,8 @@ const RETARDO_MAQUINA_MS = 60;
 
 // Un solo temporizador en toda la aplicación: al montar de nuevo se cancela el anterior.
 let temporizador = null;
+// Un solo escuchante de teclado (Esc cancela la elección de extremo), por la misma razón.
+let alTeclear = null;
 
 function el(nombre, atributos = {}, ...hijos) {
   const nodo = document.createElement(nombre);
@@ -48,13 +52,17 @@ function conNegrita(texto) {
 export function montar(contenedor, contexto) {
   const { irA, datos = {} } = contexto;
   clearTimeout(temporizador);
+  if (alTeclear) document.removeEventListener('keydown', alTeclear);
 
   let ajustes = ajustesPorDefecto();
   let partida = null;
   let vista = null;
   let parDeLaVista = -1;
   let ayuda = false;
+  let vista3d = false;
   let pensando = false;
+  // Casilla pulsada que admite dos jugadas (dos extremos): { casilla, jugadas } hasta que se elige uno.
+  let eleccion = null;
   // Ventana abierta (o null) y ronda terminada que se está mirando sin haber pulsado «Continuar»:
   // { par, ronda, continuar }. En cualquiera de los dos casos nadie juega.
   let dialogo = null;
@@ -88,8 +96,10 @@ export function montar(contenedor, contexto) {
       tableros,
       inicio: ajustes.inicio,
       semilla: ajustes.semilla,
+      modo: modoDeAjustes(ajustes),
     });
     ayuda = false;
+    vista3d = false;
     construirPartida();
   }
 
@@ -103,7 +113,8 @@ export function montar(contenedor, contexto) {
     parDeLaVista = -1;
     dialogo = null;
     cierre = null;
-    zonas.marcador = el('section', { class: 'marcador', 'aria-live': 'polite' });
+    eleccion = null;
+    zonas.marcador =el('section', { class: 'marcador', 'aria-live': 'polite' });
     zonas.estado = el('p', { class: 'estado', role: 'status' });
     zonas.tablero = el('div', { class: 'zona-tablero' });
     zonas.botones = el('div', { class: 'botones' });
@@ -134,11 +145,14 @@ export function montar(contenedor, contexto) {
       caja.append(
         el('span', { class: 'nombre' }, nombreDe(i)),
         el('span', { class: `saldo ${saldo > 0 ? 'positivo' : saldo < 0 ? 'negativo' : 'cero'}` }, conSigno(saldo)),
-        el('span', { class: 'brutos' }, `${m.puntos[i]} como gusano`),
       );
+      const bruto = brutos(partida, m.puntos, i);
+      if (bruto !== null) caja.append(el('span', { class: 'brutos' }, bruto));
       if (!partida.terminada) {
-        caja.append(el('span', { class: `rol ${esGusano ? 'gusano' : 'pajaro'}` }, esGusano ? 'gusano' : 'pájaro'));
-        if (ayuda && esGusano && !cierre) caja.append(el('span', { class: 'techo' }, `techo ${cotaSuperior(ronda)}`));
+        const papel = etiquetaDePapel({ ...partida, ronda: gusano }, i);
+        caja.append(el('span', { class: `rol ${papel.clase}` }, papel.texto));
+        // El techo solo tiene sentido con un gusano.
+        if (ayuda && esGusano && !cierre && !dosGusanos(partida)) caja.append(el('span', { class: 'techo' }, `techo ${cotaSuperior(ronda)}`));
       }
       return caja;
     });
@@ -153,6 +167,15 @@ export function montar(contenedor, contexto) {
     let texto = '';
     if (partida.terminada || cierre) {
       texto = '';
+    } else if (eleccion) {
+      // Además de pulsar un extremo en el tablero, dos botones: sirven también sin ratón y cuando los dos
+      // extremos son la misma casilla (gusano de una casilla con flechas).
+      zonas.estado.replaceChildren(
+        el('span', {}, AVISO_EXTREMO),
+        el('span', { class: 'elegir-extremo-botones' },
+          ...eleccion.jugadas.map((j) => boton(j.extremo === 0 ? 'Por la cabeza' : 'Por la cola', () => jugarElegida(j)))),
+      );
+      return;
     } else if (pensando) {
       texto = `${nombreDe(jugadorEnTurno(partida))} está pensando…`;
     } else if (humanoEnTurno) {
@@ -174,6 +197,11 @@ export function montar(contenedor, contexto) {
       interruptor.setAttribute('aria-pressed', String(ayuda));
       botones.push(interruptor);
     }
+    if (partida.pares[parVisto()].tablero.dibujo3d) {
+      const interruptor3d = boton(`Vista: ${vista3d ? '3D' : 'plano'}`, () => { vista3d = !vista3d; eleccion = null; pintar(); });
+      interruptor3d.setAttribute('aria-pressed', String(vista3d));
+      botones.push(interruptor3d);
+    }
     if (enlaceDe(partida) !== null) botones.push(boton('Compartir', compartir));
     botones.push(boton('Nueva partida', nuevaPartidaNueva));
     zonas.botones.replaceChildren(...botones);
@@ -185,11 +213,14 @@ export function montar(contenedor, contexto) {
     const ronda = cierre ? partida.pares[cierre.par].rondas[cierre.ronda] : rondaActual(partida);
     const par = partida.pares[parVisto()];
 
-    if (parDeLaVista !== parVisto()) {
+    // Cambiar entre plano y 3D destruye la vista anterior para que no queden dos escuchando clics.
+    const en3d = vista3d && Boolean(par.tablero.dibujo3d);
+    const clave = `${parVisto()}:${en3d}`;
+    if (parDeLaVista !== clave) {
       vista?.destruir();
       zonas.tablero.replaceChildren();
-      vista = crearVista(zonas.tablero, par.tablero, { alClicar });
-      parDeLaVista = parVisto();
+      vista = (en3d ? crearVista3D : crearVista)(zonas.tablero, par.tablero, { alClicar });
+      parDeLaVista = clave;
     }
 
     const humanoEnTurno = !partida.terminada && !enPausa()
@@ -199,6 +230,7 @@ export function montar(contenedor, contexto) {
       legales: humanoEnTurno ? jugadasLegales(ronda) : [],
       decoraciones: ayuda ? decoraciones(ronda) : new Map(),
       mostrarValores: true,
+      elegirExtremo: eleccion ? extremosDe(ronda, eleccion.jugadas) : [],
     });
     pintaMarcador(ronda);
     pintaEstado(humanoEnTurno);
@@ -270,9 +302,16 @@ export function montar(contenedor, contexto) {
 
   // ---------- jugadas ----------
 
-  function jugarCasilla(casilla) {
+  // Casilla del gusano por la que crece cada jugada: la cabeza (extremo 0) o la cola (extremo 1).
+  function extremoDe(ronda, j) {
+    return j.extremo === 0 ? cabeza(ronda, j.gusano) : ronda.cuerpos[j.gusano][0];
+  }
+  const extremosDe = (ronda, jugadas) => [...new Set(jugadas.map((j) => extremoDe(ronda, j)))];
+
+  // `jugada` es lo que acepta jugarEnPartida: un índice de casilla o { casilla, gusano, extremo }.
+  function jugarCasilla(jugada) {
     const antes = partida;
-    partida = jugarEnPartida(partida, casilla);
+    partida = jugarEnPartida(partida, jugada);
     zonas.enlace.replaceChildren();
     if (partida.par !== antes.par || partida.ronda !== antes.ronda || partida.terminada) {
       // La ronda cerrada se guarda ahora: el motor ya ha pasado a la siguiente.
@@ -283,28 +322,55 @@ export function montar(contenedor, contexto) {
     }
   }
 
+  function jugarElegida(jugada) {
+    eleccion = null;
+    jugarCasilla(jugada);
+    pintar();
+  }
+
+  function cancelaEleccion() {
+    if (eleccion === null) return;
+    eleccion = null;
+    pintar();
+  }
+
   function alClicar(casilla) {
     if (!partida || partida.terminada || pensando || enPausa()) return;
     if (ajustes.jugadores[jugadorEnTurno(partida)].tipo !== 'humano') return;
-    if (!jugadasLegales(rondaActual(partida)).includes(casilla)) return;
+    const ronda = rondaActual(partida);
+    if (eleccion) {
+      // Pulsar un extremo marcado juega por él; pulsar otra cosa cancela (y, si es una casilla legal, sigue).
+      const elegida = eleccion.jugadas.find((j) => extremoDe(ronda, j) === casilla);
+      if (elegida) { jugarElegida(elegida); return; }
+      eleccion = null;
+    }
+    if (!jugadasLegales(ronda).includes(casilla)) { pintar(); return; }
+    const posibles = jugadasEn(ronda, casilla);
+    if (posibles.length > 1) {
+      eleccion = { casilla, jugadas: posibles };
+      pintar();
+      return;
+    }
     jugarCasilla(casilla);
     pintar();
   }
+
+  alTeclear = (e) => { if (e.key === 'Escape' && activo()) cancelaEleccion(); };
+  document.addEventListener('keydown', alTeclear);
 
   function programaMaquina() {
     pensando = true;
     pintaEstado(false);
     vista.actualizar({
       ronda: rondaActual(partida), legales: [], decoraciones: ayuda ? decoraciones(rondaActual(partida)) : new Map(), mostrarValores: true,
-    });
-    const referencia = partida;
+    });    const referencia = partida;
     // El aviso «pensando…» se pinta antes: elegirJugada puede tardar más de un segundo.
     temporizador = setTimeout(() => {
       pensando = false;
       if (!activo() || partida !== referencia) return;
       const nivel = ajustes.jugadores[jugadorEnTurno(partida)].nivel;
-      const casilla = elegirJugada(nivel, rondaActual(partida), { azar: azarMaquina });
-      jugarCasilla(casilla);
+      const jugada = elegirJugada(nivel, rondaActual(partida), { azar: azarMaquina });
+      jugarCasilla(jugada);
       pintar();
     }, RETARDO_MAQUINA_MS);
   }
@@ -358,6 +424,8 @@ export function montar(contenedor, contexto) {
       inicio: partida.inicio,
       semilla: partida.semilla,
       pares: partida.pares.length,
+      gusanos: partida.modo?.gusanos ?? 1,
+      cabezas: partida.modo?.cabezas ?? 1,
     };
     const g = partida.pares[0].tablero.generador;
     if (g) ajustes = { ...ajustes, generadorId: g.id, parametros: g.parametros ?? {} };

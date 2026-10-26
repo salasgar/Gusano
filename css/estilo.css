@@ -74,6 +74,10 @@ select, input[type="text"], input[type="number"] {
 .jugador-marcador .rol.pajaro { background: var(--rol-pajaro); }
 .jugador-marcador .techo { font-size: 0.85rem; color: var(--texto-suave); }
 .estado { margin: 0; min-height: 1.5em; text-align: center; }
+/* Elección de extremo: aviso y los dos botones (también valen sin ratón). */
+.estado .elegir-extremo-botones { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 6px; }
+.estado:has(.elegir-extremo-botones) { font-weight: 600; }
+.ajustes select option[hidden] { display: none; }
 
 /* Ventanas de papeles y de fin de ronda */
 dialog.ventana {

@@ -6,6 +6,7 @@ import { generadores, generador } from '../tableros/index.js';
 import { niveles } from '../ia/jugadores.js';
 import { conObstaculos } from '../tableros/obstaculos.js';
 import { conValores } from '../tableros/valores.js';
+import { conSentidoUnico } from '../tableros/sentido.js';
 import { crearAzar } from '../util/azar.js';
 
 export function ajustesPorDefecto({ semilla = Date.now() } = {}) {
@@ -18,14 +19,29 @@ export function ajustesPorDefecto({ semilla = Date.now() } = {}) {
     nombres: ['Jugador A', 'Jugador B'],
     obstaculos: 0,
     valores: 'sin',
+    gusanos: 1,
+    cabezas: 1,
+    sentido: 0,
     semilla,
   };
 }
 
-// Punto único donde se aplican transformaciones al tablero recién generado.
+// Modo de la ronda que piden los ajustes (§10.3); con los defectos, el clásico.
+export function modoDeAjustes(ajustes) {
+  return { gusanos: ajustes.gusanos ?? 1, cabezas: ajustes.cabezas ?? 1 };
+}
+
+// ¿Se ofrece esta opción con los valores actuales de los demás parámetros? (`soloSi`, §10.2)
+export function opcionDisponible(opcion, valores) {
+  return Object.entries(opcion.soloSi ?? {}).every(([clave, validos]) => validos.includes(valores[clave]));
+}
+
+// Punto único donde se aplican transformaciones al tablero recién generado, en este orden:
+// obstáculos → sentido único → valores (§10.6).
 function transformarTablero(tablero, ajustes, indicePar) {
   const azar = crearAzar(ajustes.semilla + indicePar);
   if (ajustes.obstaculos > 0) tablero = conObstaculos(tablero, ajustes.obstaculos, azar);
+  if (ajustes.sentido > 0) tablero = conSentidoUnico(tablero, ajustes.sentido, azar);
   if (ajustes.valores && ajustes.valores !== 'sin') tablero = conValores(tablero, ajustes.valores, azar);
   return tablero;
 }
@@ -80,16 +96,53 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
   const descripcion = el('p', { class: 'ayuda-campo' });
   const zonaParametros = el('div', { class: 'parametros' });
   let campos = [];
+  // `alto` sigue a `lado` mientras el jugador no lo toque (§10.6): sin tocar, no se envía.
+  let altoTocado = false;
+
+  const valoresActuales = () => Object.fromEntries(campos.map(({ p, campo }) => [p.id, campo.value]));
+
+  // Oculta las opciones cuyo `soloSi` no se cumple; si la elegida deja de valer, vuelve al defecto.
+  function aplicaSoloSi() {
+    const valores = valoresActuales();
+    for (const { p, campo } of campos) {
+      if (p.tipo !== 'opcion') continue;
+      for (const o of campo.options) {
+        const def = p.opciones.find((x) => String(x.valor) === o.value);
+        const ok = opcionDisponible(def, valores);
+        o.hidden = !ok;
+        o.disabled = !ok;
+      }
+      const elegida = p.opciones.find((x) => String(x.valor) === campo.value);
+      if (elegida && !opcionDisponible(elegida, valores)) {
+        campo.value = p.defecto;
+        valores[p.id] = campo.value;
+      }
+    }
+  }
 
   function pintaParametros(valores) {
     const g = generador(selGenerador.value);
     descripcion.textContent = g.descripcion ?? '';
     zonaParametros.replaceChildren();
+    altoTocado = valores?.alto !== undefined;
     campos = g.parametros.map((p) => {
       const campo = campoParametro(p, valores?.[p.id]);
+      campo.addEventListener('input', () => {
+        if (p.id === 'alto') altoTocado = true;
+        if (p.id === 'lado' && !altoTocado) {
+          const alto = campos.find((c) => c.p.id === 'alto');
+          if (alto) alto.campo.value = campo.value;
+        }
+        aplicaSoloSi();
+      });
+      campo.addEventListener('change', aplicaSoloSi);
       zonaParametros.append(el('label', { class: 'campo' }, p.nombre, campo));
       return { p, campo };
     });
+    const lado = campos.find((c) => c.p.id === 'lado');
+    const alto = campos.find((c) => c.p.id === 'alto');
+    if (lado && alto && !altoTocado) alto.campo.value = lado.campo.value;
+    aplicaSoloSi();
   }
   selGenerador.addEventListener('change', () => pintaParametros());
   pintaParametros(actuales.parametros);
@@ -102,6 +155,15 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
     selValores.append(new Option(nombre, v));
   }
   selValores.value = actuales.valores ?? 'sin';
+  const selSentido = el('select', { id: 'ajuste-sentido' });
+  for (const [v, nombre] of [[0, 'No'], [0.25, '25 %'], [0.5, '50 %'], [1, 'Todas']]) selSentido.append(new Option(nombre, v));
+  selSentido.value = String(actuales.sentido ?? 0);
+  const selGusanos = el('select', { id: 'ajuste-gusanos' });
+  selGusanos.append(new Option('Uno (gusano y pájaro)', 1), new Option('Dos (gana el más largo)', 2));
+  selGusanos.value = String(actuales.gusanos ?? 1);
+  const selCabezas = el('select', { id: 'ajuste-cabezas' });
+  selCabezas.append(new Option('Una', 1), new Option('Dos (crece por los dos extremos)', 2));
+  selCabezas.value = String(actuales.cabezas ?? 1);
 
   // --- partida ---
   const campoPares = el('input', { type: 'number', min: 1, max: 5, step: 1, value: actuales.pares, inputMode: 'numeric' });
@@ -139,11 +201,14 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
       descripcion,
       zonaParametros,
       el('label', { class: 'campo' }, 'Obstáculos', selObstaculos),
+      el('label', { class: 'campo' }, 'Sentido único', selSentido),
       el('label', { class: 'campo' }, 'Valores', selValores)),
     el('fieldset', {},
       el('legend', {}, 'Partida'),
       el('label', { class: 'campo' }, 'Pares de rondas (1-5)', campoPares),
-      el('label', { class: 'campo' }, 'Casilla inicial', selInicio)),
+      el('label', { class: 'campo' }, 'Casilla inicial', selInicio),
+      el('label', { class: 'campo' }, 'Gusanos', selGusanos),
+      el('label', { class: 'campo' }, 'Cabezas', selCabezas)),
     bloqueJugador(0),
     bloqueJugador(1),
     empezar,
@@ -151,7 +216,10 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
 
   formulario.addEventListener('submit', () => {
     const parametros = {};
-    for (const { p, campo } of campos) parametros[p.id] = leeParametro(p, campo);
+    for (const { p, campo } of campos) {
+      if (p.id === 'alto' && !altoTocado) continue;
+      parametros[p.id] = leeParametro(p, campo);
+    }
     const pares = Math.min(5, Math.max(1, Math.round(Number(campoPares.value)) || 1));
     alAceptar({
       ...actuales,
@@ -160,6 +228,9 @@ export function montarAjustes(contenedor, ajustes, alAceptar) {
       pares,
       obstaculos: Number(selObstaculos.value),
       valores: selValores.value,
+      sentido: Number(selSentido.value),
+      gusanos: Number(selGusanos.value),
+      cabezas: Number(selCabezas.value),
       inicio: selInicio.value,
       jugadores: jugadores.map((j) => ({
         tipo: j.tipo.value,
