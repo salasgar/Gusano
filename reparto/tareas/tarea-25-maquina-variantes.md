@@ -72,6 +72,14 @@ Sigue «Cierre» de `_COMUN.md`. **No hagas `push`.**
 - Con dos gusanos el mismo papel puede mover dos veces seguidas: no alternes max/min por
   profundidad, pregúntale a `maximiza`.
 
+- (Añadido por la 25 al cerrar.) Un `Int32Array` no guarda `Number.MAX_SAFE_INTEGER`: se
+  desborda a −1 en silencio. Para «sin alcance» en búferes de distancias, `0x7fffffff`.
+- (Ídem.) Con dos gusanos de dos cabezas, `cuadrado4` lado 5 pide 3,4 M estados y 2,8 s al
+  resolutor exacto: `perfecto` cae en `fuerte` ahí (tope de 1 500 ms en `jugadores.js`).
+  Si una tarea posterior quiere `perfecto` en ese modo, hay que acelerar o subir el tope.
+- (Ídem.) Pruebas de motor o de máquina con valores negativos: con −2 la cota antigua de dos
+  gusanos aún valía; para que una prueba detecte el error hace falta algo como −5.
+
 ## Prohibido
 - Cambiar el comportamiento en modo clásico o las pruebas de la tanda 1. Tocar del motor
   otra cosa que `cotaSuperior` con dos gusanos (si le falta algo más, incidencia y dilo).
