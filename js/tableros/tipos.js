@@ -1,8 +1,10 @@
 // Estructura de datos de un tablero (ESPECIFICACION.md §2.1).
 
 // Construye un tablero a partir de la lista de pares `aristas`: `vecinos` sale
-// simétrica, ordenada y sin repetidos. Lanza Error si algo no cuadra.
-export function crearTablero({ id, nombre, descripcion, generador, casillas, aristas, dibujo }) {
+// simétrica, ordenada y sin repetidos. `arcos` ([i, j]: de i a j en un solo sentido) hace el
+// tablero dirigido (§10.1): `vecinos` son las salidas y `predecesores` las entradas; sin
+// arcos el tablero no lleva ni `dirigido` ni `predecesores`. Lanza Error si algo no cuadra.
+export function crearTablero({ id, nombre, descripcion, generador, casillas, aristas, arcos, dibujo }) {
   if (!Array.isArray(casillas) || casillas.length < 2) {
     throw new Error('un tablero necesita al menos 2 casillas');
   }
@@ -17,11 +19,30 @@ export function crearTablero({ id, nombre, descripcion, generador, casillas, ari
     conjuntos[i].add(j);
     conjuntos[j].add(i);
   }
+  const dirigido = (arcos ?? []).length > 0;
+  const entradas = dirigido ? conjuntos.map((c) => new Set(c)) : null;
+  for (const par of arcos ?? []) {
+    const [i, j] = par;
+    if (!Number.isInteger(i) || !Number.isInteger(j) || i < 0 || j < 0 || i >= n || j >= n) {
+      throw new Error(`arco fuera de rango: [${i}, ${j}]`);
+    }
+    if (i === j) throw new Error(`arco de una casilla consigo misma: ${i}`);
+    if (conjuntos[i].has(j) && conjuntos[j].has(i)) {
+      throw new Error(`el par ${i}-${j} es a la vez arista y arco`);
+    }
+    conjuntos[i].add(j);
+    entradas[j].add(i);
+  }
+  const ordenada = (c) => [...c].sort((a, b) => a - b);
   const tablero = { id, nombre };
   if (descripcion !== undefined) tablero.descripcion = descripcion;
   if (generador !== undefined) tablero.generador = generador;
   tablero.casillas = casillas;
-  tablero.vecinos = conjuntos.map((c) => [...c].sort((a, b) => a - b));
+  tablero.vecinos = conjuntos.map(ordenada);
+  if (dirigido) {
+    tablero.predecesores = entradas.map(ordenada);
+    tablero.dirigido = true;
+  }
   tablero.dibujo = dibujo;
   return tablero;
 }
@@ -71,9 +92,29 @@ export function validarTablero(tablero) {
         if (j === i) errores.push(`casilla ${i}: es vecina de sí misma`);
         if (k > 0 && lista[k - 1] === j) errores.push(`casilla ${i}: vecina repetida (${j})`);
         else if (k > 0 && lista[k - 1] > j) errores.push(`casilla ${i}: vecinos sin ordenar`);
-        if (!vecinos[j]?.includes(i)) errores.push(`conexión no simétrica: ${i} → ${j}`);
+        if (!tablero.dirigido && !vecinos[j]?.includes(i)) {
+          errores.push(`conexión no simétrica: ${i} → ${j}`);
+        }
       });
     });
+    if (tablero.dirigido) {
+      const esperado = Array.from({ length: n }, () => []);
+      vecinos.forEach((lista, i) => {
+        if (Array.isArray(lista)) {
+          lista.forEach((j) => { if (Number.isInteger(j) && j >= 0 && j < n) esperado[j].push(i); });
+        }
+      });
+      const { predecesores } = tablero;
+      if (!Array.isArray(predecesores) || predecesores.length !== n) {
+        errores.push('predecesores no tiene la misma longitud que casillas');
+      } else {
+        esperado.forEach((lista, j) => {
+          if (JSON.stringify(predecesores[j]) !== JSON.stringify(lista)) {
+            errores.push(`casilla ${j}: predecesores no es la inversa de vecinos`);
+          }
+        });
+      }
+    }
   }
   return errores.length ? { ok: false, errores } : { ok: true };
 }
