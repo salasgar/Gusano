@@ -62,6 +62,9 @@ Sigue «Cierre» de `_COMUN.md`. **No hagas `push`.**
 - El caso q) del arnés falla si un texto baja de 4,5 de contraste en oscuro: si añades
   texto, mídelo.
 - Los fantasmas no son casillas: no los cuentes en nada que recorra `tablero.casillas`.
+- (Hecha) Los fantasmas llevan `data-fantasma`, no `data-indice`, para no contar en los
+  selectores del arnés (`[data-indice].gusano`). Chrome sin cabeza con
+  `--blink-settings=preferredColorScheme=1` fuerza el tema **claro** si el sistema está en oscuro.
 
 ## Prohibido
 - Tocar `css/estilo.css`, `jugar.js` o el motor. Cambiar la firma de `crearVista` o de
