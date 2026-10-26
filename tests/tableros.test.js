@@ -61,8 +61,10 @@ test('validarTablero detecta asimetría, bucles, repetidos y datos mal formados'
 });
 
 test('el registro lista los generadores en orden y generador(id) los encuentra', () => {
-  // La tarea 03 añade `poliedro` al final.
-  assert.deepEqual(generadores.slice(0, 5).map((g) => g.id), ['cuadrado4', 'cuadrado8', 'caballo', 'hexagonal', 'superficie']);
+  // La tarea 03 añade `poliedro` al final; `superficie` ya no figura en la lista (§10.2).
+  assert.deepEqual(generadores.slice(0, 4).map((g) => g.id), ['cuadrado4', 'cuadrado8', 'caballo', 'hexagonal']);
+  assert.equal(generadores.some((g) => g.id === 'superficie'), false);
+  assert.equal(generador('superficie').id, 'superficie');
   assert.equal(generador('hexagonal'), generadores[3]);
   assert.equal(generador('x'), undefined);
 });
