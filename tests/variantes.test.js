@@ -236,6 +236,23 @@ test('dos gusanos: puntuación = gusano 0 − gusano 1, también con valores', (
   assert.equal(cotaSuperior(r), 1 + 1 - 7);
 });
 
+test('dos gusanos: cotaSuperior es cota aunque el gusano 1 pueda comerse una casilla negativa', () => {
+  // Ciclo de 6 con una casilla de −5 al alcance del gusano 1 (sale de la 3): comérsela sube la puntuación.
+  const t = tablero([[1, 5], [0, 2], [1, 3], [2, 4], [3, 5], [4, 0]],
+    [{}, {}, { valor: -5 }, {}, {}, {}]);
+  const r = jugarVarias(nuevaRonda(t, DOS_GUSANOS), 0, 3);
+  assert.equal(cotaSuperior(r), 1 + 3 - 1 + 5);
+  // En todas las posiciones de la ronda, ninguna continuación supera la cota de esa posición.
+  const comprobar = (ronda) => {
+    if (rondaTerminada(ronda)) return puntuacion(ronda);
+    const mejor = Math.max(...jugadasCompletas(ronda).map((j) => comprobar(jugar(ronda, j))));
+    assert.ok(mejor <= cotaSuperior(ronda), `cota ${cotaSuperior(ronda)} < ${mejor}`);
+    return mejor;
+  };
+  // Sin el término de los negativos la cota era 3 y la mejor continuación llega a 6.
+  assert.equal(comprobar(r), 6);
+});
+
 test('dos gusanos: la ronda acaba cuando ninguno puede crecer', () => {
   // Salidas sin vecinas libres desde el principio: el triángulo con la tercera casilla bloqueada.
   const t = tablero([[1, 2], [0, 2], [0, 1]], [{}, {}, { bloqueada: true }]);

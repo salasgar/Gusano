@@ -177,12 +177,16 @@ export function alcanzables(ronda) {
 
 const positivos = (tablero, casillas) => casillas.reduce((suma, c) => suma + Math.max(0, valorDe(tablero, c)), 0);
 
+const negativos = (tablero, casillas) => casillas.reduce((suma, c) => suma + Math.min(0, valorDe(tablero, c)), 0);
+
 // Un gusano: puntuación más los valores positivos de lo alcanzable. Dos: suma del gusano 0 más los
-// positivos de lo que alcanza el gusano 0, menos la suma del gusano 1.
+// positivos de lo que alcanza el gusano 0, menos la suma del gusano 1 y menos los negativos de lo
+// que alcanza el gusano 1 (que puede comérselos y subir la puntuación).
 export function cotaSuperior(ronda) {
   const { tablero } = ronda;
   if (modoDe(ronda).gusanos === 1) return puntuacion(ronda) + positivos(tablero, alcanzables(ronda));
   const [g0, g1] = cuerposDe(ronda);
-  const alcance = g0.length === 0 ? todasLibres(ronda) : alcanzablesDesde(ronda, [0]);
-  return sumaDe(tablero, g0) + positivos(tablero, alcance) - sumaDe(tablero, g1);
+  const alcance = (g, cuerpo) => (cuerpo.length === 0 ? todasLibres(ronda) : alcanzablesDesde(ronda, [g]));
+  return sumaDe(tablero, g0) + positivos(tablero, alcance(0, g0))
+    - sumaDe(tablero, g1) - negativos(tablero, alcance(1, g1));
 }

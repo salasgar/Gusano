@@ -1,9 +1,11 @@
 /* Gusano · © 2026 Juan Luis Salas García · Licencia MIT */
-// Niveles de máquina (ESPECIFICACION.md §4). `elegirJugada` es síncrona.
+// Niveles de máquina (ESPECIFICACION.md §4 y §10.4). `elegirJugada` es síncrona y devuelve una
+// jugada que `jugar` acepta: el índice de la casilla si solo hay una jugada para ella, y si no el
+// objeto { casilla, gusano, extremo }.
 
 import { crearAzar } from '../util/azar.js';
-import { jugadasLegales, jugar, turno, alcanzables, rondaTerminada, puntuacion } from '../motor/ronda.js';
-import { valorExacto, MAX_CASILLAS_EXACTO } from './minimax.js';
+import { jugadasCompletas } from '../motor/ronda.js';
+import { valorExacto, crearEstado, codigoAJugada, MAX_CASILLAS_EXACTO } from './minimax.js';
 
 export const niveles = [
   { id: 'aleatorio', nombre: 'Aleatorio' },
@@ -12,108 +14,147 @@ export const niveles = [
   { id: 'perfecto', nombre: 'Perfecto' },
 ];
 
+// Tiempo que `perfecto` da al resolutor exacto antes de caer en `fuerte`.
+const TIEMPO_EXACTO_MS = 1500;
+const SIN_ALCANCE = 0x7fffffff; // cabe en un Int32Array
+
 export function elegirJugada(nivelId, ronda, { azar = crearAzar(), tiempoMaximoMs = 1500 } = {}) {
   if (!niveles.some((n) => n.id === nivelId)) throw new Error(`nivel desconocido: ${nivelId}`);
-  const legales = jugadasLegales(ronda);
-  if (legales.length === 0) throw new Error('no hay jugadas legales');
-  if (legales.length === 1) return legales[0];
+  // Cada jugada se maneja como `casilla * 2 + extremo`, el código de minimax.js.
+  const codigos = jugadasCompletas(ronda).map((j) => j.casilla * 2 + j.extremo);
+  if (codigos.length === 0) throw new Error('no hay jugadas legales');
+  if (codigos.length === 1) return codigoAJugada(ronda, codigos[0]);
   switch (nivelId) {
-    case 'aleatorio': return azar.elegir(legales);
-    case 'voraz': return jugadaVoraz(ronda, legales, azar);
-    case 'fuerte': return jugadaFuerte(ronda, legales, azar, tiempoMaximoMs);
-    default: return jugadaPerfecta(ronda, legales, azar);
+    case 'aleatorio': return codigoAJugada(ronda, azar.elegir(codigos));
+    case 'voraz': return codigoAJugada(ronda, codigoVoraz(ronda, codigos, azar));
+    case 'fuerte': return codigoAJugada(ronda, codigoFuerte(ronda, codigos, azar, tiempoMaximoMs));
+    default: return codigoAJugada(ronda, codigoPerfecto(ronda, codigos, azar));
   }
+}
+
+// ---------- heurísticas ----------
+
+// Evaluaciones sobre un estado de minimax.js, con búferes reutilizables.
+function crearHeuristicas(e) {
+  const { n, ocupadas, vecinos, predecesores, valores, cabezas } = e;
+  const distancia = [new Int32Array(n), new Int32Array(n)];
+  const profundidad = new Int32Array(n);
+  const visto = new Int32Array(n);
+  const cola = new Int32Array(n);
+  let sello = 0;
+
+  // Anchura por libres desde `desde` (que puede estar ocupada) siguiendo `conexiones`;
+  // deja en `salida` la menor distancia a cada casilla libre alcanzada.
+  const recorrer = (desde, conexiones, salida) => {
+    sello += 1;
+    let inicio = 0;
+    let fin = 0;
+    cola[fin++] = desde;
+    visto[desde] = sello;
+    profundidad[desde] = 0;
+    while (inicio < fin) {
+      const actual = cola[inicio++];
+      for (const j of conexiones[actual]) {
+        if (ocupadas[j] || visto[j] === sello) continue;
+        visto[j] = sello;
+        profundidad[j] = profundidad[actual] + 1;
+        if (profundidad[j] < salida[j]) salida[j] = profundidad[j];
+        cola[fin++] = j;
+      }
+    }
+  };
+
+  // Distancia desde los extremos del gusano g a cada libre (SIN_ALCANCE si no llega). Un gusano
+  // que aún no ha salido llega a todas las libres.
+  const distancias = (g) => {
+    const salida = distancia[g];
+    salida.fill(SIN_ALCANCE);
+    if (e.largo[g] === 0) {
+      for (let i = 0; i < n; i++) if (!ocupadas[i]) salida[i] = 1;
+      return salida;
+    }
+    recorrer(e.cabeza[g], vecinos, salida);
+    if (cabezas === 2 && e.ofreceCola(g)) recorrer(e.cola[g], predecesores, salida);
+    return salida;
+  };
+
+  const positivo = (i) => Math.max(0, valores[i]);
+
+  // Un gusano: puntuación + la mitad de los valores positivos que aún se alcanzan (§4).
+  const evaluarUno = () => {
+    const d = distancias(0);
+    let suma = 0;
+    for (let i = 0; i < n; i++) if (d[i] < SIN_ALCANCE) suma += positivo(i);
+    return e.puntos + 0.5 * suma;
+  };
+
+  // Dos gusanos (§10.4): puntuación + diferencia de lo que cada gusano alcanza antes que el otro
+  // (regiones de Voronoi por distancia desde sus extremos), cada casilla con su valor positivo.
+  const evaluarDos = () => {
+    if (e.largo[0] === 0 || e.largo[1] === 0) return e.puntos;
+    const d0 = distancias(0);
+    const d1 = distancias(1);
+    let diferencia = 0;
+    for (let i = 0; i < n; i++) {
+      if (d0[i] < d1[i]) diferencia += positivo(i);
+      else if (d1[i] < d0[i]) diferencia -= positivo(i);
+    }
+    return e.puntos + diferencia;
+  };
+
+  const evaluar = e.gusanos === 2 ? evaluarDos : evaluarUno;
+
+  // Valor «voraz» de la posición que acaba de dejar una jugada: un gusano, las casillas que quedan
+  // alcanzables (−1 si cierra la ronda); dos, la evaluación de Voronoi.
+  const valorVoraz = () => {
+    if (e.gusanos === 2) return evaluarDos();
+    const d = distancias(0);
+    let cuenta = 0;
+    for (let i = 0; i < n; i++) if (d[i] < SIN_ALCANCE) cuenta += 1;
+    return cuenta === 0 ? -1 : cuenta;
+  };
+
+  return { evaluar, valorVoraz };
 }
 
 // ---------- voraz ----------
 
-// Casillas que quedan alcanzables tras la jugada; -1 si la jugada cierra la ronda.
-// El gusano maximiza (así evita cerrarla si hay otra) y el pájaro minimiza (así prefiere cerrarla).
-function jugadaVoraz(ronda, legales, azar) {
-  const gusano = turno(ronda) === 'gusano';
-  const puntos = legales.map((j) => {
-    const siguiente = jugar(ronda, j);
-    return rondaTerminada(siguiente) ? -1 : alcanzables(siguiente).length;
+// El que maximiza elige la jugada de mayor valor voraz (así evita cerrar la ronda si hay otra);
+// el que minimiza, la de menor (así prefiere cerrarla). Empates, con `azar`.
+function codigoVoraz(ronda, codigos, azar) {
+  const e = crearEstado(ronda);
+  const { valorVoraz } = crearHeuristicas(e);
+  const maximizando = e.mueve === 0;
+  const puntos = codigos.map((c) => {
+    e.aplicar(c);
+    const valor = valorVoraz();
+    e.deshacer();
+    return valor;
   });
-  const objetivo = gusano ? Math.max(...puntos) : Math.min(...puntos);
-  return azar.elegir(legales.filter((_, k) => puntos[k] === objetivo));
+  const objetivo = maximizando ? Math.max(...puntos) : Math.min(...puntos);
+  return azar.elegir(codigos.filter((_, k) => puntos[k] === objetivo));
 }
 
 // ---------- fuerte ----------
 
-// Alfa-beta con profundización iterativa sobre un estado mutable. Hoja heurística:
-// puntuación + 0,5 × (cota superior − puntuación); hoja terminal: puntuación.
-function jugadaFuerte(ronda, legales, azar, tiempoMaximoMs) {
-  const { tablero } = ronda;
-  const n = tablero.casillas.length;
-  const valores = tablero.casillas.map((c) => c.valor ?? 1);
-  const vecinos = tablero.vecinos;
-  const grande = n > MAX_CASILLAS_EXACTO;
-  // Máscara de ocupadas: entero para ≤ 30 casillas, BigInt si hay más.
-  const bit = (i) => (grande ? 1n << BigInt(i) : 1 << i);
-  const ocupadas = new Uint8Array(n);
-  let mascara = grande ? 0n : 0;
-  tablero.casillas.forEach((c, i) => { if (c.bloqueada) { ocupadas[i] = 1; mascara |= bit(i); } });
-  for (const c of ronda.camino) { ocupadas[c] = 1; mascara |= bit(c); }
-  let longitud = ronda.camino.length;
-  let puntos = puntuacion(ronda);
-  const clave = grande
-    ? (m, cab) => `${m.toString(36)},${cab}`
-    : (m, cab) => m * 64 + cab + 1;
+// Alfa-beta con profundización iterativa sobre un estado mutable. Hoja heurística: con un gusano,
+// puntuación + 0,5 × (cota superior − puntuación); con dos, la evaluación de Voronoi. Hoja
+// terminal: puntuación. Quién maximiza lo dice el estado (con dos gusanos el mismo papel puede
+// mover dos veces seguidas).
+function codigoFuerte(ronda, codigos, azar, tiempoMaximoMs) {
+  const e = crearEstado(ronda);
+  const { evaluar, valorVoraz } = crearHeuristicas(e);
 
-  // Búsqueda en anchura por libres desde `desde` (−1: todas las libres). Devuelve cuántas son
-  // y deja en `positivos` la suma de sus valores positivos.
-  const visto = new Int32Array(n);
-  const pila = new Int32Array(n);
-  let marca = 0;
-  let positivos = 0;
-  const alcance = (desde) => {
-    marca += 1;
-    let cuenta = 0;
-    positivos = 0;
-    let altura = 0;
-    if (desde < 0) {
-      for (let i = 0; i < n; i++) if (!ocupadas[i]) { cuenta += 1; if (valores[i] > 0) positivos += valores[i]; }
-      return cuenta;
-    }
-    pila[altura++] = desde;
-    visto[desde] = marca;
-    while (altura > 0) {
-      const actual = pila[--altura];
-      for (const j of vecinos[actual]) {
-        if (ocupadas[j] || visto[j] === marca) continue;
-        visto[j] = marca;
-        cuenta += 1;
-        if (valores[j] > 0) positivos += valores[j];
-        pila[altura++] = j;
-      }
-    }
-    return cuenta;
-  };
-
-  const movimientos = (desde) => {
-    if (desde < 0) {
-      const todas = [];
-      for (let i = 0; i < n; i++) if (!ocupadas[i]) todas.push(i);
-      return todas;
-    }
-    return vecinos[desde].filter((j) => !ocupadas[j]);
-  };
-
-  const ocupar = (j) => { ocupadas[j] = 1; mascara |= bit(j); longitud += 1; puntos += valores[j]; };
-  const liberar = (j) => { ocupadas[j] = 0; mascara ^= bit(j); longitud -= 1; puntos -= valores[j]; };
-
-  // Orden voraz: el gusano prueba antes las jugadas que dejan más alcanzables; el pájaro, las que dejan menos.
-  const ordenar = (lista, gusano, primera) => {
-    const clasificada = lista.map((j) => {
-      ocupar(j);
-      const cuenta = alcance(j);
-      const s = cuenta === 0 ? -1 : cuenta;
-      liberar(j);
-      return { j, s: j === primera ? (gusano ? Infinity : -Infinity) : s };
+  // Orden voraz: el que maximiza prueba antes las jugadas de mayor valor voraz; el que minimiza, las de menor.
+  const ordenar = (lista, maximizando, primera) => {
+    const clasificada = lista.map((c) => {
+      e.aplicar(c);
+      const s = valorVoraz();
+      e.deshacer();
+      return { c, s: c === primera ? (maximizando ? Infinity : -Infinity) : s };
     });
-    clasificada.sort((a, b) => (gusano ? b.s - a.s : a.s - b.s));
-    return clasificada.map((x) => x.j);
+    clasificada.sort((a, b) => (maximizando ? b.s - a.s : a.s - b.s));
+    return clasificada.map((x) => x.c);
   };
 
   const limite = performance.now() + tiempoMaximoMs;
@@ -122,18 +163,17 @@ function jugadaFuerte(ronda, legales, azar, tiempoMaximoMs) {
   let hojasHeuristicas = 0; // cuántas hojas se han valorado por heurística (0 en una iteración = resuelto)
   const tabla = new Map();
 
-  const buscar = (desde, prof, alfa, beta) => {
+  const buscar = (prof, alfa, beta) => {
     if (++nodos % 256 === 0 && performance.now() > limite) agotado = true;
     if (agotado) return 0;
-    const lista = movimientos(desde);
-    if (lista.length === 0) return puntos;
+    const lista = e.movimientos();
+    if (lista.length === 0) return e.puntos;
     if (prof === 0) {
       hojasHeuristicas += 1;
-      alcance(desde);
-      return puntos + 0.5 * positivos;
+      return evaluar();
     }
-    const gusano = longitud % 2 === 0;
-    const k = clave(mascara, desde);
+    const maximizando = e.mueve === 0;
+    const k = e.clave();
     const guardado = tabla.get(k);
     let primera = -1;
     if (guardado) {
@@ -149,15 +189,15 @@ function jugadaFuerte(ronda, legales, azar, tiempoMaximoMs) {
     const alfaInicial = alfa;
     const betaInicial = beta;
     const hojasAntes = hojasHeuristicas;
-    let mejor = gusano ? -Infinity : Infinity;
+    let mejor = maximizando ? -Infinity : Infinity;
     let mejorJugada = -1;
-    for (const j of ordenar(lista, gusano, primera)) {
-      ocupar(j);
-      const v = buscar(j, prof - 1, alfa, beta);
-      liberar(j);
+    for (const c of ordenar(lista, maximizando, primera)) {
+      e.aplicar(c);
+      const v = buscar(prof - 1, alfa, beta);
+      e.deshacer();
       if (agotado) return 0;
-      if (gusano ? v > mejor : v < mejor) { mejor = v; mejorJugada = j; }
-      if (gusano) alfa = Math.max(alfa, mejor); else beta = Math.min(beta, mejor);
+      if (maximizando ? v > mejor : v < mejor) { mejor = v; mejorJugada = c; }
+      if (maximizando) alfa = Math.max(alfa, mejor); else beta = Math.min(beta, mejor);
       if (alfa >= beta) break;
     }
     const tipo = mejor <= alfaInicial ? 'superior' : mejor >= betaInicial ? 'inferior' : 'exacto';
@@ -165,24 +205,24 @@ function jugadaFuerte(ronda, legales, azar, tiempoMaximoMs) {
     return mejor;
   };
 
-  const gusano = turno(ronda) === 'gusano';
-  let ordenRaiz = azar.barajar(legales);
+  const maximizando = e.mueve === 0;
+  let ordenRaiz = azar.barajar(codigos);
   let elegida = ordenRaiz[0];
-  const libresTotales = n - ocupadas.reduce((s, x) => s + x, 0);
+  const libresTotales = e.ocupadas.reduce((s, x) => s + (x === 0 ? 1 : 0), 0);
   for (let prof = 1; prof <= libresTotales; prof++) {
-    ordenRaiz = ordenar(ordenRaiz, gusano, elegida);
+    ordenRaiz = ordenar(ordenRaiz, maximizando, elegida);
     hojasHeuristicas = 0;
-    let mejor = gusano ? -Infinity : Infinity;
+    let mejor = maximizando ? -Infinity : Infinity;
     let mejorJugada = ordenRaiz[0];
     let alfa = -Infinity;
     let beta = Infinity;
-    for (const j of ordenRaiz) {
-      ocupar(j);
-      const v = buscar(j, prof - 1, alfa, beta);
-      liberar(j);
+    for (const c of ordenRaiz) {
+      e.aplicar(c);
+      const v = buscar(prof - 1, alfa, beta);
+      e.deshacer();
       if (agotado) break;
-      if (gusano ? v > mejor : v < mejor) { mejor = v; mejorJugada = j; }
-      if (gusano) alfa = Math.max(alfa, mejor); else beta = Math.min(beta, mejor);
+      if (maximizando ? v > mejor : v < mejor) { mejor = v; mejorJugada = c; }
+      if (maximizando) alfa = Math.max(alfa, mejor); else beta = Math.min(beta, mejor);
     }
     if (agotado) break;
     elegida = mejorJugada;
@@ -193,10 +233,14 @@ function jugadaFuerte(ronda, legales, azar, tiempoMaximoMs) {
 
 // ---------- perfecto ----------
 
-function jugadaPerfecta(ronda, legales, azar) {
+// Exacto si el tablero tiene ≤ 30 casillas y cabe en el presupuesto; si no, `fuerte` con 3000 ms.
+function codigoPerfecto(ronda, codigos, azar) {
   if (ronda.tablero.casillas.length <= MAX_CASILLAS_EXACTO) {
-    const resultado = valorExacto(ronda);
-    if (resultado.completo && resultado.jugada !== null) return resultado.jugada;
+    const resultado = valorExacto(ronda, { tiempoMaximoMs: TIEMPO_EXACTO_MS });
+    if (resultado.completo && resultado.jugada !== null) {
+      const { jugada } = resultado;
+      return typeof jugada === 'number' ? jugada * 2 : jugada.casilla * 2 + jugada.extremo;
+    }
   }
-  return jugadaFuerte(ronda, legales, azar, 3000);
+  return codigoFuerte(ronda, codigos, azar, 3000);
 }
