@@ -2,6 +2,11 @@
 
 .reglas { max-width: 65ch; margin: 0 auto; line-height: 1.55; }
 .reglas h2 { margin: 1.6em 0 0.4em; font-size: 1.25rem; }
+.reglas h3 { margin: 1.2em 0 0.3em; font-size: 1.05rem; }
+.reglas kbd {
+  padding: 0 0.35em; border: 1px solid var(--borde); border-radius: 4px; background: var(--panel);
+  font: inherit; font-size: 0.9em;
+}
 .reglas section:first-child h2 { margin-top: 0.4em; }
 .reglas p, .reglas ul, .reglas ol { margin: 0.6em 0; }
 .reglas li { margin: 0.35em 0; }

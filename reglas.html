@@ -113,19 +113,52 @@
     serían un lío.</li>
     <li><strong>Hexagonal</strong>: casillas hexagonales con 6 vecinas cada una (menos en el
     borde).</li>
-    <li><strong>Superficies</strong> (cilindro, toro, banda de Möbius, botella de Klein): una
-    rejilla cuyos bordes están pegados. Si te sales por un lado, entras por el otro. En la
-    banda de Möbius y la botella de Klein el pegado le da la vuelta a la fila. ¿Cómo cambia
-    eso lo que le conviene al pájaro?</li>
+    <li><strong>Bordes pegados</strong> (cilindro, toro, banda de Möbius, botella de Klein):
+    el cuadrado de 4 vecinas, el de 8 y el caballo se pueden jugar con los bordes pegados, y
+    el hexagonal en toro. Si te sales por un lado, entras por el otro. En la banda de Möbius
+    y la botella de Klein el pegado le da la vuelta a la fila. ¿Cómo cambia eso lo que le
+    conviene al pájaro?</li>
+    <li><strong>Rectángulos</strong>: en las rejillas puedes elegir un alto distinto del
+    lado (el lado son las columnas y el alto, las filas). Mientras no toques el alto, el
+    tablero es cuadrado.</li>
     <li><strong>Poliedros</strong> (tetraedro, cubo, octaedro, dodecaedro, icosaedro y balón
     de fútbol): las casillas son las <em>caras</em> del sólido, y dos caras son vecinas si
-    comparten una arista. Se dibujan aplastados sobre el plano. ¿Dónde se escondería un
-    pájaro en un balón?</li>
+    comparten una arista. Se dibujan aplastados sobre el plano, o en 3D con el interruptor
+    «Vista: plano / 3D»: arrastra para girar el sólido y pulsa una cara (sin arrastrar) para
+    jugar. ¿Dónde se escondería un pájaro en un balón?</li>
   </ul>
+
+  <figure>
+    <svg class="vista-tablero" viewBox="0 0 5 2" role="img"
+      aria-label="Tablero de tres columnas y dos filas con los bordes izquierdo y derecho pegados. A cada lado hay una franja tenue de casillas fantasma, copias de las del otro extremo. En la fila de arriba, un gusano de tres casillas sale de la columna central, pasa por la derecha, atraviesa el borde y acaba en la columna de la izquierda.">
+      <rect class="casilla fantasma pajaro" x="0.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla gusano cabeza" x="1.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla gusano" x="2.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla pajaro" x="3.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla fantasma gusano" x="4.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla fantasma" x="0.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="2.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="3.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla fantasma" x="4.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <polyline class="gusano-cuerpo" points="2.5,0.5 3.5,0.5 4.5,0.5"
+        fill="none" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline class="gusano-cuerpo" points="0.5,0.5 1.5,0.5"
+        fill="none" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle class="gusano-cabeza" cx="1.5" cy="0.5" r="0.3"/>
+      <circle class="ojo" cx="1.59" cy="0.4" r="0.08"/><circle class="ojo" cx="1.59" cy="0.6" r="0.08"/>
+      <circle class="pupila" cx="1.62" cy="0.4" r="0.04"/><circle class="pupila" cx="1.62" cy="0.6" r="0.04"/>
+    </svg>
+    <figcaption>Un toro de 3 columnas por 2 filas. Las casillas tenues de los lados son las
+    <em>fantasma</em>: copias de las del otro extremo, para que se vea qué hay al otro lado
+    del borde. El gusano sale de la casilla central, pasa por la derecha y entra por la
+    izquierda (la cabeza, con ojos, queda en la casilla de la izquierda; su copia fantasma
+    queda a la derecha del todo). Pulsar un fantasma es pulsar la casilla real.</figcaption>
+  </figure>
 </section>
 
 <section id="obstaculos-y-valores">
-  <h2>Obstáculos y valores</h2>
+  <h2>Obstáculos, valores y otras variantes</h2>
   <ul>
     <li><strong>Obstáculos</strong>: casillas bloqueadas desde el principio. Nadie puede
     rellenarlas, ni siquiera como casilla inicial.</li>
@@ -133,6 +166,126 @@
     otras restan (valor negativo). El valor de cada casilla se escribe en ella cuando no
     es 1.</li>
   </ul>
+
+  <h3>Flechas</h3>
+  <p>Algunas conexiones pueden ser de <strong>un solo sentido</strong>. Las flechas marcan el
+  sentido: la cabeza avanza a favor de la flecha y la cola, en contra. Hay dos formas de
+  tenerlas: <em>al azar</em> («Sentido único»: la cuarta parte, la mitad o todas las
+  conexiones, elegidas al azar; nunca queda una casilla sin salida ni sin entrada) y con
+  <em>patrón</em> en los cuadrados (calles alternas «Manhattan», y «corriente» en el toro) y
+  en el hexágono («corrientes»).</p>
+  <figure>
+    <svg class="vista-tablero" viewBox="0 0 3 3" role="img"
+      aria-label="Tablero de 3 por 3 con flechas en todas las conexiones como calles de una ciudad: las filas van alternando hacia la derecha, la izquierda y la derecha, y las columnas alternan hacia abajo, arriba y abajo.">
+      <defs>
+        <marker id="punta-reglas" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="0.3" markerHeight="0.3" markerUnits="userSpaceOnUse" orient="auto">
+          <path class="punta" d="M0,0 L10,5 L0,10 z"/>
+        </marker>
+      </defs>
+      <rect class="casilla" x="0.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="2.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="0.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="2.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="0.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="2.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <line class="arco" x1="0.80" y1="0.50" x2="1.20" y2="0.50" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="1.80" y1="0.50" x2="2.20" y2="0.50" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="1.20" y1="1.50" x2="0.80" y2="1.50" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="2.20" y1="1.50" x2="1.80" y2="1.50" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="0.80" y1="2.50" x2="1.20" y2="2.50" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="1.80" y1="2.50" x2="2.20" y2="2.50" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="0.50" y1="0.80" x2="0.50" y2="1.20" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="0.50" y1="1.80" x2="0.50" y2="2.20" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="1.50" y1="1.20" x2="1.50" y2="0.80" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="1.50" y1="2.20" x2="1.50" y2="1.80" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="2.50" y1="0.80" x2="2.50" y2="1.20" marker-end="url(#punta-reglas)"/>
+      <line class="arco" x1="2.50" y1="1.80" x2="2.50" y2="2.20" marker-end="url(#punta-reglas)"/>
+    </svg>
+    <figcaption>Calles alternas («Manhattan») en un cuadrado de 3 por 3: la primera fila va
+    hacia la derecha, la segunda hacia la izquierda y la tercera otra vez hacia la derecha;
+    las columnas, igual, hacia abajo, hacia arriba y hacia abajo. La cabeza solo puede ir a
+    favor de las flechas.</figcaption>
+  </figure>
+
+  <h3>Gusano de dos cabezas</h3>
+  <p>El gusano puede crecer por cualquiera de sus dos extremos. Quien mueve elige el
+  extremo: si la casilla que pulsas se puede alcanzar por los dos, la aplicación pregunta
+  «¿Por qué extremo? Pulsa uno» y marca la cabeza y la cola; pulsa una de las dos (o usa los
+  botones «Por la cabeza» y «Por la cola») y se juega por ahí. Pulsar otra cosa, o
+  <kbd>Esc</kbd>, cancela.</p>
+  <figure>
+    <svg class="vista-tablero" viewBox="0 0 4 3" role="img"
+      aria-label="Tablero de 4 por 3 con un gusano de tres casillas en la fila central, con ojos en los dos extremos. Cinco casillas amarillas, las vecinas libres de la cabeza y de la cola, son las jugadas posibles.">
+      <rect class="casilla legal" x="0.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla legal" x="2.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="3.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla gusano cola" x="0.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla pajaro" x="1.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla gusano cabeza" x="2.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla legal" x="3.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla legal" x="0.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla legal" x="2.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="3.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <polyline class="gusano-cuerpo" points="0.5,1.5 1.5,1.5 2.5,1.5"
+        fill="none" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle class="gusano-cabeza" cx="2.5" cy="1.5" r="0.3"/>
+      <circle class="ojo" cx="2.59" cy="1.4" r="0.08"/><circle class="ojo" cx="2.59" cy="1.6" r="0.08"/>
+      <circle class="pupila" cx="2.62" cy="1.4" r="0.04"/><circle class="pupila" cx="2.62" cy="1.6" r="0.04"/>
+      <circle class="gusano-cabeza cola" cx="0.5" cy="1.5" r="0.3"/>
+      <circle class="ojo cola" cx="0.41" cy="1.4" r="0.08"/><circle class="ojo cola" cx="0.41" cy="1.6" r="0.08"/>
+      <circle class="pupila cola" cx="0.38" cy="1.4" r="0.04"/><circle class="pupila cola" cx="0.38" cy="1.6" r="0.04"/>
+    </svg>
+    <figcaption>Un gusano de tres casillas con ojos en los dos extremos. Las amarillas son
+    las jugadas posibles: las vecinas libres de la cabeza (a la derecha) y de la cola (a la
+    izquierda).</figcaption>
+  </figure>
+
+  <h3>Dos gusanos</h3>
+  <p>No hay gusano ni pájaro: cada jugador lleva el suyo, uno verde y otro violeta, y los
+  alarga por turnos. Las casillas de los dos gusanos bloquean a los dos. Si uno se queda sin
+  salida, el otro sigue solo. <strong>Gana el gusano más largo</strong> (con valores, el que
+  sume más): al acabar la ronda, un jugador gana la diferencia y el otro la pierde, y en el
+  marcador cuenta el saldo, como siempre. Si la casilla inicial es al azar, la aplicación
+  sortea dos salidas lejos una de otra; en la segunda ronda de cada par las salidas son las
+  mismas, y cada jugador sale de la casilla que tuvo el otro.</p>
+  <figure>
+    <svg class="vista-tablero" viewBox="0 0 4 3" role="img"
+      aria-label="Tablero de 4 por 3 con dos gusanos: uno verde de tres casillas arriba a la izquierda y uno violeta de tres casillas abajo a la derecha. Sus cabezas quedan en la fila central, una al lado de la otra.">
+      <rect class="casilla gusano" x="0.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla gusano" x="1.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="2.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="3.05" y="0.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="0.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla gusano cabeza" x="1.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla pajaro cabeza" x="2.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="3.05" y="1.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="0.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla" x="1.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla pajaro" x="2.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <rect class="casilla pajaro" x="3.05" y="2.05" width="0.9" height="0.9" rx="0.08"/>
+      <polyline class="gusano-cuerpo gusano-0" points="0.5,0.5 1.5,0.5 1.5,1.5"
+        fill="none" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline class="gusano-cuerpo gusano-1" points="3.5,2.5 2.5,2.5 2.5,1.5"
+        fill="none" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle class="gusano-cabeza" cx="1.5" cy="1.5" r="0.3"/>
+      <circle class="ojo" cx="1.59" cy="1.4" r="0.08"/><circle class="ojo" cx="1.59" cy="1.6" r="0.08"/>
+      <circle class="pupila" cx="1.62" cy="1.4" r="0.04"/><circle class="pupila" cx="1.62" cy="1.6" r="0.04"/>
+      <circle class="gusano-cabeza gusano-1" cx="2.5" cy="1.5" r="0.3"/>
+      <circle class="ojo" cx="2.41" cy="1.4" r="0.08"/><circle class="ojo" cx="2.41" cy="1.6" r="0.08"/>
+      <circle class="pupila" cx="2.38" cy="1.4" r="0.04"/><circle class="pupila" cx="2.38" cy="1.6" r="0.04"/>
+    </svg>
+    <figcaption>Dos gusanos de tres casillas, uno verde y otro violeta. Cada uno solo puede
+    crecer desde su cabeza; las casillas del otro le cierran el paso.</figcaption>
+  </figure>
+
+  <h3>Todo se combina</h3>
+  <p>Los bordes pegados, las flechas, los obstáculos y los valores se pueden usar con
+  cualquier modo, y los modos entre sí: incluso dos gusanos de dos cabezas cada uno.</p>
 </section>
 
 <section id="consejos">

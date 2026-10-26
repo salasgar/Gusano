@@ -7,8 +7,11 @@ los papeles cambiados, para que gane quien mejor juegue y no quien tenga mejor t
 
 Es una aplicación web estática, sin dependencias ni compilación: HTML, CSS y JavaScript en
 módulos ES. Se puede jugar entre dos personas o contra la máquina (cuatro niveles, hasta uno
-que resuelve el tablero exacto), sobre rejillas, hexágonos, superficies con los bordes
-pegados y poliedros. Las reglas para jugadores están en [`reglas.html`](reglas.html); las
+que resuelve el tablero exacto), sobre rejillas (también rectangulares), hexágonos y
+poliedros (planos o en 3D, que se giran con el ratón). Variantes, todas combinables:
+bordes pegados (cilindro, toro, Möbius, Klein) con casillas fantasma, conexiones de un solo
+sentido (al azar o con patrón), obstáculos, casillas con valor, gusano de dos cabezas y dos
+gusanos que compiten (gana el más largo). Las reglas para jugadores están en [`reglas.html`](reglas.html); las
 reglas formales y las interfaces entre módulos, en [`ESPECIFICACION.md`](ESPECIFICACION.md).
 
 ## Ver en local
@@ -47,15 +50,17 @@ a 375 px de ancho); `--chrome <ruta>` indica dónde está Chrome si no lo encuen
 ```
 index.html            la aplicación
 reglas.html           reglas para jugadores
-css/                  estilo.css (variables y disposición), vista-tablero.css, una hoja por pantalla
-js/tableros/          tablero como dato (tipos.js) y generadores; index.js los registra
-js/motor/             reglas de una ronda y de una partida por pares
+css/                  estilo.css (variables y disposición), vista-tablero.css, vista-3d.css, una hoja por pantalla
+js/tableros/          tablero como dato (tipos.js) y generadores; index.js los registra;
+                      sentido.js pasa conexiones a un solo sentido; obstaculos.js y valores.js
+js/motor/             reglas de una ronda (uno o dos gusanos, una o dos cabezas) y de una partida por pares
 js/ia/                niveles de máquina y resolutor exacto
-js/ui/                vista SVG del tablero, ajustes, navegación, modo ayuda
+js/ui/                vista SVG del tablero, vista-3d.js (poliedros que se giran), ajustes,
+                      navegación, modo ayuda
 js/pantallas/         jugar, reto del día, análisis, editor
 js/compartir/         partida ⇄ enlace
 js/util/azar.js       generador aleatorio con semilla
-demo/                 página de prueba de la vista del tablero
+demo/                 páginas de prueba de la vista del tablero (vista.html) y de la vista 3D (vista-3d.html)
 tests/                pruebas unitarias
 reparto/              coordinación del desarrollo entre sesiones; no es parte de la aplicación
 ```
@@ -73,8 +78,8 @@ reparto/              coordinación del desarrollo entre sesiones; no es parte d
    bordes, centro) y comprueba que `validarTablero` da `{ ok: true }`. Mira
    `tests/tableros.test.js` como modelo.
 
-Los obstáculos y las casillas con valor se aplican sobre cualquier tablero, así que un
-generador nuevo los admite sin más.
+Los obstáculos, el sentido único y las casillas con valor se aplican sobre cualquier
+tablero, así que un generador nuevo los admite sin más.
 
 ## Publicar
 
