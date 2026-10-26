@@ -78,6 +78,11 @@ Sigue «Cierre» de `_COMUN.md`. La integración en la app (el interruptor «Vis
 - Las URL compartidas y el reto llevan tableros de poliedro: que `dibujo3d` sea un campo
   más no rompe `validarTablero` (compruébalo).
 
+- (Añadida por la sesión que la cerró.) Con `setPointerCapture` el `pointerup` llega al
+  `<svg>`, no a la cara: hay que guardar la cara en el `pointerdown`. Y `dibujo3d` se
+  añade a `poliedros.js` tras `crearTablero` (que no lo conoce y es de la 20), como copia
+  para que nadie mute la geometría cacheada.
+
 ## Prohibido
 - Cambiar `id`, casillas, vecinos o `dibujo` de los poliedros. Tocar `index.js`,
   `rejillas.js`, `hexagonal.js` (de la 21), la vista plana (de la 23) o `jugar.js`.
