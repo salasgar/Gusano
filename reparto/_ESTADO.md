@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-27T06:18Z · por la coordinadora s-20261025T073409-9564e458 (recalculadas todas las filas: 01-28 LISTAS; 29 RELEVABLE: su reclamo caducó a las 22:54Z sin cierre ni commits)
+Regenerado: 2026-10-27T06:41Z · por s-20261027T062338-9b57cc93 (tarea 29 cerrada; recalculadas todas las filas contra `hechos/`: 01-29 LISTAS, sin reclamos vivos ni reabiertas)
 
 ## Antes de hacer nada
 
@@ -134,7 +134,7 @@ una conversación.
 | 26 | Las variantes en la app: ajustes, partida, extremo, 3D y textos | tareas/tarea-26-app-variantes.md | 20-25 LISTAS | 50 min | MEDIO | 28 (después de esta) | `js/ui/ajustes.js`, `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `css/estilo.css`, `index.html`, `tests/ajustes.test.js`, `tests/textos-partida.test.js` | manual | LISTA (525f323) | |
 | 27 | Modo ayuda, análisis y compartir con las variantes | tareas/tarea-27-ayudas-analisis-url.md | 20, 22 y 25 LISTAS | 35 min | MEDIO | — | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `js/compartir/url.js`, `tests/ayudas.test.js`, `tests/url.test.js` | manual | LISTA (c1fe660) | |
 | 28 | Las variantes en la página de reglas y en el README | tareas/tarea-28-reglas-variantes.md | 26 LISTA | 20 min | MEDIO | 26 (detrás de ella) | `reglas.html`, `css/reglas.css`, `README.md` | manual | LISTA (c778c08) | |
-| 29 | Verificación de la tanda 2 | tareas/tarea-29-verificacion-tanda2.md | 20-28 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/29-verificacion-tanda2/` | manual | RELEVABLE (reclamo caducado sin cierre) | s-20261026T212446-9abb0ff8 · caducó 2026-10-26T22:54:46Z |
+| 29 | Verificación de la tanda 2 | tareas/tarea-29-verificacion-tanda2.md | 20-28 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/29-verificacion-tanda2/` | manual | LISTA (eab92f4) | |
 
 Bandas hoy (de `proyecto.md`, comprobado el 2026-10-19 por Juan Luis): ALTO = Opus 5.5,
 esfuerzo Alto · MEDIO = Sonnet 5.5, esfuerzo Medio · BAJO = Haiku 5.5, esfuerzo Medio.
@@ -143,7 +143,7 @@ Reserva «ALTO (Fable 5.1, esfuerzo Alto)» para montar, recortar o coordinar.
 Paralelismo (cruzando «Ficheros que toca»): tras la 01, dos sesiones (02+03 y 04+05);
 cuando 02 y 04 estén LISTAS, también la 06; la 07 va sola; tras la 07, hasta siete a la
 vez (08, 09, 10, 11, 12, 13 y 15; la 14 detrás de la 13); la 16 al final, sola.
-Hoy (tanda 2): una sola sesión, la 29 (verificación de la tanda).
+Hoy: las tandas 1 y 2 están completas (01-29 LISTAS); no queda ninguna tarea libre.
 
 ## Registro de finalizaciones
 
@@ -151,6 +151,7 @@ Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
 
+LISTA · tarea 29 · 2026-10-27 06:41 · s-20261027T062338-9b57cc93 · eab92f4 (y 8446028) · npm test pass 304, fail 0; test-ui.js TODO OK (29 casos, 9 nuevos), dos pasadas; veredicto: cumple §10 y la tanda 1 intacta, sin reabiertas, 2 hallazgos fuera de criterio · herramientas/test-ui.js, reparto/salidas/29-verificacion-tanda2/
 LISTA · tarea 25 · 2026-10-26 11:40 · s-20261026T113144-ff21121e · 20a9cc4 · npm test pass 278, fail 0 (14 nuevas); clásico idéntico al anterior (180 posiciones, mismas semillas); valorExacto lado 5: 89 960 / 770 678 / 190 961 / 3 462 487 estados (clásico / dos cabezas / dos gusanos / ambos); cotaSuperior con dos gusanos corregida · js/ia/jugadores.js, js/ia/minimax.js, tests/ia-variantes.test.js, js/motor/ronda.js (cotaSuperior), tests/variantes.test.js
 LISTA · tarea 22 · 2026-10-26 10:58 · s-20261026T104959-d4133524 · 337354c · npm test pass 243, fail 0 (22 nuevas en tests/variantes.test.js); clásico idéntico al anterior (comparación diferencial en 63 tableros) · js/motor/ronda.js, js/motor/partida.js, tests/variantes.test.js
 LISTA · tarea 23 · 2026-10-26 10:56 · s-20261026T105031-7056d700 · 2844876 · npm test pass 224, fail 0 (sin pruebas nuevas); test-ui.js TODO OK · js/ui/vista-tablero.js, css/vista-tablero.css, demo/vista.html, demo/vista.js

@@ -64,6 +64,15 @@ reabiertas, con sus frases. **No hagas `push`.**
   ventana de fin de ronda que puede salir antes de que el humano mueva).
 - En 3D, una pulsación tiene que ser sin movimiento: con CDP, `mousePressed` y
   `mouseReleased` en el mismo punto.
+- (Hallada en la 29.) `configurar` tiene que lanzar `input` además de `change` en los campos del
+  formulario: sin `input`, «alto» no se marca como tocado y el formulario no lo envía (sale 5×5 en
+  vez de 5×3). Y los scripts de capturas a mano deben poner a los dos jugadores en «Persona»: por
+  defecto B es máquina y las pulsaciones se pierden mientras «piensa».
+- (Hallada en la 29.) La zona de botones se repinta al cambiar de vista plano/3D: la marca
+  `data-prueba` de un botón se pierde, hay que volver a ponerla antes de cada pulsación.
+- (Hallada en la 29.) En 3D solo se pueden pulsar las caras visibles; en tetraedro, octaedro e
+  icosaedro las jugadas legales pueden estar detrás. Para probar una jugada sin girar, usa la salida
+  libre (primer clic) o gira antes.
 
 ## Prohibido
 - Arreglar código de la app. Editar desde el shell. `git add -A`. Dependencias. Remoto o
