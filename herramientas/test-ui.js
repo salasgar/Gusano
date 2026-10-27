@@ -993,6 +993,43 @@ const casos = [
     },
   },
   {
+    nombre: 'ad) análisis tras una partida de cada modo nuevo (dos gusanos, dos cabezas, flechas): recorre hasta el final, con nombres y no papeles en dos gusanos (§10.6, T27)',
+    async correr(ctx) {
+      const maquinas = [{ tipo: 'maquina', nivel: 'voraz' }, { tipo: 'maquina', nivel: 'voraz' }];
+      const modos = [
+        ['dos gusanos', { generadorId: 'cuadrado4', parametros: { lado: 4 }, gusanos: 2 }],
+        ['dos cabezas', { generadorId: 'cuadrado8', parametros: { lado: 3 }, cabezas: 2 }],
+        ['flechas manhattan en toro', { generadorId: 'cuadrado4', parametros: { lado: 4, bordes: 'toro', flechas: 'manhattan' } }],
+      ];
+      const resumen = [];
+      for (const [nombre, ajustes] of modos) {
+        const p = await abrirApp(ctx);
+        await configurar(p, { ...ajustes, jugadores: maquinas });
+        if (!await dejarJugarMaquinas(p, 60000)) throw new Error(`${nombre}: la partida no termina`);
+        await pulsarVentana(p, 'Analizar');
+        if (!await p.esperarHasta(`!!document.querySelector('.analisis-pos')`, 5000)) throw new Error(`${nombre}: no se abre el análisis`);
+        const pos = () => p.evaluar(`document.querySelector('.analisis-pos').textContent`);
+        const [, , total] = (await pos()).match(/Jugada (\d+) de (\d+)/);
+        let n = 0;
+        const textos = new Set();
+        while (!await p.evaluar(`[...document.querySelectorAll('.analisis-controles button')].find((b) => b.textContent === 'Siguiente ›').disabled`)) {
+          if (++n > 60) throw new Error(`${nombre}: «Siguiente ›» nunca se desactiva`);
+          await p.evaluar(`[...document.querySelectorAll('.analisis-controles button')].find((b) => b.textContent === 'Siguiente ›').dataset.prueba = 'an'`);
+          await p.pulsar('[data-prueba=an]');
+          textos.add(await p.evaluar(`document.querySelector('#pantalla').innerText`));
+        }
+        if ((await pos()) !== `Jugada ${total} de ${total}`) throw new Error(`${nombre}: posición final «${await pos()}»`);
+        const todo = [...textos].join('\n');
+        if (nombre === 'dos gusanos' && /el (gusano|pájaro) (perdió|regaló)/i.test(todo)) throw new Error(`${nombre}: el análisis habla de papeles: ${todo.match(/.{0,30}el (gusano|pájaro) (perdió|regaló).{0,20}/i)?.[0]}`);
+        if (/undefined|NaN/.test(todo)) throw new Error(`${nombre}: el análisis muestra «undefined» o «NaN»`);
+        consolaLimpia(p);
+        resumen.push(`${nombre} ${total} jugadas${/Jugador [AB] perdió/.test(todo) ? ' (con nombres)' : ''}`);
+        await captura(ctx, p, `ad-analisis-${nombre.replace(/\W+/g, '-')}`);
+      }
+      return resumen.join('; ');
+    },
+  },
+  {
     nombre: 'ac) una partida clásica de la tanda 1 (cuadrado4 lado 4, ajustes por defecto) se ve y se juega como antes: 16 casillas, sin fantasmas ni flechas ni interruptor 3D',
     async correr(ctx) {
       const p = await abrirApp(ctx);
