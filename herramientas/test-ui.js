@@ -52,9 +52,14 @@ function servir() {
 // Rellena el formulario de ajustes y pulsa «Empezar». `jugadores`: [{tipo, nivel}, {tipo, nivel}].
 // Con `ventanaDePapeles: false` se deja abierta la ventana de papeles; si no, se pulsa «Empezar».
 // `obstaculos` (0, 0.1, 0.2) y `valores` ('sin', 'uniforme', 'centro', 'trampas') solo se tocan si se indican.
-async function configurar(p, { generadorId = 'cuadrado4', parametros = {}, inicio = 'azar', jugadores, ventanaDePapeles = true, obstaculos, valores }) {
+// `gusanos` (1, 2), `cabezas` (1, 2) y `sentido` (0, 0.25, 0.5, 1) son de la tanda 2 (§10.6).
+async function configurar(p, { generadorId = 'cuadrado4', parametros = {}, inicio = 'azar', jugadores, ventanaDePapeles = true, obstaculos, valores, gusanos, cabezas, sentido }) {
   await p.evaluar(`(() => {
-    const ponValor = (campo, valor) => { campo.value = valor; campo.dispatchEvent(new Event('change', { bubbles: true })); };
+    // 'input' antes de 'change', como un usuario: sin él el formulario no sabe que «alto» se tocó (§10.6).
+    const ponValor = (campo, valor) => { campo.value = valor; campo.dispatchEvent(new Event('input', { bubbles: true })); campo.dispatchEvent(new Event('change', { bubbles: true })); };
+    ${gusanos === undefined ? '' : `ponValor(document.querySelector('#ajuste-gusanos'), ${JSON.stringify(String(gusanos))});`}
+    ${cabezas === undefined ? '' : `ponValor(document.querySelector('#ajuste-cabezas'), ${JSON.stringify(String(cabezas))});`}
+    ${sentido === undefined ? '' : `ponValor(document.querySelector('#ajuste-sentido'), ${JSON.stringify(String(sentido))});`}
     ${obstaculos === undefined ? '' : `ponValor(document.querySelector('#ajuste-obstaculos'), ${JSON.stringify(String(obstaculos))});`}
     ${valores === undefined ? '' : `ponValor(document.querySelector('#ajuste-valores'), ${JSON.stringify(valores)});`}
     const g = document.querySelector('#ajuste-generador');
@@ -715,6 +720,297 @@ const casos = [
         consolaLimpia(p);
       }
       return resultados.join('; ');
+    },
+  },
+  // ---------- tanda 2 (ESPECIFICACION.md §10; tarea 29) ----------
+  {
+    nombre: 'u) toro rectangular 5×3 con su franja de fantasmas: pulsar un fantasma juega la casilla real (§10.2, §10.5); toro hexagonal con su anillo',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'cuadrado4', parametros: { lado: 5, alto: 3, bordes: 'toro' }, inicio: 'libre', jugadores: HUMANOS });
+      const cuenta = (sel) => p.evaluar(`document.querySelectorAll(${JSON.stringify(sel)}).length`);
+      if (await cuenta('.zona-tablero [data-indice]') !== 15) throw new Error(`se esperaban 15 casillas reales y hay ${await cuenta('.zona-tablero [data-indice]')}`);
+      const fantasmas = await cuenta('.zona-tablero .fantasma');
+      if (fantasmas !== 20) throw new Error(`se esperaban 20 fantasmas (franja de una casilla alrededor de 5×3) y hay ${fantasmas}`);
+      // Salida libre: se pulsa un fantasma y se rellena su casilla real.
+      for (const [k, esperadas] of [[0, 1], [1, 2]]) {
+        const real = await p.evaluar(`(() => {
+          const f = document.querySelector('.zona-tablero .fantasma.legal');
+          if (!f) return null;
+          f.dataset.prueba = 'fantasma';
+          return Number(f.dataset.fantasma ?? f.dataset.indice);
+        })()`);
+        if (real === null) throw new Error(`jugada ${k + 1}: no hay ningún fantasma legal`);
+        await p.pulsar('[data-prueba=fantasma]');
+        if (await rellenas(p) !== esperadas) throw new Error(`jugada ${k + 1}: pulsar el fantasma de la casilla ${real} no la juega (${await rellenas(p)} rellenas)`);
+        const llena = await p.evaluar(`(() => { const e = document.querySelector('.zona-tablero [data-indice="${real}"]'); return e.classList.contains('gusano') || e.classList.contains('pajaro'); })()`);
+        if (!llena) throw new Error(`jugada ${k + 1}: la casilla real ${real} no quedó rellena`);
+        await p.evaluar(`document.querySelector('[data-prueba=fantasma]').removeAttribute('data-prueba')`);
+      }
+      // El fantasma del lado opuesto de la casilla jugada lleva su mismo estado.
+      const iguales = await p.evaluar(`(() => {
+        for (const f of document.querySelectorAll('.zona-tablero .fantasma')) {
+          const real = document.querySelector('.zona-tablero [data-indice="' + (f.dataset.fantasma ?? f.dataset.indice) + '"]');
+          for (const c of ['gusano', 'pajaro', 'legal']) if (f.classList.contains(c) !== real.classList.contains(c)) return 'fantasma de ' + real.dataset.indice + ' distinto en ' + c;
+        }
+        return '';
+      })()`);
+      if (iguales) throw new Error(iguales);
+      await captura(ctx, p, 'u-toro-5x3');
+      consolaLimpia(p);
+      // Toro hexagonal de radio 2: 19 casillas y un anillo de fantasmas.
+      const h = await abrirApp(ctx);
+      await configurar(h, { generadorId: 'hexagonal', parametros: { radio: 2, bordes: 'toro' }, inicio: 'libre', jugadores: HUMANOS });
+      const reales = await h.evaluar(`document.querySelectorAll('.zona-tablero [data-indice]').length`);
+      const anillo = await h.evaluar(`document.querySelectorAll('.zona-tablero .fantasma').length`);
+      if (reales !== 19) throw new Error(`toro hexagonal radio 2: ${reales} casillas en vez de 19`);
+      if (anillo < 12) throw new Error(`toro hexagonal radio 2: anillo de ${anillo} fantasmas`);
+      await h.pulsar('.zona-tablero .fantasma.legal');
+      if (await rellenas(h) !== 1) throw new Error('el fantasma hexagonal no juega la casilla real');
+      await captura(ctx, h, 'u-toro-hexagonal');
+      consolaLimpia(h);
+      return `5×3: 15 casillas + 20 fantasmas; hexagonal: 19 + ${anillo}`;
+    },
+  },
+  {
+    nombre: 'v) flechas manhattan 4×4: hay flechas y, desde la casilla 5, solo se ofrecen las salidas a favor (§10.2)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'cuadrado4', parametros: { lado: 4, flechas: 'manhattan' }, inicio: 'libre', jugadores: HUMANOS });
+      const flechas = await p.evaluar(`document.querySelectorAll('.zona-tablero line.arco').length`);
+      if (flechas === 0) throw new Error('no se dibuja ninguna flecha');
+      // La fila 1 va hacia la izquierda y la columna 1 hacia arriba: desde (1,1) = casilla 5 solo se llega a 4 y a 1.
+      await p.pulsar('.zona-tablero [data-indice="5"]');
+      const legales = await p.evaluar(`[...document.querySelectorAll('.zona-tablero [data-indice].legal')].map((e) => Number(e.dataset.indice)).sort((a, b) => a - b)`);
+      if (JSON.stringify(legales) !== '[1,4]') throw new Error(`desde la casilla 5 se esperaba [1,4] y se ofrece ${JSON.stringify(legales)}`);
+      await p.pulsar('.zona-tablero [data-indice="4"]');
+      if (await rellenas(p) !== 2) throw new Error('la salida a favor de la flecha no se puede jugar');
+      await captura(ctx, p, 'v-manhattan');
+      consolaLimpia(p);
+      return `${flechas} flechas dibujadas; legales [1,4]`;
+    },
+  },
+  {
+    nombre: 'w) dos cabezas: una casilla ambigua pide extremo, Esc cancela y elegir uno juega (§10.6)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'cuadrado8', parametros: { lado: 3 }, inicio: 'libre', cabezas: 2, jugadores: HUMANOS });
+      // Salida en el centro (4) y primera jugada a la esquina 0: cuerpo [4, 0]; la 1 y la 3 son vecinas de los dos extremos.
+      await p.pulsar('.zona-tablero [data-indice="4"]');
+      await p.pulsar('.zona-tablero [data-indice="0"]');
+      if (await rellenas(p) !== 2) throw new Error('las dos primeras jugadas no se hicieron');
+      const extremos = () => p.evaluar(`[...document.querySelectorAll('.zona-tablero .elegir-extremo')].map((e) => Number(e.dataset.indice)).sort((a, b) => a - b)`);
+      const estado = () => p.evaluar(`document.querySelector('.estado')?.innerText ?? document.body.innerText`);
+      if ((await extremos()).length !== 0) throw new Error('hay extremos marcados sin haber pulsado nada');
+      await p.pulsar('.zona-tablero [data-indice="1"]');
+      const marcados = await extremos();
+      if (JSON.stringify(marcados) !== '[0,4]') throw new Error(`al pulsar la casilla 1 se esperaban los extremos [0,4] y salen ${JSON.stringify(marcados)}`);
+      if (!(await estado()).includes('¿Por qué extremo? Pulsa uno')) throw new Error(`falta el aviso «¿Por qué extremo?»: ${(await estado()).slice(0, 120)}`);
+      if (await rellenas(p) !== 2) throw new Error('pulsar una casilla ambigua jugó sin preguntar');
+      // Esc cancela.
+      await p.enviar('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+      await p.enviar('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+      await p.esperar(150);
+      if ((await extremos()).length !== 0) throw new Error('Esc no cancela la elección de extremo');
+      if (await rellenas(p) !== 2) throw new Error('Esc jugó algo');
+      // Otra vez, y ahora se elige la cola (la casilla 4): extremo 1.
+      await p.pulsar('.zona-tablero [data-indice="1"]');
+      await p.pulsar('.zona-tablero .elegir-extremo[data-indice="4"]');
+      if (await rellenas(p) !== 3) throw new Error('elegir un extremo no juega');
+      if ((await extremos()).length !== 0) throw new Error('tras jugar siguen marcados los extremos');
+      // La nueva cola (la 1) es ahora un extremo: una casilla vecina solo suya se juega sin preguntar.
+      const ojos = await p.evaluar(`document.querySelectorAll('.zona-tablero .gusano-cuerpo').length`);
+      await captura(ctx, p, 'w-dos-cabezas');
+      consolaLimpia(p);
+      return `extremos [0,4] marcados, Esc cancela, la cola juega (${ojos} trazo/s de gusano)`;
+    },
+  },
+  {
+    nombre: 'x) dos gusanos, máquina contra máquina hasta el final: textos del modo, fin de ronda y resultado del más largo (§10.3, §10.6)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'cuadrado4', parametros: { lado: 4 }, gusanos: 2, jugadores: [{ tipo: 'maquina', nivel: 'voraz' }, { tipo: 'maquina', nivel: 'aleatorio' }], ventanaDePapeles: false });
+      const papeles = await ventana(p);
+      if (!/gusano verde/.test(papeles.texto) || !/violeta/.test(papeles.texto) || !/Gana el gusano más largo/.test(papeles.texto)) throw new Error(`ventana de papeles sin el texto de dos gusanos: ${papeles.texto.slice(0, 300)}`);
+      if (/pájaro/i.test(papeles.texto)) throw new Error('con dos gusanos no debe salir «pájaro»');
+      await pulsarVentana(p, 'Empezar');
+      // Primer fin de ronda.
+      if (!await p.esperarHasta(`[...document.querySelectorAll('dialog.ventana[open] button')].some((b) => b.textContent.startsWith('Continuar con'))`, 20000)) throw new Error('no acaba la ronda 1');
+      const fin = await ventana(p);
+      const m = /El gusano de (.+?) mide (\d+) y el de (.+?), (\d+): (.+?) ([+−-]?\d+), (.+?) ([+−-]?\d+)/.exec(fin.texto.replace(/\s+/g, ' '));
+      if (!m) throw new Error(`el fin de ronda no dice las medidas de los dos gusanos: ${fin.texto.slice(0, 300)}`);
+      const [a, b] = [Number(m[2]), Number(m[4])];
+      const dif = Number(m[6].replace(MENOS, '-'));
+      if (dif !== a - b) throw new Error(`«${m[1]} ${m[6]}» no cuadra con ${a} − ${b}`);
+      if (a + b > 16) throw new Error(`los dos gusanos suman ${a + b} en un tablero de 16`);
+      // Los dos trazos están dibujados con su color.
+      for (const g of [0, 1]) if (!await p.evaluar(`!!document.querySelector('.zona-tablero .gusano-cuerpo.gusano-${g}')`)) throw new Error(`falta el trazo del gusano ${g}`);
+      await captura(ctx, p, 'x-dos-gusanos-fin-de-ronda');
+      if (!await dejarJugarMaquinas(p, 60000)) throw new Error('la partida no termina en 60 s');
+      const resultado = await p.evaluar(`document.querySelector('.resultado')?.textContent`);
+      if (!resultado) throw new Error('no sale el resultado');
+      consolaLimpia(p);
+      return `ronda 1: ${a} frente a ${b}; «${resultado}»`;
+    },
+  },
+  {
+    nombre: 'y) dos gusanos de dos cabezas con obstáculos, valores y sentido único: máquina contra máquina hasta el final (todo combinable, §10)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, {
+        generadorId: 'cuadrado8', parametros: { lado: 5, bordes: 'toro', flechas: 'manhattan' }, gusanos: 2, cabezas: 2,
+        obstaculos: 0.1, valores: 'trampas', sentido: 0.25,
+        jugadores: [{ tipo: 'maquina', nivel: 'voraz' }, { tipo: 'maquina', nivel: 'aleatorio' }],
+      });
+      if (!await dejarJugarMaquinas(p, 90000)) throw new Error('la partida no termina en 90 s');
+      const resultado = await p.evaluar(`document.querySelector('.resultado')?.textContent`);
+      if (!resultado) throw new Error('no sale el resultado');
+      const bloqueadas = await p.evaluar(`document.querySelectorAll('.zona-tablero [data-indice].bloqueada').length`);
+      if (bloqueadas === 0) throw new Error('no hay casillas bloqueadas con obstáculos al 10 %');
+      await captura(ctx, p, 'y-todo-combinado');
+      consolaLimpia(p);
+      return `${bloqueadas} bloqueadas; «${resultado}»`;
+    },
+  },
+  {
+    nombre: 'z) poliedro en 3D: arrastrar (ratón y táctil) gira sin jugar y pulsar una cara juega (§10.5)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'poliedro', parametros: { 'sólido': 'cubo' }, inicio: 'libre', jugadores: HUMANOS });
+      const textoInterruptor = () => p.evaluar(`[...document.querySelectorAll('.botones button')].map((b) => b.textContent).find((t) => t.startsWith('Vista:'))`);
+      if (await textoInterruptor() !== 'Vista: plano') throw new Error(`interruptor de vista «${await textoInterruptor()}»`);
+      // La zona de botones se repinta al cambiar de vista: el interruptor se marca justo antes de cada pulsación.
+      const pulsarVista = async () => {
+        await p.evaluar(`[...document.querySelectorAll('.botones button')].find((b) => b.textContent.startsWith('Vista:')).dataset.prueba = 'vista'`);
+        await p.pulsar('[data-prueba=vista]');
+      };
+      await pulsarVista();
+      if (await textoInterruptor() !== 'Vista: 3D') throw new Error('el interruptor no pasa a 3D');
+      const caras = await p.evaluar(`document.querySelectorAll('.zona-tablero svg [data-indice]').length`);
+      if (caras < 1 || caras > 6) throw new Error(`el cubo en 3D enseña ${caras} caras`);
+      const svg = () => p.evaluar(`document.querySelector('.zona-tablero svg').innerHTML`);
+      const centro = () => p.evaluar(`(() => { const r = document.querySelector('.zona-tablero svg [data-indice]').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+      // Ratón: pulsar sobre una cara, arrastrar 80 px y soltar.
+      const antes = await svg();
+      const c = await centro();
+      const raton = (type, x, y, botones) => p.enviar('Input.dispatchMouseEvent', { type, x, y, button: type === 'mouseMoved' ? 'none' : 'left', buttons: botones, clickCount: type === 'mouseMoved' ? 0 : 1 });
+      await raton('mousePressed', c.x, c.y, 1);
+      for (let k = 1; k <= 8; k++) await raton('mouseMoved', c.x + k * 10, c.y + k * 4, 1);
+      await raton('mouseReleased', c.x + 80, c.y + 32, 0);
+      await p.esperar(150);
+      if (await svg() === antes) throw new Error('arrastrar con el ratón no gira el sólido');
+      if (await rellenas(p) !== 0) throw new Error('arrastrar con el ratón jugó una casilla');
+      // Táctil emulado.
+      await p.enviar('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+      const antesTactil = await svg();
+      const t = await centro();
+      const toque = (type, x, y) => p.enviar('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y, id: 1 }] });
+      await toque('touchStart', t.x, t.y);
+      for (let k = 1; k <= 8; k++) await toque('touchMove', t.x - k * 8, t.y + k * 8);
+      await toque('touchEnd');
+      await p.esperar(150);
+      if (await svg() === antesTactil) throw new Error('arrastrar con el dedo no gira el sólido');
+      if (await rellenas(p) !== 0) throw new Error('arrastrar con el dedo jugó una casilla');
+      await p.enviar('Emulation.setTouchEmulationEnabled', { enabled: false });
+      // Pulsar sin movimiento juega (la salida es libre).
+      const q = await centro();
+      await raton('mousePressed', q.x, q.y, 1);
+      await raton('mouseReleased', q.x, q.y, 0);
+      await p.esperar(150);
+      if (await rellenas(p) !== 1) throw new Error(`pulsar una cara no juega (${await rellenas(p)} rellenas)`);
+      await captura(ctx, p, 'z-cubo-3d');
+      // Volver al plano conserva la partida.
+      await pulsarVista();
+      if (await textoInterruptor() !== 'Vista: plano' || await rellenas(p) !== 1) throw new Error('volver al plano pierde la partida');
+      consolaLimpia(p);
+      return `cubo con ${caras} caras visibles; gira con ratón y dedo, y pulsar juega`;
+    },
+  },
+  {
+    nombre: 'aa) enlace v: 2 (dos cabezas, extremo 1) abierto en otra pestaña reproduce la partida y se puede seguir (§10.6)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'cuadrado8', parametros: { lado: 3 }, inicio: 'libre', cabezas: 2, jugadores: HUMANOS });
+      await p.pulsar('.zona-tablero [data-indice="4"]');
+      await p.pulsar('.zona-tablero [data-indice="0"]');
+      await p.pulsar('.zona-tablero [data-indice="1"]');
+      await p.pulsar('.zona-tablero .elegir-extremo[data-indice="4"]');
+      if (await rellenas(p) !== 3) throw new Error('no se hicieron las tres jugadas');
+      const estadoDe = (q) => q.evaluar(`({
+        casillas: [...document.querySelectorAll('.zona-tablero [data-indice]')].map((e) => [e.dataset.indice, e.classList.contains('gusano') ? 'g' : e.classList.contains('pajaro') ? 'p' : '-', e.classList.contains('cabeza') ? 'c' : '']).filter((c) => c[1] !== '-'),
+        saldos: [...document.querySelectorAll('.jugador-marcador .saldo')].map((e) => e.textContent),
+        trazos: document.querySelectorAll('.zona-tablero .gusano-cuerpo').length })`);
+      const original = await estadoDe(p);
+      await p.evaluar(`[...document.querySelectorAll('.botones button')].find((b) => b.textContent === 'Compartir').dataset.prueba = 'compartir'`);
+      await p.pulsar('[data-prueba=compartir]');
+      const enlace = await p.evaluar(`document.querySelector('.enlace-campo')?.value`);
+      if (!enlace || !enlace.includes('#jugar&p=')) throw new Error(`enlace «${enlace}»`);
+      const codigo = decodeURIComponent(enlace.split('&p=')[1]);
+      let datos = null;
+      try { datos = JSON.parse(Buffer.from(codigo.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8')); } catch { /* otro formato: se comprueba solo el efecto */ }
+      const otra = await Pagina.abrir(ctx.cdp);
+      await otra.tamano(1200, 900);
+      await otra.ir(enlace.replace(/^https?:\/\/[^/]+/, ctx.base));
+      if (!await otra.esperarHasta(`document.querySelectorAll('.zona-tablero [data-indice].gusano, .zona-tablero [data-indice].pajaro').length > 0`, 5000)) throw new Error('el enlace no reconstruye la partida');
+      if (await otra.evaluar(HAY_VENTANA)) await pulsarVentana(otra, 'Empezar');
+      const copia = await estadoDe(otra);
+      if (JSON.stringify(copia) !== JSON.stringify(original)) throw new Error(`la copia difiere: ${JSON.stringify(copia)} ≠ ${JSON.stringify(original)}`);
+      // Sigue jugándose con las dos cabezas: la nueva cola (1) y la cabeza (0) son extremos.
+      await otra.pulsar('.zona-tablero [data-indice].legal');
+      const tras = await rellenas(otra);
+      if (tras !== 4 && !await otra.evaluar(`!!document.querySelector('.elegir-extremo')`)) throw new Error('en la copia no se puede continuar la partida');
+      consolaLimpia(p);
+      consolaLimpia(otra);
+      return `v${datos?.v ?? '?'}${datos?.m ? ` m=${JSON.stringify(datos.m)}` : ''}; saldos ${original.saldos.join(' / ')}`;
+    },
+  },
+  {
+    nombre: 'ab) formulario: «corriente» solo con toro y «alto» sigue a «lado» hasta que se toca (soloSi, §10.2, §10.6)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      const campo = (nombre) => `[...document.querySelectorAll('.parametros .campo')].find((l) => l.textContent.trim().toLowerCase().startsWith(${JSON.stringify(nombre)})).querySelector('input, select')`;
+      const ponValor = (nombre, valor) => p.evaluar(`(() => { const c = ${campo(nombre)}; c.value = ${JSON.stringify(valor)}; c.dispatchEvent(new Event('input', { bubbles: true })); c.dispatchEvent(new Event('change', { bubbles: true })); return c.value; })()`);
+      const corriente = () => p.evaluar(`(() => { const o = [...${campo('flechas')}.options].find((x) => x.value === 'corriente'); return { oculta: o.hidden, desactivada: o.disabled }; })()`);
+      const sin = await corriente();
+      if (!sin.oculta || !sin.desactivada) throw new Error(`con bordes normales «corriente» no está oculta (${JSON.stringify(sin)})`);
+      await ponValor('bordes', 'toro');
+      const con = await corriente();
+      if (con.oculta || con.desactivada) throw new Error(`con toro «corriente» sigue oculta (${JSON.stringify(con)})`);
+      if (await ponValor('flechas', 'corriente') !== 'corriente') throw new Error('no se puede elegir «corriente» con toro');
+      await ponValor('bordes', 'cilindro');
+      const vuelta = await p.evaluar(`${campo('flechas')}.value`);
+      if (vuelta !== 'ninguna') throw new Error(`al quitar el toro, «flechas» queda en «${vuelta}» en vez de volver a «ninguna»`);
+      // `alto` sigue a `lado`.
+      await ponValor('lado', '4');
+      const alto = await p.evaluar(`${campo('alto')}.value`);
+      if (alto !== '4') throw new Error(`«alto» no sigue a «lado» (${alto})`);
+      await ponValor('alto', '3');
+      await ponValor('lado', '5');
+      const alto2 = await p.evaluar(`${campo('alto')}.value`);
+      if (alto2 !== '3') throw new Error(`«alto» tocado a mano debía quedarse en 3 y está en ${alto2}`);
+      consolaLimpia(p);
+      return '«corriente» oculta sin toro y alto sigue a lado';
+    },
+  },
+  {
+    nombre: 'ac) una partida clásica de la tanda 1 (cuadrado4 lado 4, ajustes por defecto) se ve y se juega como antes: 16 casillas, sin fantasmas ni flechas ni interruptor 3D',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, { generadorId: 'cuadrado4', parametros: { lado: 4 }, jugadores: HUMANOS });
+      const datos = await p.evaluar(`({
+        casillas: document.querySelectorAll('.zona-tablero [data-indice]').length,
+        fantasmas: document.querySelectorAll('.zona-tablero .fantasma').length,
+        flechas: document.querySelectorAll('.zona-tablero line.arco').length,
+        vista: [...document.querySelectorAll('.botones button')].some((b) => b.textContent.startsWith('Vista:')),
+        elegir: document.querySelectorAll('.elegir-extremo').length })`);
+      if (datos.casillas !== 16 || datos.fantasmas || datos.flechas || datos.vista || datos.elegir) throw new Error(`el clásico cambió: ${JSON.stringify(datos)}`);
+      await jugarHastaVentana(p, 60);
+      const v = await ventana(p);
+      if (!/Continuar con la ronda 2/.test(v.botones.join('|'))) throw new Error(`fin de ronda inesperado: ${JSON.stringify(v.botones)}`);
+      if (/mide \d+ y el de/.test(v.texto)) throw new Error('el fin de ronda clásico usa el texto de dos gusanos');
+      await captura(ctx, p, 'ac-clasico');
+      consolaLimpia(p);
+      return 'sin fantasmas, flechas ni interruptor 3D';
     },
   },
 ];
