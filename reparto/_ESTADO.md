@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-27T06:41Z · por s-20261027T062338-9b57cc93 (tarea 29 cerrada; recalculadas todas las filas contra `hechos/`: 01-29 LISTAS, sin reclamos vivos ni reabiertas)
+Regenerado: 2026-10-28T14:09Z (alta de 30-32) · por la coordinadora s-20261025T073409-9564e458 (recalculadas todas las filas: 01-29 LISTAS; 30 y 31 LIBRES; 32 BLOQUEADA por 30 y 31)
 
 ## Antes de hacer nada
 
@@ -134,7 +134,10 @@ una conversación.
 | 26 | Las variantes en la app: ajustes, partida, extremo, 3D y textos | tareas/tarea-26-app-variantes.md | 20-25 LISTAS | 50 min | MEDIO | 28 (después de esta) | `js/ui/ajustes.js`, `js/pantallas/jugar.js`, `js/ui/textos-partida.js`, `css/estilo.css`, `index.html`, `tests/ajustes.test.js`, `tests/textos-partida.test.js` | manual | LISTA (525f323) | |
 | 27 | Modo ayuda, análisis y compartir con las variantes | tareas/tarea-27-ayudas-analisis-url.md | 20, 22 y 25 LISTAS | 35 min | MEDIO | — | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `js/compartir/url.js`, `tests/ayudas.test.js`, `tests/url.test.js` | manual | LISTA (c1fe660) | |
 | 28 | Las variantes en la página de reglas y en el README | tareas/tarea-28-reglas-variantes.md | 26 LISTA | 20 min | MEDIO | 26 (detrás de ella) | `reglas.html`, `css/reglas.css`, `README.md` | manual | LISTA (c778c08) | |
-| 29 | Verificación de la tanda 2 | tareas/tarea-29-verificacion-tanda2.md | 20-28 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/29-verificacion-tanda2/` | manual | LISTA (eab92f4) | |
+| 29 | Verificación de la tanda 2 | tareas/tarea-29-verificacion-tanda2.md | 20-28 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/29-verificacion-tanda2/` | manual | LISTA (8446028) | |
+| 30 | «Un par más» con los mismos ajustes y enlaces cortos | tareas/tarea-30-par-mas-y-enlaces.md | 29 LISTA | 30 min | MEDIO | — | `js/pantallas/jugar.js`, `js/ui/ajustes.js` (`tableroDelPar`), `js/compartir/url.js`, `tests/url.test.js`, `tests/ajustes.test.js` | manual | PENDIENTE (libre) | |
+| 31 | 3D que gira solo cuando no se ve ninguna jugada, y flechas más finas | tareas/tarea-31-3d-y-flechas.md | 29 LISTA | 20 min | MEDIO | — | `js/ui/vista-3d.js`, `js/ui/vista-tablero.js` (punta de las flechas), `css/vista-tablero.css` (`.arco`), `tests/poliedros3d.test.js` | manual | PENDIENTE (libre) | |
+| 32 | Verificación de los retoques 30 y 31 | tareas/tarea-32-verificacion-retoques.md | 30 y 31 LISTAS, sin reabiertas pendientes | 20 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/32-verificacion-retoques/` | manual | BLOQUEADA (espera a 30 y 31) | |
 
 Bandas hoy (de `proyecto.md`, comprobado el 2026-10-19 por Juan Luis): ALTO = Opus 5.5,
 esfuerzo Alto · MEDIO = Sonnet 5.5, esfuerzo Medio · BAJO = Haiku 5.5, esfuerzo Medio.

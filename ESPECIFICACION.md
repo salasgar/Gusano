@@ -671,3 +671,32 @@ casillas.
   Los tableros con flechas al azar viajan literales en `t`, como los de obstáculos.
   `partidaDesdeURL` sigue leyendo `v: 1`.
 - El reto del día y el editor no cambian (el editor no maneja flechas: decidido).
+
+### 10.7 Retoques tras la verificación de la tanda 2 (T30, T31; decidido el 2026-10-28)
+
+Decididos por Juan Luis con los hallazgos de la 26, la 27 y la 29.
+
+- **«Un par más» con los mismos ajustes** (T30). El tablero de desempate sale de los mismos
+  ajustes que la partida: mismo generador y parámetros, y **otra vez** obstáculos, sentido
+  único y valores, con el azar del par nuevo (`semilla + índice del par`, como
+  `tablerosDesdeAjustes`). Con un tablero del editor se repite ese tablero, como ahora. Para
+  eso la partida guarda su **origen**: `partida.origen = { generadorId, parametros,
+  obstaculos, sentido, valores, semilla }` (o `tableroFijo` en lugar de generador y
+  parámetros), que pone `jugar.js` al crearla y que viaja en los enlaces.
+- **Enlaces cortos** (T30). Si la partida tiene `origen` con generador, el enlace lleva
+  `o: { g, pa, ob, se, va }` (y la semilla `s` de siempre) en lugar de los tableros
+  literales, y al abrirlo cada tablero se rehace con los ajustes y el índice de su par. Va
+  en `v: 2`; con el modo clásico y sin obstáculos, sentido ni valores, sigue siendo `v: 1`
+  exacta, y los enlaces antiguos (con `t` o `ts` literales) se siguen leyendo. Objetivo: un
+  enlace de `cuadrado4` lado 12 con flechas al azar y 20 jugadas, por debajo de 1 000
+  caracteres (hoy son 15 785).
+- **En 3D, girar solo si no se ve ninguna jugada** (T31). Cuando `actualizar` recibe
+  `legales` no vacías y **ninguna** de esas caras se ve, la vista 3D gira suavemente (unos
+  400 ms; sin animación con `prefers-reduced-motion`) hasta poner de frente la cabeza del
+  gusano que mueve (o, si aún no hay gusano, la primera legal). Si se ve al menos una, no
+  gira; nunca gira mientras se arrastra, ni cuando `legales` viene vacía (turno de la
+  máquina).
+- **Flechas más finas** (T31). En la vista plana, el trazo y la punta de las conexiones de
+  un solo sentido, más pequeños en todos los tableros, para que con tres salidas y tres
+  entradas por casilla (hexagonal con `corrientes`, radio 3, a 375 px) se distingan las
+  casillas.
