@@ -695,7 +695,9 @@ Decididos por Juan Luis con los hallazgos de la 26, la 27 y la 29.
   400 ms; sin animación con `prefers-reduced-motion`) hasta poner de frente la cabeza del
   gusano que mueve (o, si aún no hay gusano, la primera legal). Si se ve al menos una, no
   gira; nunca gira mientras se arrastra, ni cuando `legales` viene vacía (turno de la
-  máquina).
+  máquina). Precisión de la 31, aceptada el 2026-10-28: el giro apunta al **punto medio entre
+  la cabeza y la primera legal** (si no hay cabeza, a la legal; si son opuestas, a la legal),
+  porque con la cabeza sola de frente las vecinas de un cubo quedan de canto y no se ven.
 - **Flechas más finas** (T31). En la vista plana, el trazo y la punta de las conexiones de
   un solo sentido, más pequeños en todos los tableros, para que con tres salidas y tres
   entradas por casilla (hexagonal con `corrientes`, radio 3, a 375 px) se distingan las
