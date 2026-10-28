@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-28T14:09Z (alta de 30-32) · por la coordinadora s-20261025T073409-9564e458 (recalculadas todas las filas: 01-29 LISTAS; 30 y 31 LIBRES; 32 BLOQUEADA por 30 y 31)
+Regenerado: 2026-10-28T14:24Z (cierre de 30) · por la sesión s-20261028T141906-4a66029d (30 LISTA; 31 EN CURSO; 32 BLOQUEADA por 31; 01-30 LISTAS salvo 31)
 
 ## Antes de hacer nada
 
@@ -135,9 +135,9 @@ una conversación.
 | 27 | Modo ayuda, análisis y compartir con las variantes | tareas/tarea-27-ayudas-analisis-url.md | 20, 22 y 25 LISTAS | 35 min | MEDIO | — | `js/ui/ayudas.js`, `js/pantallas/analisis.js`, `css/analisis.css`, `js/compartir/url.js`, `tests/ayudas.test.js`, `tests/url.test.js` | manual | LISTA (c1fe660) | |
 | 28 | Las variantes en la página de reglas y en el README | tareas/tarea-28-reglas-variantes.md | 26 LISTA | 20 min | MEDIO | 26 (detrás de ella) | `reglas.html`, `css/reglas.css`, `README.md` | manual | LISTA (c778c08) | |
 | 29 | Verificación de la tanda 2 | tareas/tarea-29-verificacion-tanda2.md | 20-28 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/29-verificacion-tanda2/` | manual | LISTA (8446028) | |
-| 30 | «Un par más» con los mismos ajustes y enlaces cortos | tareas/tarea-30-par-mas-y-enlaces.md | 29 LISTA | 30 min | MEDIO | — | `js/pantallas/jugar.js`, `js/ui/ajustes.js` (`tableroDelPar`), `js/compartir/url.js`, `tests/url.test.js`, `tests/ajustes.test.js` | manual | PENDIENTE (libre) | |
-| 31 | 3D que gira solo cuando no se ve ninguna jugada, y flechas más finas | tareas/tarea-31-3d-y-flechas.md | 29 LISTA | 20 min | MEDIO | — | `js/ui/vista-3d.js`, `js/ui/vista-tablero.js` (punta de las flechas), `css/vista-tablero.css` (`.arco`), `tests/poliedros3d.test.js` | manual | PENDIENTE (libre) | |
-| 32 | Verificación de los retoques 30 y 31 | tareas/tarea-32-verificacion-retoques.md | 30 y 31 LISTAS, sin reabiertas pendientes | 20 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/32-verificacion-retoques/` | manual | BLOQUEADA (espera a 30 y 31) | |
+| 30 | «Un par más» con los mismos ajustes y enlaces cortos | tareas/tarea-30-par-mas-y-enlaces.md | 29 LISTA | 30 min | MEDIO | — | `js/pantallas/jugar.js`, `js/ui/ajustes.js` (`tableroDelPar`), `js/compartir/url.js`, `tests/url.test.js`, `tests/ajustes.test.js` | manual | LISTA (ea50e9a) | |
+| 31 | 3D que gira solo cuando no se ve ninguna jugada, y flechas más finas | tareas/tarea-31-3d-y-flechas.md | 29 LISTA | 20 min | MEDIO | — | `js/ui/vista-3d.js`, `js/ui/vista-tablero.js` (punta de las flechas), `css/vista-tablero.css` (`.arco`), `tests/poliedros3d.test.js` | manual | EN CURSO | s-20261028T141924-eaae495a |
+| 32 | Verificación de los retoques 30 y 31 | tareas/tarea-32-verificacion-retoques.md | 30 y 31 LISTAS, sin reabiertas pendientes | 20 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/32-verificacion-retoques/` | manual | BLOQUEADA (espera a 31) | |
 
 Bandas hoy (de `proyecto.md`, comprobado el 2026-10-19 por Juan Luis): ALTO = Opus 5.5,
 esfuerzo Alto · MEDIO = Sonnet 5.5, esfuerzo Medio · BAJO = Haiku 5.5, esfuerzo Medio.
@@ -153,6 +153,8 @@ Hoy: las tandas 1 y 2 están completas (01-29 LISTAS); no queda ninguna tarea li
 Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
+
+LISTA · tarea 30 · 2026-10-28 · s-20261028T141906-4a66029d · ea50e9a · npm test pass 321, fail 0 (9 nuevas mías); test-ui.js TODO OK (29 casos); enlace de cuadrado4 lado 12 con sentido 0,5, dos cabezas y 20 jugadas: 279 caracteres (antes 15 785); «Un par más» conserva obstáculos · js/pantallas/jugar.js, js/ui/ajustes.js, js/compartir/url.js, tests/url.test.js, tests/ajustes.test.js
 
 LISTA · tarea 29 · 2026-10-27 06:41 · s-20261027T062338-9b57cc93 · eab92f4 (y 8446028) · npm test pass 304, fail 0; test-ui.js TODO OK (29 casos, 9 nuevos), dos pasadas; veredicto: cumple §10 y la tanda 1 intacta, sin reabiertas, 2 hallazgos fuera de criterio · herramientas/test-ui.js, reparto/salidas/29-verificacion-tanda2/
 LISTA · tarea 25 · 2026-10-26 11:40 · s-20261026T113144-ff21121e · 20a9cc4 · npm test pass 278, fail 0 (14 nuevas); clásico idéntico al anterior (180 posiciones, mismas semillas); valorExacto lado 5: 89 960 / 770 678 / 190 961 / 3 462 487 estados (clásico / dos cabezas / dos gusanos / ambos); cotaSuperior con dos gusanos corregida · js/ia/jugadores.js, js/ia/minimax.js, tests/ia-variantes.test.js, js/motor/ronda.js (cotaSuperior), tests/variantes.test.js

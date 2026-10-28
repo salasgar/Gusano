@@ -72,6 +72,12 @@ su frase si la otra ya está cerrada. **No hagas `push`.**
 - El azar de cada par es `semilla + índice del par`: el par nuevo de un desempate es el
   índice siguiente, no el 0.
 
+- (Anotada al cerrar la 30.) `tablero.generador.parametros` viene normalizado por el generador
+  (`{ lado: 4, alto: 4, bordes: 'normales', flechas: 'ninguna' }`), no como lo escribió el
+  usuario: una prueba que compare `pa` con `{ lado: 4 }` falla. Compara solo `pa.lado`.
+- `origen` no viaja en los enlaces `v: 1` ni en los que llevan tableros literales: solo en los
+  que llevan `o`. Esos enlaces se abren sin origen y «Un par más» hace lo de antes.
+
 ## Prohibido
 - Tocar el motor, las vistas o `herramientas/test-ui.js` (es de la 32). Tocar en
   `ajustes.js` otra cosa que `tableroDelPar`.
