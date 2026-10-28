@@ -14,7 +14,7 @@ Contrato entre tareas: `ESPECIFICACION.md` (raíz del repositorio)
 Autorizaciones firmadas: `reparto/autorizaciones.md`
 Ninguno de ellos se regenera nunca; este fichero sí, entero.
 
-Regenerado: 2026-10-28T14:27Z (cierre de 31) · por la sesión s-20261028T141924-eaae495a (01-31 LISTAS; 32 PENDIENTE, libre)
+Regenerado: 2026-10-28T18:02Z (cierre de 32) · por la sesión s-20261028T174750-b6630b3a (01-32 LISTAS)
 
 ## Antes de hacer nada
 
@@ -137,7 +137,7 @@ una conversación.
 | 29 | Verificación de la tanda 2 | tareas/tarea-29-verificacion-tanda2.md | 20-28 LISTAS, sin reabiertas pendientes | 45 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/29-verificacion-tanda2/` | manual | LISTA (8446028) | |
 | 30 | «Un par más» con los mismos ajustes y enlaces cortos | tareas/tarea-30-par-mas-y-enlaces.md | 29 LISTA | 30 min | MEDIO | — | `js/pantallas/jugar.js`, `js/ui/ajustes.js` (`tableroDelPar`), `js/compartir/url.js`, `tests/url.test.js`, `tests/ajustes.test.js` | manual | LISTA (ea50e9a) | |
 | 31 | 3D que gira solo cuando no se ve ninguna jugada, y flechas más finas | tareas/tarea-31-3d-y-flechas.md | 29 LISTA | 20 min | MEDIO | — | `js/ui/vista-3d.js`, `js/ui/vista-tablero.js` (punta de las flechas), `css/vista-tablero.css` (`.arco`), `tests/poliedros3d.test.js` | manual | LISTA (ae23e75) | |
-| 32 | Verificación de los retoques 30 y 31 | tareas/tarea-32-verificacion-retoques.md | 30 y 31 LISTAS, sin reabiertas pendientes | 20 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/32-verificacion-retoques/` | manual | PENDIENTE (libre) | |
+| 32 | Verificación de los retoques 30 y 31 | tareas/tarea-32-verificacion-retoques.md | 30 y 31 LISTAS, sin reabiertas pendientes | 20 min | MEDIO | — | `herramientas/test-ui.js` (casos nuevos); `reparto/salidas/32-verificacion-retoques/` | manual | LISTA (3557423) | |
 
 Bandas hoy (de `proyecto.md`, comprobado el 2026-10-19 por Juan Luis): ALTO = Opus 5.5,
 esfuerzo Alto · MEDIO = Sonnet 5.5, esfuerzo Medio · BAJO = Haiku 5.5, esfuerzo Medio.
@@ -146,7 +146,7 @@ Reserva «ALTO (Fable 5.1, esfuerzo Alto)» para montar, recortar o coordinar.
 Paralelismo (cruzando «Ficheros que toca»): tras la 01, dos sesiones (02+03 y 04+05);
 cuando 02 y 04 estén LISTAS, también la 06; la 07 va sola; tras la 07, hasta siete a la
 vez (08, 09, 10, 11, 12, 13 y 15; la 14 detrás de la 13); la 16 al final, sola.
-Hoy: las tandas 1 y 2 y los retoques 30 y 31 están completos (01-31 LISTAS); queda libre solo la 32 (verificación).
+Hoy: las tandas 1 y 2 y los retoques 30 y 31, con su verificación (32), están completos (01-32 LISTAS); no queda ninguna tarea libre.
 
 ## Registro de finalizaciones
 
@@ -154,6 +154,7 @@ Derivado de `hechos/terminadas/`. Una línea por fichero, más reciente arriba.
 
 Formato: `LISTA · tarea NN · AAAA-MM-DD HH:MM · sid · hash del commit · recuento de pruebas · ficheros`
 
+LISTA · tarea 32 · 2026-10-28 18:01 · s-20261028T174750-b6630b3a · 3557423 · npm test pass 321, fail 0; test-ui.js TODO OK con 34 casos (5 nuevos, ae-ai), dos pasadas; veredicto: los retoques de §10.7 cumplen, sin reabiertas, 3 hallazgos fuera de criterio · herramientas/test-ui.js, reparto/salidas/32-verificacion-retoques/
 LISTA · tarea 31 · 2026-10-28 14:27 · s-20261028T141924-eaae495a · ae23e75 · npm test pass 321, fail 0 (7 nuevas); test-ui.js TODO OK; en Chrome, 50 turnos en 5 sólidos sin ninguna jugada fuera de vista tras el giro; el giro apunta al punto medio cabeza-jugada y no a la cabeza sola (con la cabeza sola las vecinas de un cubo quedan de canto) · js/ui/vista-3d.js, js/ui/vista-tablero.js, css/vista-tablero.css, tests/poliedros3d.test.js
 LISTA · tarea 30 · 2026-10-28 · s-20261028T141906-4a66029d · ea50e9a · npm test pass 321, fail 0 (9 nuevas mías); test-ui.js TODO OK (29 casos); enlace de cuadrado4 lado 12 con sentido 0,5, dos cabezas y 20 jugadas: 279 caracteres (antes 15 785); «Un par más» conserva obstáculos · js/pantallas/jugar.js, js/ui/ajustes.js, js/compartir/url.js, tests/url.test.js, tests/ajustes.test.js
 

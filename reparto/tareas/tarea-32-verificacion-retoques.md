@@ -57,6 +57,13 @@ línea, los hallazgos como decisiones pendientes, y si se puede publicar. **No h
 
 ## Trampas conocidas
 - Las de la 08, la 19 y la 29 para el arnés: léelas en sus fichas.
+- (Hallada en la 32.) Un enlace compartido tras cerrar una ronda con inicio libre abre ya en la
+  ronda 2 con la primera casilla puesta por la app: compartir con la ronda aún abierta.
+  Con `sentido` 0,5 en lado 12 el gusano se queda sin salida en pocas jugadas: reintentar con
+  otro tablero.
+- (Hallada en la 32.) Un arrastre de 30 px apenas gira el sólido en 3D; para ver caras distintas
+  hacen falta arrastres de ~110 px. El tetraedro arranca viendo una sola cara.
+- (Hallada en la 32.) `j` de un enlace hecho a mano lleva dos listas por par (`[[…], []]`).
 
 ## Prohibido
 - Arreglar código de la app. Editar desde el shell. `git add -A`. Dependencias. Remoto o
