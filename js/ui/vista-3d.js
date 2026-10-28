@@ -68,6 +68,34 @@ export function carasVisibles(caras, rotacion) {
   return visibles;
 }
 
+// Giro de `angulo` radianes alrededor de un eje unitario cualquiera (Rodrigues).
+function giroEje(eje, angulo) {
+  const [x, y, z] = eje;
+  const c = Math.cos(angulo);
+  const s = Math.sin(angulo);
+  const u = 1 - c;
+  return [
+    [c + x * x * u, x * y * u - z * s, x * z * u + y * s],
+    [y * x * u + z * s, c + y * y * u, y * z * u - x * s],
+    [z * x * u - y * s, z * y * u + x * s, c + z * z * u],
+  ];
+}
+
+// Eje y ángulo del giro más corto que lleva la dirección `dir` (ya girada) a z positivo.
+function giroHaciaFrente(dir) {
+  const n = unitario(dir);
+  const angulo = Math.acos(Math.max(-1, Math.min(1, n[2])));
+  if (angulo < 1e-9) return { eje: [0, 0, 1], angulo: 0 };
+  const eje = norma(cruz(n, [0, 0, 1])) < 1e-9 ? [1, 0, 0] : unitario(cruz(n, [0, 0, 1]));
+  return { eje, angulo };
+}
+
+// → rotación más corta a partir de `rotacion` que deja el centro de `cara` de frente a quien mira.
+export function rotacionHacia(cara, rotacion = IDENTIDAD) {
+  const { eje, angulo } = giroHaciaFrente(proyectar(centroDeCara(cara), rotacion));
+  return reortogonaliza(multiplica(giroEje(eje, angulo), rotacion));
+}
+
 // Una rotación inicial que enseña algunas caras pero no todas y no deja ninguna de canto.
 export function rotacionInicial(caras) {
   const normales = caras.map(normalDeCara);
@@ -255,13 +283,68 @@ export function crearVista3D(contenedor, tablero, { alClicar = () => {} } = {}) 
     }
   }
 
+  // --- Giro automático (§10.7): solo si hay jugadas y ninguna se ve ---
+  let arrastre = null; // { id, inicioX, inicioY, ultimoX, ultimoY, girando, indice }
+  let animacion = null; // id de requestAnimationFrame
+  let pendiente = false; // llegó un actualizar durante un arrastre
+
+  const paraAnimacion = () => {
+    if (animacion !== null) cancelAnimationFrame(animacion);
+    animacion = null;
+  };
+
+  function giraSiHaceFalta() {
+    paraAnimacion();
+    const { ronda, legales = [] } = estado;
+    if (legales.length === 0) return;
+    if (arrastre) {
+      pendiente = true;
+      return;
+    }
+    const visibles = new Set(carasVisibles(caras, rotacion));
+    if (legales.some((c) => visibles.has(c))) return;
+    // Cabeza y una jugada repartidas a partes iguales: así las dos quedan de cara (con la cabeza
+    // sola de frente, las vecinas de un cubo quedarían de canto).
+    const cabeza = ronda?.camino?.[ronda.camino.length - 1];
+    let destino = centros[legales[0]];
+    if (cabeza !== undefined) {
+      const suma = [0, 1, 2].map((k) => unitario(centros[cabeza])[k] + unitario(centros[legales[0]])[k]);
+      if (norma(suma) > 1e-6) destino = suma;
+    }
+    const { eje, angulo } = giroHaciaFrente(proyectar(destino, rotacion));
+    if (angulo < 1e-9) return;
+    const inicial = rotacion;
+    const reducido = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducido || typeof requestAnimationFrame !== 'function') {
+      rotacion = reortogonaliza(multiplica(giroEje(eje, angulo), inicial));
+      pinta();
+      return;
+    }
+    const duracion = 400;
+    let comienzo = null;
+    const paso = (ahora) => {
+      comienzo ??= ahora;
+      const t = Math.min(1, (ahora - comienzo) / duracion);
+      const suave = t * t * (3 - 2 * t);
+      rotacion = reortogonaliza(multiplica(giroEje(eje, angulo * suave), inicial));
+      pinta();
+      animacion = t < 1 ? requestAnimationFrame(paso) : null;
+    };
+    animacion = requestAnimationFrame(paso);
+  }
+
   function actualizar(nuevo = {}) {
     estado = nuevo;
     pinta();
+    giraSiHaceFalta();
   }
 
   // --- Punteros: arrastrar gira, pulsar sin arrastrar juega ---
-  let arrastre = null; // { id, inicioX, inicioY, ultimoX, ultimoY, girando, indice }
+  const sueltaPendiente = () => {
+    if (!pendiente) return;
+    pendiente = false;
+    giraSiHaceFalta();
+  };
 
   const alBajar = (evento) => {
     if (arrastre || (evento.pointerType === 'mouse' && evento.button !== 0)) return;
@@ -283,6 +366,7 @@ export function crearVista3D(contenedor, tablero, { alClicar = () => {} } = {}) 
     if (!arrastre.girando) {
       if (Math.hypot(evento.clientX - arrastre.inicioX, evento.clientY - arrastre.inicioY) < UMBRAL_ARRASTRE) return;
       arrastre.girando = true;
+      paraAnimacion();
       svg.classList.add('girando');
     }
     const k = 2.5 / Math.max(svg.clientWidth || 0, 200); // radianes por píxel
@@ -301,12 +385,14 @@ export function crearVista3D(contenedor, tablero, { alClicar = () => {} } = {}) 
     svg.classList.remove('girando');
     svg.releasePointerCapture?.(evento.pointerId);
     if (!girando && indice !== null) alClicar(indice);
+    sueltaPendiente();
   };
 
   const alCancelar = (evento) => {
     if (!arrastre || evento.pointerId !== arrastre.id) return;
     arrastre = null;
     svg.classList.remove('girando');
+    sueltaPendiente();
   };
 
   svg.addEventListener('pointerdown', alBajar);
@@ -315,6 +401,7 @@ export function crearVista3D(contenedor, tablero, { alClicar = () => {} } = {}) 
   svg.addEventListener('pointercancel', alCancelar);
 
   function destruir() {
+    paraAnimacion();
     svg.removeEventListener('pointerdown', alBajar);
     svg.removeEventListener('pointermove', alMover);
     svg.removeEventListener('pointerup', alSoltar);

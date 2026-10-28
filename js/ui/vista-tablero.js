@@ -41,7 +41,7 @@ export function crearVista(contenedor, tablero, { alClicar = () => {} } = {}) {
     const defs = el('defs');
     const marcador = el('marker', {
       id: idPunta, viewBox: '0 0 10 10', refX: 8, refY: 5,
-      markerWidth: 0.3, markerHeight: 0.3, markerUnits: 'userSpaceOnUse', orient: 'auto',
+      markerWidth: 0.17, markerHeight: 0.17, markerUnits: 'userSpaceOnUse', orient: 'auto',
     });
     marcador.append(el('path', { d: 'M0,0 L10,5 L0,10 z' }, 'punta'));
     defs.append(marcador);

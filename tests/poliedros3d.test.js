@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { validarTablero } from '../js/tableros/tipos.js';
 import { generador } from '../js/tableros/index.js';
 import {
-  proyectar, normalDeCara, centroDeCara, carasVisibles, rotacionInicial,
+  proyectar, normalDeCara, centroDeCara, carasVisibles, rotacionInicial, rotacionHacia,
 } from '../js/ui/vista-3d.js';
 
 const poliedro = generador('poliedro');
@@ -111,4 +111,33 @@ test('proyectar: la identidad conserva el punto y un giro conserva la longitud',
   const q = proyectar([1, 2, 3], giro);
   assert.ok(Math.abs(Math.hypot(...q) - Math.hypot(1, 2, 3)) < 1e-12);
   assert.ok(proyectar([0, 0, 1], giro)[0] > 0, 'lo cercano va a la derecha');
+});
+
+for (const solido of Object.keys(ESPERADO)) {
+  test(`${solido}: rotacionHacia deja cada cara visible y de frente`, () => {
+    const caras = poliedro.crear({ solido }).dibujo3d.caras;
+    const inicial = rotacionInicial(caras);
+    caras.forEach((cara, i) => {
+      const r = rotacionHacia(cara, inicial);
+      assert.ok(carasVisibles(caras, r).includes(i), `cara ${i} visible`);
+      const zs = caras.map((c) => proyectar(normalDeCara(c), r)[2]);
+      assert.ok(zs[i] >= Math.max(...zs) - 1e-9, `cara ${i} con la z máxima`);
+      const [x, y, z] = proyectar(centroDeCara(cara), r);
+      assert.ok(Math.hypot(x, y) < 1e-9 * Math.max(1, z), `cara ${i} centrada`);
+      // sigue siendo una rotación
+      assert.ok(Math.abs(proyectar([1, 2, 3], r).reduce((s, v) => s + v * v, 0) - 14) < 1e-9);
+    });
+  });
+}
+
+test('rotacionHacia: en un tetraedro, una cara de detrás pasa a verse; una ya de frente no se mueve', () => {
+  const caras = poliedro.crear({ solido: 'tetraedro' }).dibujo3d.caras;
+  const inicial = rotacionInicial(caras);
+  const visibles = carasVisibles(caras, inicial);
+  const detras = caras.findIndex((_, i) => !visibles.includes(i));
+  assert.ok(detras >= 0, 'la rotación inicial deja alguna cara detrás');
+  assert.ok(carasVisibles(caras, rotacionHacia(caras[detras], inicial)).includes(detras));
+  const delante = rotacionHacia(caras[detras], inicial);
+  const otra = rotacionHacia(caras[detras], delante);
+  otra.forEach((fila, f) => fila.forEach((v, c) => assert.ok(Math.abs(v - delante[f][c]) < 1e-9)));
 });
