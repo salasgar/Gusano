@@ -1050,6 +1050,169 @@ const casos = [
       return 'sin fantasmas, flechas ni interruptor 3D';
     },
   },
+  {
+    nombre: 'ae) «Un par más» tras una partida con obstáculos 20 %: el tablero nuevo también tiene casillas bloqueadas y no es el mismo (§10.7, T30)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx);
+      await configurar(p, {
+        generadorId: 'cuadrado8', parametros: { lado: 5 }, obstaculos: 0.2,
+        jugadores: [{ tipo: 'maquina', nivel: 'voraz' }, { tipo: 'maquina', nivel: 'voraz' }],
+      });
+      const bloqueadasDe = () => p.evaluar(`[...document.querySelectorAll('.zona-tablero [data-indice].bloqueada')].map((e) => Number(e.dataset.indice)).sort((a, b) => a - b)`);
+      const antes = await bloqueadasDe();
+      if (antes.length !== 5) throw new Error(`en el primer par se esperaban 5 bloqueadas y hay ${antes.length}`);
+      if (!await dejarJugarMaquinas(p, 60000)) throw new Error('no terminó en 60 s');
+      await pulsarVentana(p, 'Un par más');
+      if (!await p.esperarHasta(`!!document.querySelector('.zona-tablero svg')`, 3000)) throw new Error('no sale el tablero del par nuevo');
+      const despues = await bloqueadasDe();
+      if (despues.length !== 5) throw new Error(`en el par nuevo se esperaban 5 bloqueadas y hay ${despues.length}`);
+      if (JSON.stringify(despues) === JSON.stringify(antes)) throw new Error(`el par nuevo repite el tablero: ${JSON.stringify(antes)}`);
+      consolaLimpia(p);
+      return `par 1 [${antes}] → par 2 [${despues}]`;
+    },
+  },
+  {
+    nombre: 'af) enlace corto de una partida con flechas al azar (cuadrado4 lado 12, sentido 0,5): < 1 000 caracteres y, en otra pestaña, reproduce marcador y camino (§10.7, T30)',
+    async correr(ctx) {
+      // Con tantas flechas el gusano se queda sin salida pronto: la longitud de la partida no importa,
+      // lo que mide el enlace es el tablero. Se juegan 5 jugadas con la ronda aún abierta (si el tablero
+      // al azar atrapa antes al gusano, se repite con otro).
+      let p, flechas, jugadas;
+      for (let intento = 0; intento < 5; intento++) {
+        p = await abrirApp(ctx);
+        await configurar(p, { generadorId: 'cuadrado4', parametros: { lado: 12 }, sentido: 0.5, inicio: 'libre', jugadores: HUMANOS });
+        flechas = await p.evaluar(`document.querySelectorAll('.zona-tablero line.arco').length`);
+        if (flechas === 0) throw new Error('el tablero no tiene flechas');
+        jugadas = 0;
+        while (jugadas < 5 && !await p.evaluar(HAY_VENTANA) && await p.evaluar(`!!document.querySelector('.zona-tablero [data-indice].legal')`)) {
+          await p.pulsar('.zona-tablero [data-indice].legal');
+          jugadas++;
+        }
+        if (jugadas === 5 && !await p.evaluar(HAY_VENTANA)) break;
+        jugadas = -1;
+      }
+      if (jugadas !== 5) throw new Error('en 5 tableros seguidos el gusano se quedó sin salida antes de 5 jugadas');
+      const estadoDe = (q) => q.evaluar(`({
+        casillas: [...document.querySelectorAll('.zona-tablero [data-indice]')].map((e) => [e.dataset.indice, e.classList.contains('gusano') ? 'g' : e.classList.contains('pajaro') ? 'p' : '-', e.classList.contains('cabeza') ? 'c' : '']).filter((c) => c[1] !== '-'),
+        saldos: [...document.querySelectorAll('.jugador-marcador .saldo')].map((e) => e.textContent),
+        flechas: document.querySelectorAll('.zona-tablero line.arco').length })`);
+      const original = await estadoDe(p);
+      await p.evaluar(`[...document.querySelectorAll('.botones button')].find((b) => b.textContent === 'Compartir').dataset.prueba = 'compartir'`);
+      await p.pulsar('[data-prueba=compartir]');
+      const enlace = await p.evaluar(`document.querySelector('.enlace-campo')?.value`);
+      if (!enlace || !enlace.includes('#jugar&p=')) throw new Error(`enlace «${enlace}»`);
+      if (enlace.length >= 1000) throw new Error(`el enlace mide ${enlace.length} caracteres`);
+      const otra = await Pagina.abrir(ctx.cdp);
+      await otra.tamano(1200, 900);
+      await otra.ir(enlace.replace(/^https?:\/\/[^/]+/, ctx.base));
+      if (!await otra.esperarHasta(`document.querySelectorAll('.zona-tablero [data-indice].gusano, .zona-tablero [data-indice].pajaro').length > 0`, 5000)) throw new Error('el enlace no reconstruye la partida');
+      if ((await ventana(otra))?.botones.includes('Empezar')) await pulsarVentana(otra, 'Empezar');
+      const copia = await estadoDe(otra);
+      if (JSON.stringify(copia) !== JSON.stringify(original)) throw new Error(`la copia difiere: ${JSON.stringify(copia)} ≠ ${JSON.stringify(original)}`);
+      consolaLimpia(p);
+      consolaLimpia(otra);
+      return `${jugadas} jugadas, ${flechas} flechas, enlace de ${enlace.length} caracteres; saldos ${original.saldos.join(' / ')}`;
+    },
+  },
+  {
+    nombre: 'ag) un enlace v: 1 antiguo con el tablero literal sigue abriendo y se puede seguir jugando (§10.7, T30)',
+    async correr(ctx) {
+      const { generador } = await import('../js/tableros/index.js');
+      const tablero = generador('cuadrado4').crear({ lado: 3 });
+      const carga = { v: 1, t: tablero, n: ['Ana', 'Beto'], i: 'libre', s: 7, j: [[0, 1, 2], []] };
+      const codigo = Buffer.from(JSON.stringify(carga), 'utf8').toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const p = await Pagina.abrir(ctx.cdp);
+      await p.tamano(1200, 900);
+      await p.ir(`${ctx.base}/index.html#jugar&p=${codigo}`);
+      if (!await p.esperarHasta(`document.querySelectorAll('.zona-tablero [data-indice].gusano, .zona-tablero [data-indice].pajaro').length > 0`, 5000)) throw new Error('el enlace antiguo no reconstruye la partida');
+      if (await p.evaluar(HAY_VENTANA)) await pulsarVentana(p, 'Empezar');
+      if (await rellenas(p) !== 3) throw new Error(`se esperaban 3 casillas y hay ${await rellenas(p)}`);
+      const nombres = await p.evaluar(`document.querySelector('.jugadores, .marcador')?.innerText ?? document.body.innerText`);
+      if (!/Ana/.test(nombres) || !/Beto/.test(nombres)) throw new Error('no están los nombres del enlace');
+      await p.pulsar('.zona-tablero [data-indice].legal');
+      if (await rellenas(p) !== 4) throw new Error('no se puede continuar la partida');
+      consolaLimpia(p);
+      return 'v: 1 con tablero literal: 3 jugadas reproducidas y una más';
+    },
+  },
+  {
+    nombre: 'ah) tetraedro en 3D: si ninguna jugada legal se ve, gira solo hasta que se ve alguna; si se ve alguna, no gira (§10.7, T31)',
+    async correr(ctx) {
+      const raton = (p, type, x, y, botones) => p.enviar('Input.dispatchMouseEvent', { type, x, y, button: type === 'mouseMoved' ? 'none' : 'left', buttons: botones, clickCount: type === 'mouseMoved' ? 0 : 1 });
+      const nuevaPartida3D = async () => {
+        const p = await abrirApp(ctx);
+        await configurar(p, { generadorId: 'poliedro', parametros: { 'sólido': 'tetraedro' }, inicio: 'libre', jugadores: HUMANOS });
+        await p.evaluar(`[...document.querySelectorAll('.botones button')].find((b) => b.textContent.startsWith('Vista:')).dataset.prueba = 'vista'`);
+        await p.pulsar('[data-prueba=vista]');
+        if (!await p.esperarHasta(`!!document.querySelector('.zona-tablero svg [data-indice]')`, 3000)) throw new Error('no sale la vista 3D');
+        return p;
+      };
+      const visibles = (p) => p.evaluar(`document.querySelectorAll('.zona-tablero svg [data-indice]').length`);
+      const firma = (p) => p.evaluar(`[...document.querySelectorAll('.zona-tablero svg [data-indice]')].map((e) => e.dataset.indice + ':' + e.getAttribute('points')).sort().join('|')`);
+      const legalesVisibles = (p) => p.evaluar(`document.querySelectorAll('.zona-tablero svg [data-indice].legal').length`);
+      // Gira a mano (arrastrando desde una cara) hasta que el número de caras visibles cumpla `vale`.
+      const girarHasta = async (p, vale, descripcion) => {
+        for (let k = 0; k < 60; k++) {
+          if (vale(await visibles(p))) return;
+          const c = await p.evaluar(`(() => { const r = document.querySelector('.zona-tablero svg [data-indice]').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+          const ang = k * 2.4;
+          const dx = Math.round(Math.cos(ang) * 110), dy = Math.round(Math.sin(ang) * 110);
+          await raton(p, 'mousePressed', c.x, c.y, 1);
+          for (let s = 1; s <= 4; s++) await raton(p, 'mouseMoved', c.x + dx * s / 4, c.y + dy * s / 4, 1);
+          await raton(p, 'mouseReleased', c.x + dx, c.y + dy, 0);
+          await p.esperar(60);
+        }
+        throw new Error(`no consigo ${descripcion} del tetraedro`);
+      };
+      const clicSinMover = async (p) => {
+        const c = await p.evaluar(`(() => { const r = document.querySelector('.zona-tablero svg [data-indice].legal').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+        await raton(p, 'mousePressed', c.x, c.y, 1);
+        await raton(p, 'mouseReleased', c.x, c.y, 0);
+      };
+      // 1) Se ve una sola cara: la jugada inicial es libre, pero las tres vecinas quedan detrás → gira.
+      const a = await nuevaPartida3D();
+      await girarHasta(a, (n) => n === 1, 'ver una sola cara');
+      const antesA = await firma(a);
+      await clicSinMover(a);
+      await a.esperar(900);
+      if (await rellenas(a) !== 1) throw new Error('la primera jugada no se hizo');
+      if (await legalesVisibles(a) < 1) throw new Error('con todas las jugadas detrás, el sólido no giró hasta enseñar alguna');
+      if (await firma(a) === antesA) throw new Error('la rotación no cambió con todas las jugadas detrás');
+      // 2) Se ven dos o tres caras: entre las tres vecinas hay alguna visible → no gira.
+      const b = await nuevaPartida3D();
+      await girarHasta(b, (n) => n >= 2, 'ver al menos dos caras');
+      await clicSinMover(b);
+      await b.esperar(50);
+      const antesB = await firma(b);
+      const vistas = await legalesVisibles(b);
+      if (vistas < 1) throw new Error('el caso de control no tiene ninguna jugada visible');
+      await b.esperar(900);
+      if (await firma(b) !== antesB) throw new Error('el sólido giró aunque se veía alguna jugada');
+      consolaLimpia(a);
+      consolaLimpia(b);
+      return `una cara visible → gira y enseña ${await legalesVisibles(a)} jugada(s); con varias caras visibles (${vistas} jugadas a la vista) → no gira`;
+    },
+  },
+  {
+    nombre: 'ai) flechas más finas: trazo de `.arco` < 0,06 y punta < 0,3 (antes de la 31), y hexagonal radio 3 con corrientes a 375 px sin desbordar (§10.7, T31)',
+    async correr(ctx) {
+      const p = await abrirApp(ctx, 375, 700);
+      await configurar(p, { generadorId: 'hexagonal', parametros: { radio: 3, flechas: 'corrientes' }, jugadores: HUMANOS });
+      const m = await p.evaluar(`(() => {
+        const arco = document.querySelector('.zona-tablero line.arco');
+        const punta = document.querySelector('.zona-tablero marker');
+        return arco && punta ? { arcos: document.querySelectorAll('.zona-tablero line.arco').length, trazo: parseFloat(getComputedStyle(arco).strokeWidth), punta: Number(punta.getAttribute('markerWidth')),
+          desborda: document.documentElement.scrollWidth > innerWidth, tablero: document.querySelector('.zona-tablero svg').getBoundingClientRect().width } : null;
+      })()`);
+      if (!m) throw new Error('el hexagonal con corrientes no dibuja flechas');
+      if (!(m.trazo < 0.06)) throw new Error(`el trazo de .arco mide ${m.trazo} (antes de la 31: 0,06)`);
+      if (!(m.punta < 0.3)) throw new Error(`la punta mide ${m.punta} (antes de la 31: 0,3)`);
+      if (m.desborda) throw new Error('hay desplazamiento horizontal a 375 px');
+      await captura(ctx, p, 'ai-hexagonal-corrientes-375');
+      consolaLimpia(p);
+      return `${m.arcos} flechas; trazo ${m.trazo}, punta ${m.punta}; tablero de ${Math.round(m.tablero)} px`;
+    },
+  },
 ];
 
 // ---------- ejecución ----------
