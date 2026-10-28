@@ -67,6 +67,9 @@ su frase si la otra ya está cerrada. **No hagas `push`.**
 ## Trampas conocidas
 - La de la 29: en 3D solo se pueden pulsar las caras visibles, y en tetraedro, octaedro e
   icosaedro las legales pueden estar detrás.
+- (De la 31, ya hecha) Con la cabeza sola de frente, las vecinas de un cubo quedan de canto
+  (z = 0) y no se ven: el giro automático apunta al punto medio entre la cabeza y la primera
+  legal, no a la cabeza.
 - `legales` viene vacía en el turno de la máquina: ahí no se gira (lo haría a cada jugada de
   la máquina y marea).
 
