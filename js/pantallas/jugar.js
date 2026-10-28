@@ -10,7 +10,9 @@ import {
 import { elegirJugada } from '../ia/jugadores.js';
 import { crearVista } from '../ui/vista-tablero.js';
 import { crearVista3D } from '../ui/vista-3d.js';
-import { ajustesPorDefecto, tablerosDesdeAjustes, montarAjustes, modoDeAjustes } from '../ui/ajustes.js';
+import {
+  ajustesPorDefecto, tablerosDesdeAjustes, tableroDelPar, montarAjustes, modoDeAjustes,
+} from '../ui/ajustes.js';
 import { decoraciones } from '../ui/ayudas.js';
 import { enlaceDe } from '../compartir/url.js';
 import {
@@ -22,6 +24,20 @@ export const id = 'jugar';
 export const titulo = 'Jugar';
 
 const RETARDO_MAQUINA_MS = 60;
+
+// Con qué ajustes salió el tablero de cada par (§10.7); `tableroDelPar` rehace el de un par nuevo.
+function origenDe(ajustes) {
+  const tablero = ajustes.tableroFijo
+    ? { tableroFijo: ajustes.tableroFijo }
+    : { generadorId: ajustes.generadorId, parametros: ajustes.parametros };
+  return {
+    ...tablero,
+    obstaculos: ajustes.obstaculos ?? 0,
+    sentido: ajustes.sentido ?? 0,
+    valores: ajustes.valores ?? 'sin',
+    semilla: ajustes.semilla,
+  };
+}
 
 // Un solo temporizador en toda la aplicación: al montar de nuevo se cancela el anterior.
 let temporizador = null;
@@ -98,6 +114,7 @@ export function montar(contenedor, contexto) {
       semilla: ajustes.semilla,
       modo: modoDeAjustes(ajustes),
     });
+    partida.origen = origenDe(ajustes);
     ayuda = false;
     vista3d = false;
     construirPartida();
@@ -378,6 +395,8 @@ export function montar(contenedor, contexto) {
   // ---------- fase 3: fin y botones ----------
 
   function tableroNuevo() {
+    // Mismos ajustes que la partida, con el azar del par nuevo (§10.7).
+    if (partida.origen) return tableroDelPar(partida.origen, partida.pares.length);
     const fijo = ajustes.tableroFijo;
     if (fijo) return fijo;
     const g = partida.pares[0].tablero.generador;

@@ -8,10 +8,14 @@
 // hay que reproducir: sin la casilla inicial cuando la puso la app (inicio al azar, o la segunda
 // ronda de un par con inicio libre).
 // Si los pares no comparten tablero, `ts` (lista de { g, pa } o { t }, uno por par) sustituye a g/pa/t.
+// Con obstáculos, sentido único o valores, `o: { g, pa, ob, se, va }` (v: 2) sustituye a los tableros
+// literales: cada par rehace el suyo con esos ajustes y la semilla `s` (§10.7).
 
 import { nuevaPartida, jugarEnPartida } from '../motor/partida.js';
 import { generador } from '../tableros/index.js';
 import { validarTablero } from '../tableros/tipos.js';
+import { modosValores } from '../tableros/valores.js';
+import { tableroDelPar } from '../ui/ajustes.js';
 
 const VERSION = 1;
 const VERSION_MODOS = 2; // §10.6: lleva `m: [gusanos, cabezas]` y los extremos
@@ -69,14 +73,41 @@ function jugadasPorRonda(partida, v2) {
   return rondas;
 }
 
+// §10.7: `o` = { g, pa, ob, se, va } (los tres últimos solo si no son 0 / 'sin'). Solo vale si cada
+// tablero de la partida es exactamente el que `tableroDelPar` rehace con esos ajustes; si no, null.
+function origenCorto(partida) {
+  const origen = partida.origen;
+  if (!origen || origen.tableroFijo || !generador(origen.generadorId)) return null;
+  const ob = origen.obstaculos ?? 0;
+  const se = origen.sentido ?? 0;
+  const va = origen.valores ?? 'sin';
+  if (ob === 0 && se === 0 && va === 'sin') return null;
+  const completo = { ...origen, obstaculos: ob, sentido: se, valores: va, semilla: partida.semilla };
+  try {
+    const reproduce = partida.pares.every((par, k) => JSON.stringify(tableroDelPar(completo, k)) === JSON.stringify(par.tablero));
+    if (!reproduce) return null;
+  } catch {
+    return null;
+  }
+  const o = { g: origen.generadorId, pa: origen.parametros ?? {} };
+  if (ob !== 0) o.ob = ob;
+  if (se !== 0) o.se = se;
+  if (va !== 'sin') o.va = va;
+  return o;
+}
+
 export function codificar(partida) {
-  const descriptores = partida.pares.map((par) => descriptorDe(par.tablero));
-  const v2 = !esClasico(partida.modo);
+  const corto = origenCorto(partida);
+  const v2 = !esClasico(partida.modo) || corto !== null;
   const carga = { v: v2 ? VERSION_MODOS : VERSION };
-  if (v2) carga.m = [partida.modo.gusanos, partida.modo.cabezas];
-  const primero = JSON.stringify(descriptores[0]);
-  if (descriptores.every((d) => JSON.stringify(d) === primero)) Object.assign(carga, descriptores[0]);
-  else carga.ts = descriptores;
+  if (v2) carga.m = [partida.modo?.gusanos ?? 1, partida.modo?.cabezas ?? 1];
+  if (corto) carga.o = corto;
+  else {
+    const descriptores = partida.pares.map((par) => descriptorDe(par.tablero));
+    const primero = JSON.stringify(descriptores[0]);
+    if (descriptores.every((d) => JSON.stringify(d) === primero)) Object.assign(carga, descriptores[0]);
+    else carga.ts = descriptores;
+  }
   carga.n = partida.nombres;
   carga.i = partida.inicio;
   carga.s = partida.semilla;
@@ -124,7 +155,20 @@ function reconstruir(texto) {
 
   const pares = j.length / 2;
   let tableros;
-  if (c.ts !== undefined) {
+  let origen;
+  if (c.o !== undefined) {
+    // Solo en v: 2. Cada tablero se rehace con los ajustes y el índice de su par (§10.7).
+    const { o } = c;
+    if (!v2 || o === null || typeof o !== 'object' || Array.isArray(o)) return null;
+    const { g, pa, ob = 0, se = 0, va = 'sin' } = o;
+    if (typeof g !== 'string' || !generador(g)) return null;
+    if (pa === null || typeof pa !== 'object' || Array.isArray(pa)) return null;
+    if (![ob, se].every((x) => typeof x === 'number' && x >= 0 && x <= 1)) return null;
+    if (va !== 'sin' && !modosValores.includes(va)) return null;
+    origen = { generadorId: g, parametros: pa, obstaculos: ob, sentido: se, valores: va, semilla: s };
+    tableros = Array.from({ length: pares }, (_, k) => tableroDelPar(origen, k));
+    if (tableros.some((t) => t.casillas.length > MAX_CASILLAS)) throw new Error('tablero demasiado grande');
+  } else if (c.ts !== undefined) {
     if (!Array.isArray(c.ts) || c.ts.length !== pares) return null;
     tableros = c.ts.map(tableroDe);
   } else {
@@ -133,6 +177,7 @@ function reconstruir(texto) {
   }
 
   let partida = nuevaPartida({ nombres: n, tableros, inicio: i, semilla: s, ...(v2 && { modo }) });
+  if (origen) partida.origen = origen;
   for (let k = 0; k < j.length; k++) {
     if (j[k].length === 0) continue;
     if (partida.terminada || partida.par * 2 + partida.ronda !== k) return null;

@@ -50,11 +50,15 @@ function transformarTablero(tablero, ajustes, indicePar) {
 // Si `ajustes.tableroFijo` existe (viene del editor), es el que se repite en cada par.
 export function tablerosDesdeAjustes(ajustes) {
   const tableros = [];
-  for (let k = 0; k < ajustes.pares; k++) {
-    const base = ajustes.tableroFijo ?? generador(ajustes.generadorId).crear(ajustes.parametros);
-    tableros.push(transformarTablero(base, ajustes, k));
-  }
+  for (let k = 0; k < ajustes.pares; k++) tableros.push(tableroDelPar(ajustes, k));
   return tableros;
+}
+
+// El tablero que corresponde al par k (con sus transformaciones y el azar `semilla + k`, §10.7).
+// Vale también con un `origen` de partida, que lleva los mismos campos.
+export function tableroDelPar(ajustes, k) {
+  const base = ajustes.tableroFijo ?? generador(ajustes.generadorId).crear(ajustes.parametros);
+  return transformarTablero(base, ajustes, k);
 }
 
 function el(nombre, atributos = {}, ...hijos) {

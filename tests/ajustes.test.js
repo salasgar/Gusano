@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { ajustesPorDefecto, tablerosDesdeAjustes, modoDeAjustes, opcionDisponible } from '../js/ui/ajustes.js';
+import { ajustesPorDefecto, tablerosDesdeAjustes, tableroDelPar, modoDeAjustes, opcionDisponible } from '../js/ui/ajustes.js';
 import { generador } from '../js/tableros/index.js';
 import { decoraciones } from '../js/ui/ayudas.js';
 import { partidaDesdeURL, enlaceDe } from '../js/compartir/url.js';
@@ -89,4 +89,23 @@ test('esbozos de ayudas.js y url.js', () => {
   assert.equal(decoraciones({}).size, 0);
   assert.equal(partidaDesdeURL(), null);
   assert.equal(enlaceDe({}), null);
+});
+
+test('tableroDelPar da lo mismo que tablerosDesdeAjustes(…)[k], con las transformaciones', () => {
+  const ajustes = { ...ajustesPorDefecto({ semilla: 11 }), parametros: { lado: 6 }, pares: 3, obstaculos: 0.2, sentido: 0.5, valores: 'uniforme' };
+  const todos = tablerosDesdeAjustes(ajustes);
+  for (let k = 0; k < 3; k++) assert.deepEqual(tableroDelPar(ajustes, k), todos[k]);
+});
+
+test('tableroDelPar: el par nuevo de un desempate lleva obstáculos y es el del índice siguiente', () => {
+  const ajustes = { ...ajustesPorDefecto({ semilla: 5 }), parametros: { lado: 6 }, pares: 1, obstaculos: 0.2 };
+  const nuevo = tableroDelPar(ajustes, 1);
+  assert.ok(nuevo.casillas.filter((c) => c.bloqueada).length > 0);
+  assert.deepEqual(nuevo, tablerosDesdeAjustes({ ...ajustes, pares: 2 })[1]);
+  assert.notDeepEqual(nuevo, tableroDelPar(ajustes, 0));
+});
+
+test('tableroDelPar repite el tablero fijo del editor', () => {
+  const fijo = generador('cuadrado4').crear({ lado: 3 });
+  assert.equal(tableroDelPar({ ...ajustesPorDefecto(), tableroFijo: fijo }, 4), fijo);
 });

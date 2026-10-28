@@ -10,6 +10,7 @@ import { crearTablero } from '../js/tableros/tipos.js';
 import { conObstaculos } from '../js/tableros/obstaculos.js';
 import { conSentidoUnico } from '../js/tableros/sentido.js';
 import { crearAzar } from '../js/util/azar.js';
+import { ajustesPorDefecto, tablerosDesdeAjustes, tableroDelPar, modoDeAjustes } from '../js/ui/ajustes.js';
 
 const cuadrado = (lado) => generador('cuadrado4').crear({ lado });
 
@@ -262,4 +263,96 @@ test('partidaDesdeURL lee location.hash, con otros parámetros delante o detrás
   } finally {
     delete globalThis.location;
   }
+});
+
+// ---------- T30: enlaces cortos con `o` (§10.7) ----------
+
+function partidaDe(ajustes) {
+  const partida = nuevaPartida({
+    nombres: ajustes.nombres, tableros: tablerosDesdeAjustes(ajustes), inicio: ajustes.inicio,
+    semilla: ajustes.semilla, modo: modoDeAjustes(ajustes),
+  });
+  partida.origen = {
+    generadorId: ajustes.generadorId, parametros: ajustes.parametros, obstaculos: ajustes.obstaculos,
+    sentido: ajustes.sentido, valores: ajustes.valores, semilla: ajustes.semilla,
+  };
+  return partida;
+}
+
+test('ida y vuelta con obstáculos, flechas al azar y valores: mismos tableros y mismo camino', () => {
+  const ajustes = { ...ajustesPorDefecto({ semilla: 21 }), parametros: { lado: 6 }, pares: 2, obstaculos: 0.2, sentido: 0.5, valores: 'trampas' };
+  const partida = jugar(partidaDe(ajustes), 9);
+  const carga = JSON.parse(Buffer.from(codificar(partida), 'base64url').toString());
+  assert.equal(carga.v, 2);
+  assert.deepEqual(carga.o, { g: 'cuadrado4', pa: { lado: 6 }, ob: 0.2, se: 0.5, va: 'trampas' });
+  assert.equal(carga.t, undefined);
+  assert.equal(carga.ts, undefined);
+  const vuelta = decodificar(codificar(partida));
+  igual(partida, vuelta);
+  assert.deepEqual(vuelta.pares.map((p) => p.tablero), partida.pares.map((p) => p.tablero));
+  assert.ok(vuelta.pares[0].tablero.casillas.some((c) => c.bloqueada));
+  assert.equal(vuelta.origen.obstaculos, 0.2);
+});
+
+test('con el origen recuperado, el par nuevo de un desempate sale con los mismos ajustes', () => {
+  const ajustes = { ...ajustesPorDefecto({ semilla: 3 }), parametros: { lado: 6 }, pares: 1, obstaculos: 0.2 };
+  const vuelta = decodificar(codificar(jugar(partidaDe(ajustes))));
+  assert.equal(vuelta.terminada, true);
+  assert.deepEqual(tableroDelPar(vuelta.origen, 1), tablerosDesdeAjustes({ ...ajustes, pares: 2 })[1]);
+});
+
+test('clásico sin transformaciones, aunque la partida tenga origen: v: 1 exacta', () => {
+  const ajustes = { ...ajustesPorDefecto({ semilla: 7 }), parametros: { lado: 4 }, pares: 2 };
+  const partida = jugar(partidaDe(ajustes), 5);
+  const carga = JSON.parse(Buffer.from(codificar(partida), 'base64url').toString());
+  assert.equal(carga.v, 1);
+  assert.equal(carga.o, undefined);
+  assert.equal(carga.g, 'cuadrado4');
+  assert.equal(carga.pa.lado, 4);
+  igual(partida, decodificar(codificar(partida)));
+});
+
+test('un enlace v: 1 antiguo con tablero literal (obstáculos) sigue abriendo', () => {
+  const t = conObstaculos(cuadrado(5), 0.2, crearAzar(4));
+  const partida = jugar(nuevaPartida({ ...base, tableros: [t] }), 4);
+  const carga = JSON.parse(Buffer.from(codificar(partida), 'base64url').toString());
+  assert.equal(carga.v, 1);
+  assert.deepEqual(carga.t, t);
+  const vuelta = decodificar(codificar(partida));
+  igual(partida, vuelta);
+  assert.equal(vuelta.origen, undefined);
+});
+
+test('si los tableros no salen del origen, el enlace va con tableros literales', () => {
+  const ajustes = { ...ajustesPorDefecto({ semilla: 8 }), parametros: { lado: 5 }, pares: 1, obstaculos: 0.2 };
+  const partida = partidaDe(ajustes);
+  partida.origen = { ...partida.origen, obstaculos: 0.3 };
+  const carga = JSON.parse(Buffer.from(codificar(partida), 'base64url').toString());
+  assert.equal(carga.o, undefined);
+  assert.ok(carga.t);
+});
+
+test('`o` mal formado se rechaza', () => {
+  const malos = [{ g: 'nada', pa: {} }, { g: 'cuadrado4', pa: [] }, { g: 'cuadrado4', pa: {}, ob: 2 }, { g: 'cuadrado4', pa: {}, va: 'raro' }, null];
+  for (const o of malos) {
+    const carga = { v: 2, m: [1, 1], o, n: ['A', 'B'], i: 'azar', s: 1, j: [[], []] };
+    assert.equal(decodificar(Buffer.from(JSON.stringify(carga)).toString('base64url')), null);
+  }
+  // `o` en v: 1 tampoco
+  const v1 = { v: 1, o: { g: 'cuadrado4', pa: {} }, n: ['A', 'B'], i: 'azar', s: 1, j: [[], []] };
+  assert.equal(decodificar(Buffer.from(JSON.stringify(v1)).toString('base64url')), null);
+});
+
+test('el enlace de cuadrado4 lado 12 con sentido 0,5, dos cabezas y 20 jugadas baja de 1 000 caracteres', () => {
+  const ajustes = { ...ajustesPorDefecto({ semilla: 1761600000000 }), parametros: { lado: 12 }, pares: 1, sentido: 0.5, cabezas: 2 };
+  let partida = partidaDe(ajustes);
+  for (let k = 0; k < 20 && !partida.terminada; k++) {
+    partida = jugarEnPartida(partida, jugadasCompletas(rondaActual(partida))[0]);
+  }
+  const enlace = enlaceDe(partida);
+  console.log(`# longitud del enlace: ${enlace.length}`);
+  assert.ok(enlace.length < 1000, `longitud ${enlace.length}`);
+  const vuelta = decodificar(codificar(partida));
+  assert.deepEqual(vuelta.pares[0].tablero, partida.pares[0].tablero);
+  assert.deepEqual(vuelta.pares[0].rondas[0].camino, partida.pares[0].rondas[0].camino);
 });
